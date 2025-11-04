@@ -1,19 +1,30 @@
 import React, { useState } from 'react';
-import { MapPin, Search, Filter, Eye, Edit, Trash2, Navigation, Clock, CheckCircle } from 'lucide-react';
+import { MapPin, Search, Filter, Eye, Edit, Trash2, Navigation, Clock } from 'lucide-react';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+
+// Fix for default icon issue with webpack
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
+  iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
+});
 
 const mockKitchens = [
-  { id: 1, name: 'Dapur Jakarta Pusat', address: 'Jl. Sudirman No. 123, Jakarta Pusat', lat: -6.2088, lng: 106.8456, capacity: 500, status: 'active', region: 'Jakarta' },
-  { id: 2, name: 'Dapur Jakarta Selatan', address: 'Jl. TB Simatupang No. 45, Jakarta Selatan', lat: -6.3024, lng: 106.7946, capacity: 450, status: 'active', region: 'Jakarta' },
-  { id: 3, name: 'Dapur Surabaya Timur', address: 'Jl. Ahmad Yani No. 78, Surabaya', lat: -7.2575, lng: 112.7521, capacity: 400, status: 'construction', region: 'Surabaya' },
-  { id: 4, name: 'Dapur Bandung Utara', address: 'Jl. Setiabudhi No. 234, Bandung', lat: -6.8700, lng: 107.5740, capacity: 350, status: 'active', region: 'Bandung' },
-  { id: 5, name: 'Dapur Semarang Barat', address: 'Jl. Pemuda No. 156, Semarang', lat: -6.9667, lng: 110.4167, capacity: 300, status: 'active', region: 'Semarang' },
+  { id: 1, name: 'Dapur Panakkukang', address: 'Jl. Boulevard, Panakkukang', lat: -5.1415, lng: 119.453, capacity: 500, status: 'active', region: 'Makassar' },
+  { id: 2, name: 'Dapur Rappocini', address: 'Jl. Sultan Alauddin, Rappocini', lat: -5.1632, lng: 119.443, capacity: 450, status: 'active', region: 'Makassar' },
+  { id: 3, name: 'Dapur Tamalanrea', address: 'Jl. Perintis Kemerdekaan, Tamalanrea', lat: -5.135, lng: 119.49, capacity: 400, status: 'construction', region: 'Makassar' },
+  { id: 4, name: 'Dapur Biringkanaya', address: 'Jl. Poros Sudiang, Biringkanaya', lat: -5.101, lng: 119.52, capacity: 350, status: 'active', region: 'Makassar' },
+  { id: 5, name: 'Dapur Manggala', address: 'Jl. Antang Raya, Manggala', lat: -5.17, lng: 119.48, capacity: 300, status: 'active', region: 'Makassar' },
 ];
 
 const mockRoutes = [
-  { id: 1, kitchenId: 1, routeName: 'Route A - Jakarta Pusat', vehicle: 'B 1234 XYZ', driver: 'Ahmad Fauzi', status: 'in_transit', eta: '13:30' },
-  { id: 2, kitchenId: 1, routeName: 'Route B - Jakarta Pusat', vehicle: 'B 5678 ABC', driver: 'Budi Santoso', status: 'completed', eta: '12:00' },
-  { id: 3, kitchenId: 2, routeName: 'Route A - Jakarta Selatan', vehicle: 'B 9012 DEF', driver: 'Candra Wijaya', status: 'scheduled', eta: '14:00' },
-  { id: 4, kitchenId: 4, routeName: 'Route A - Bandung', vehicle: 'D 3456 GHI', driver: 'Dedi Supardi', status: 'in_transit', eta: '13:45' },
+  { id: 1, kitchenId: 1, routeName: 'Route A - Panakkukang', vehicle: 'DD 1234 XYZ', driver: 'Ahmad Fauzi', status: 'in_transit', eta: '13:30' },
+  { id: 2, kitchenId: 1, routeName: 'Route B - Panakkukang', vehicle: 'DD 5678 ABC', driver: 'Budi Santoso', status: 'completed', eta: '12:00' },
+  { id: 3, kitchenId: 2, routeName: 'Route A - Rappocini', vehicle: 'DD 9012 DEF', driver: 'Candra Wijaya', status: 'scheduled', eta: '14:00' },
+  { id: 4, kitchenId: 4, routeName: 'Route A - Biringkanaya', vehicle: 'DD 3456 GHI', driver: 'Dedi Supardi', status: 'in_transit', eta: '13:45' },
 ];
 
 export const Locations: React.FC = () => {
@@ -51,7 +62,7 @@ export const Locations: React.FC = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Peta Lokasi & Distribusi</h1>
-          <p className="text-gray-600 mt-1">Kelola lokasi dapur dan rute distribusi</p>
+          <p className="text-gray-600 mt-1">Kelola lokasi dapur dan rute distribusi di Makassar</p>
         </div>
         <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
           <MapPin className="w-5 h-5" />
@@ -113,10 +124,7 @@ export const Locations: React.FC = () => {
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
             >
               <option value="all">All Regions</option>
-              <option value="Jakarta">Jakarta</option>
-              <option value="Surabaya">Surabaya</option>
-              <option value="Bandung">Bandung</option>
-              <option value="Semarang">Semarang</option>
+              <option value="Makassar">Makassar</option>
             </select>
             <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2">
               <Filter className="w-5 h-5" />
@@ -125,45 +133,23 @@ export const Locations: React.FC = () => {
           </div>
 
           {activeTab === 'map' && (
-            <div className="space-y-4">
-              <div className="bg-gradient-to-br from-blue-50 to-green-50 rounded-lg p-8 border-2 border-dashed border-gray-300">
-                <div className="text-center">
-                  <MapPin className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Interactive Map</h3>
-                  <p className="text-gray-600 mb-4">Map visualization showing all kitchen locations</p>
-                  <div className="flex items-center justify-center gap-4">
-                    {mockKitchens.map((kitchen) => (
-                      <div
-                        key={kitchen.id}
-                        className="bg-white p-3 rounded-lg shadow-sm border border-gray-200"
-                      >
-                        <MapPin className="w-5 h-5 text-blue-600 mx-auto mb-1" />
-                        <p className="text-xs font-medium text-gray-900">{kitchen.name}</p>
-                        <p className="text-xs text-gray-500">{kitchen.region}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <p className="text-sm text-blue-700 font-medium">Total Locations</p>
-                  <p className="text-2xl font-bold text-blue-900 mt-1">{mockKitchens.length}</p>
-                </div>
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                  <p className="text-sm text-green-700 font-medium">Active Kitchens</p>
-                  <p className="text-2xl font-bold text-green-900 mt-1">
-                    {mockKitchens.filter(k => k.status === 'active').length}
-                  </p>
-                </div>
-                <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-                  <p className="text-sm text-orange-700 font-medium">Under Construction</p>
-                  <p className="text-2xl font-bold text-orange-900 mt-1">
-                    {mockKitchens.filter(k => k.status === 'construction').length}
-                  </p>
-                </div>
-              </div>
+            <div className="h-[600px] w-full">
+              <MapContainer center={[-5.1476, 119.4326]} zoom={12} scrollWheelZoom={false} className="h-full w-full rounded-lg">
+                <TileLayer
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+                {filteredKitchens.map(kitchen => (
+                  <Marker key={kitchen.id} position={[kitchen.lat, kitchen.lng]}>
+                    <Popup>
+                      <div className="font-bold">{kitchen.name}</div>
+                      <div>{kitchen.address}</div>
+                      <div>Kapasitas: {kitchen.capacity} porsi/hari</div>
+                      <div>Status: {kitchen.status}</div>
+                    </Popup>
+                  </Marker>
+                ))}
+              </MapContainer>
             </div>
           )}
 
