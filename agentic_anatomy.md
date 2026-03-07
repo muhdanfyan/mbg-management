@@ -15,6 +15,7 @@ This anatomy is designed for a powerful Agentic AI to build and maintain the MBG
 ## 3. Toolset & Skills
 - **Skill: Financial Calculation Engine:** Logic to handle precise splits given specific Dapur configurations.
 - **Skill: VPS Deployment Specialist:** Knowledge of Docker, Nginx, and SSH for kassaone@103.191.92.247.
+- **Skill: GitHub Management Specialist:** Expertise in GitHub CLI, Actions, Secrets, and Pages visibility constraints.
 - **Skill: MySQL Schema Designer:** Optimized indexing for financial reporting.
 
 ## 4. Operational Steps (The Workflow)
