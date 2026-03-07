@@ -6,6 +6,22 @@ description: Skill for managing GitHub repositories, CI/CD Actions, and Pages de
 
 Use this skill to manage the lifecycle of the repository, automate deployments, and troubleshoot CI/CD issues.
 
+## Authentication Methods
+
+### 1. GitHub CLI (Recommended for Development)
+Most operations in this skill utilize the `gh` tool.
+- Run `gh auth login` to authenticate via browser (OAuth).
+- **PAT not required** if authenticated this way.
+
+### 2. SSH (Recommended for Git Operations)
+- Use SSH keys for `git push/pull`.
+- **PAT not required** for SSH-based git interactions.
+
+### 3. Personal Access Token (PAT)
+- **Required for:** Scripted API access without `gh`, or using git over HTTPS.
+- **Scope needed:** `repo`, `workflow`, `write:packages`.
+- **Storage:** Never hardcode tokens; store them in environment variables or as GitHub Secrets.
+
 ## Core Responsibilities
 
 ### 1. Repository Configuration
