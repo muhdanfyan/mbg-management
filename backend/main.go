@@ -12,7 +12,7 @@ var db *gorm.DB
 
 func initDB() {
 	// DSN: user:password@tcp(127.0.0.1:3306)/dbname?charset=utf8mb4&parseTime=True&loc=Local
-	dsn := "kassaone:Piblajar2020@tcp(103.191.92.247:3306)/mbg_management?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := "kassaone:Piblajar2020@tcp(127.0.0.1:3306)/mbg_management?charset=utf8mb4&parseTime=True&loc=Local"
 	var err error
 	db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
