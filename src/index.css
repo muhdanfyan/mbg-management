@@ -1,3 +1,46 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    --primary: #2BBF9D;
+    --primary-light: #E2F8F3;
+    --secondary: #1A4D43;
+    --bg-main: #F8FAF9;
+    --card-shadow: 0 8px 30px rgb(0,0,0,0.04);
+  }
+
+  body {
+    @apply bg-[#F8FAF9] text-[#1A4D43] font-sans antialiased;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-white/70 backdrop-blur-md border border-white/20 rounded-2xl shadow-sm transition-all duration-300;
+  }
+
+  .premium-shadow {
+    @apply shadow-[0_8px_30px_rgb(0,0,0,0.04)];
+  }
+
+  .premium-button-primary {
+    @apply bg-[#2BBF9D] text-white rounded-xl px-4 py-2 hover:bg-[#25a68a] transition-all active:scale-95 font-semibold;
+  }
+
+  .premium-input {
+    @apply bg-white/50 border border-gray-200 rounded-xl px-4 py-2 focus:ring-2 focus:ring-[#2BBF9D] focus:border-transparent outline-none transition-all;
+  }
+}
+
+/* Custom Scrollbar for Mint Theme */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-[#2BBF9D]/20 rounded-full hover:bg-[#2BBF9D]/40;
+}

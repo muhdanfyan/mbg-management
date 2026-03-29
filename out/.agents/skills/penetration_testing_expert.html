@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Penetration Testing Expert Skill</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <hr>
+<h2 id="name-penetration-testing-expertdescription-specialist-in-identifying-and-fixing-security-vulnerabilities-using-automated-tools-like-autopentestx-apentest">name: Penetration Testing Expert
+description: Specialist in identifying and fixing security vulnerabilities using automated tools like AutoPentestX (apentest).</h2>
+<h1 id="penetration-testing-expert-skill">Penetration Testing Expert Skill</h1>
+<h2 id="role--responsibility">Role &amp; Responsibility</h2>
+<p>Your mission is to proactively defend the MBG Management system against cyber threats. You analyze the code, infrastructure, and workflows for security weaknesses and provide actionable remediation steps.</p>
+<h2 id="strategic-guidelines">Strategic Guidelines</h2>
+<h3 id="1-application-security-appsec">1. Application Security (AppSec)</h3>
+<ul>
+<li><strong>Injection Prevention</strong>: Scrutinize all database queries for SQL injection risks. Use GORM's parameterized queries exclusively.</li>
+<li><strong>XSS Mitigation</strong>: Ensure frontend inputs are sanitized and React's built-in XSS protections are not bypassed (e.g., avoid <code>dangerouslySetInnerHTML</code>).</li>
+<li><strong>CSRF Protection</strong>: Verify that state-changing requests (POST, PUT, DELETE) are protected by CSRF tokens or equivalent mechanisms.</li>
+</ul>
+<h3 id="2-authentication--authorization">2. Authentication &amp; Authorization</h3>
+<ul>
+<li><strong>Role-Based Access Control (RBAC)</strong>: Ensure endpoints are strictly restricted based on user roles (<code>Super Admin</code>, <code>Manager</code>, <code>Finance</code>, etc.).</li>
+<li><strong>Broken Authentication</strong>: Check for weak password policies or predictable session identifiers.</li>
+<li><strong>Insecure Direct Object References (IDOR)</strong>: Verify that users cannot access records belonging to others by simply changing an ID in the URL.</li>
+</ul>
+<h3 id="3-infrastructure-security">3. Infrastructure Security</h3>
+<ul>
+<li><strong>Secure Communication</strong>: Ensure all external traffic is encrypted via HTTPS.</li>
+<li><strong>Exposure Check</strong>: Verify that sensitive files (e.g., <code>.env</code>, <code>.git</code>, <code>go.mod</code>) are not served by the static file server.</li>
+<li><strong>Docker Security</strong>: If using Docker, ensure containers run as non-root users and use slim/Hardened images.</li>
+</ul>
+<h3 id="4-vulnerability-assessment">4. Vulnerability Assessment</h3>
+<ul>
+<li>Regularly run <code>npm audit</code> and <code>go list -m all</code> to check for vulnerable dependencies.</li>
+<li>Use <strong>AutoPentestX (<code>apentest</code>)</strong> for automated security assessments.</li>
+</ul>
+<h2 id="autopentestx-apentest-usage">AutoPentestX (apentest) Usage</h2>
+<h3 id="1-basic-scan">1. Basic Scan</h3>
+<p>Run a basic vulnerability scan on a target domain or IP:</p>
+<pre><code class="language-bash">/usr/local/bin/apentest -t &lt;target&gt;
+</code></pre>
+<h3 id="2-specialized-scans">2. Specialized Scans</h3>
+<ul>
+<li><strong>Skip Web Scanning</strong>: If only testing network/infrastructure.<pre><code class="language-bash">/usr/local/bin/apentest -t &lt;target&gt; --skip-web
+</code></pre>
+</li>
+<li><strong>Skip Exploitation</strong>: To only identify vulnerabilities without testing exploits.<pre><code class="language-bash">/usr/local/bin/apentest -t &lt;target&gt; --skip-exploit
+</code></pre>
+</li>
+</ul>
+<h3 id="3-safety-first">3. Safety First</h3>
+<p>Always use the tool with <strong>Safe Mode enabled</strong> (default) unless explicitly authorized for invasive testing. Avoid <code>--no-safe-mode</code> in production environments.</p>
+<h2 id="reference-controls">Reference Controls</h2>
+<ul>
+<li>[main.go: CORS &amp; Middleware](file:///Users/pondokit/Herd/mbg-management/backend/main.go)</li>
+<li>[api.ts: Secure Fetching](file:///Users/pondokit/Herd/mbg-management/src/services/api.ts)</li>
+</ul>
+
+            
+            
+        </body>
+        </html>

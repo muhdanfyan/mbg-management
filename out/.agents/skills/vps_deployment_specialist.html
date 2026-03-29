@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>VPS Deployment Specialist Skill</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <hr>
+<h2 id="name-vps_deployment_specialistdescription-skill-for-deploying-the-mbg-backend-to-the-specific-kassaone-vps-docker-or-native">name: vps_deployment_specialist
+description: Skill for deploying the MBG backend to the specific kassaone VPS (Docker or Native).</h2>
+<h1 id="vps-deployment-specialist-skill">VPS Deployment Specialist Skill</h1>
+<p>Targeting VPS: <code>103.191.92.247</code> (User: <code>kassaone</code>).</p>
+<h2 id="requirements">Requirements</h2>
+<ul>
+<li><strong>Runtime:</strong> Go 1.23+</li>
+<li><strong>Database:</strong> MySQL 8.0</li>
+<li><strong>Port:</strong> 8080 (API)</li>
+</ul>
+<h2 id="deployment-method-confirmed-docker">Deployment Method (Confirmed: Docker)</h2>
+<p>We use Docker for isolation and ease of deployment.</p>
+<ol>
+<li><strong>Transfer files:</strong> Send the entire <code>backend/</code> folder (including <code>Dockerfile</code> and <code>docker-compose.yml</code>) to <code>/home/kassaone/mbg-management/</code>.</li>
+<li><strong>Build &amp; Run:</strong><pre><code class="language-bash"><span class="hljs-built_in">cd</span> /home/kassaone/mbg-management/backend
+docker-compose up -d --build
+</code></pre>
+</li>
+<li><strong>Database:</strong> The <code>db</code> service in <code>docker-compose.yml</code> automatically starts a MySQL 8.0 instance.</li>
+</ol>
+<h3 id="manual-database-access-inside-docker">Manual Database Access (Inside Docker)</h3>
+<pre><code class="language-bash">docker <span class="hljs-built_in">exec</span> -it mbg_mysql mysql -u kassaone -pPiblajar2020 mbg_management
+</code></pre>
+<h3 id="option-b-native-systemd-direct-on-host">Option B: Native Systemd (Direct on Host)</h3>
+<p><em>Use this if you want maximum performance and already have MySQL on the host.</em></p>
+<ol>
+<li><strong>Build locally:</strong> <code>GOOS=linux GOARCH=amd64 go build -o mbg-api main.go models.go</code>.</li>
+<li><strong>Transfer:</strong> <code>scp backend/mbg-api kassaone@103.191.92.247:/home/kassaone/</code>.</li>
+<li><strong>Setup Systemd:</strong>
+Create <code>/etc/systemd/system/mbg-api.service</code>:<pre><code class="language-ini"><span class="hljs-section">[Unit]</span>
+<span class="hljs-attr">Description</span>=MBG Management API
+<span class="hljs-attr">After</span>=network.target mysql.service
+
+<span class="hljs-section">[Service]</span>
+<span class="hljs-attr">User</span>=kassaone
+<span class="hljs-attr">WorkingDirectory</span>=/home/kassaone
+<span class="hljs-attr">ExecStart</span>=/home/kassaone/mbg-api
+<span class="hljs-attr">Restart</span>=always
+<span class="hljs-attr">Environment</span>=DB_DSN=<span class="hljs-string">&quot;kassaone:Piblajar2020@tcp(127.0.0.1:3306)/mbg_management?charset=utf8mb4&amp;parseTime=True&amp;loc=Local&quot;</span>
+
+<span class="hljs-section">[Install]</span>
+<span class="hljs-attr">WantedBy</span>=multi-user.target
+</code></pre>
+</li>
+<li><strong>Commands:</strong><pre><code class="language-bash">sudo systemctl daemon-reload
+sudo systemctl <span class="hljs-built_in">enable</span> mbg-api
+sudo systemctl start mbg-api
+</code></pre>
+</li>
+</ol>
+<h2 id="mysql-setup-host-based">MySQL Setup (Host-based)</h2>
+<p>If not using Docker, run this on the VPS:</p>
+<pre><code class="language-sql"><span class="hljs-keyword">CREATE</span> DATABASE mbg_management;
+<span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">USER</span> <span class="hljs-string">&#x27;kassaone&#x27;</span>@<span class="hljs-string">&#x27;localhost&#x27;</span> IDENTIFIED <span class="hljs-keyword">BY</span> <span class="hljs-string">&#x27;Piblajar2020&#x27;</span>;
+<span class="hljs-keyword">GRANT</span> <span class="hljs-keyword">ALL</span> PRIVILEGES <span class="hljs-keyword">ON</span> mbg_management.<span class="hljs-operator">*</span> <span class="hljs-keyword">TO</span> <span class="hljs-string">&#x27;kassaone&#x27;</span>@<span class="hljs-string">&#x27;localhost&#x27;</span>;
+FLUSH PRIVILEGES;
+</code></pre>
+
+            
+            
+        </body>
+        </html>

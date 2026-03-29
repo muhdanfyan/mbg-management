@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { Login } from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
@@ -7,13 +8,28 @@ import { Construction } from './pages/Construction';
 import { Procurement } from './pages/Procurement';
 import { HR } from './pages/HR';
 import { Finance } from './pages/Finance';
+import { Users } from './pages/Users';
+import { Investors } from './pages/Investors';
 import { MainLayout } from './components/Layout/MainLayout';
+import { Workflow } from './pages/Workflow';
+import { SppgGallery } from './pages/SppgGallery';
+import { SystemGuide } from './pages/SystemGuide';
 
-type PageType = 'dashboard' | 'locations' | 'construction' | 'procurement' | 'hr' | 'finance';
+type PageType = 'dashboard' | 'locations' | 'construction' | 'procurement' | 'hr' | 'finance' | 'users' | 'workflow' | 'investors' | 'sppg-gallery' | 'system-guide';
 
 const AppContent: React.FC = () => {
   const { user, loading } = useAuth();
-  const [currentPage, setCurrentPage] = useState<PageType>('dashboard');
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Map path to PageType for breadcrumbs and sidebar active state
+  const getCurrentPage = (): PageType => {
+    const path = location.pathname.substring(1);
+    if (!path || path === '') return 'dashboard';
+    return path as PageType;
+  };
+
+  const currentPage = getCurrentPage();
 
   if (loading) {
     return (
@@ -24,6 +40,11 @@ const AppContent: React.FC = () => {
         </div>
       </div>
     );
+  }
+
+  // Workflow is a public page based on original logic
+  if (currentPage === 'workflow') {
+     return <Workflow />;
   }
 
   if (!user) {
@@ -38,36 +59,57 @@ const AppContent: React.FC = () => {
       procurement: ['Dashboard', 'Procurement Management'],
       hr: ['Dashboard', 'Manajemen SDM'],
       finance: ['Dashboard', 'Financial Management'],
+      users: ['Dashboard', 'User Management'],
+      workflow: ['Dashboard', 'Alur Kerja Sistem'],
+      investors: ['Dashboard', 'Monitoring Investor'],
+      'sppg-gallery': ['Dashboard', 'Galeri Foto SPPG'],
+      'system-guide': ['Dashboard', 'Panduan Sistem'],
     };
-    return breadcrumbMap[currentPage];
-  };
-
-  const renderPage = () => {
-    switch (currentPage) {
-      case 'dashboard':
-        return <Dashboard />;
-      case 'locations':
-        return <Locations />;
-      case 'construction':
-        return <Construction />;
-      case 'procurement':
-        return <Procurement />;
-      case 'hr':
-        return <HR />;
-      case 'finance':
-        return <Finance />;
-      default:
-        return <Dashboard />;
-    }
+    return breadcrumbMap[currentPage] || ['Dashboard'];
   };
 
   return (
     <MainLayout
-      currentPage={currentPage}
-      onNavigate={(page) => setCurrentPage(page as PageType)}
       breadcrumbs={getBreadcrumbs()}
     >
-      {renderPage()}
+      <Routes>
+        <Route path="/" element={<Dashboard onNavigate={(page: string) => navigate(page === 'dashboard' ? '/' : `/${page}`)} />} />
+        <Route path="/dashboard" element={<Navigate to="/" replace />} />
+        
+        {/* Protected Routes based on Roles */}
+        {(user.role === 'Super Admin' || user.role === 'Manager') && (
+          <>
+            <Route path="/locations" element={<Locations />} />
+            <Route path="/construction" element={<Construction />} />
+            <Route path="/investors" element={<Investors />} />
+          </>
+        )}
+
+        {(user.role === 'Super Admin' || user.role === 'Procurement') && (
+          <Route path="/procurement" element={<Procurement />} />
+        )}
+
+        {(user.role === 'Super Admin' || user.role === 'HRD') && (
+          <Route path="/hr" element={<HR />} />
+        )}
+
+        {(user.role === 'Super Admin' || user.role === 'Finance') && (
+          <Route path="/finance" element={<Finance />} />
+        )}
+
+        {user.role === 'Super Admin' && (
+          <Route path="/users" element={<Users />} />
+        )}
+
+        {(user.role === 'Super Admin' || user.role === 'Manager' || user.role === 'Staff') && (
+          <Route path="/sppg-gallery" element={<SppgGallery />} />
+        )}
+
+        <Route path="/panduan-penggunaan" element={<SystemGuide />} />
+
+        {/* Fallback */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
     </MainLayout>
   );
 };

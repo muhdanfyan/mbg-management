@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Financial API Expert Skill</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <hr>
+<h2 id="name-financial_api_expertdescription-expert-skill-for-implementing-and-verifying-mbg-financial-logic">name: financial_api_expert
+description: Expert skill for implementing and verifying MBG financial logic.</h2>
+<h1 id="financial-api-expert-skill">Financial API Expert Skill</h1>
+<p>Use this skill to ensure the MBG backend correctly implements the complex revenue splits.</p>
+<h2 id="core-logic-requirements">Core Logic Requirements</h2>
+<h3 id="1-sewa-dapur-rental">1. Sewa Dapur (Rental)</h3>
+<ul>
+<li><strong>Daily Rate:</strong> Rp 6.000.000.</li>
+<li><strong>Monthly (24 days):</strong> Rp 144.000.000.</li>
+<li><strong>Investor Type:</strong>
+<ul>
+<li>Split (e.g., 60:40) between Investor and DPP.</li>
+<li>DPP part is divided again: 75% for DPP, 25% for YWMP.</li>
+</ul>
+</li>
+<li><strong>BSI Type:</strong>
+<ul>
+<li>Per portion calculation: Rp 1.600 for DPP, Rp 400 for YWMP.</li>
+</ul>
+</li>
+</ul>
+<h3 id="2-selisih-bahan-baku-raw-material-margin">2. Selisih Bahan Baku (Raw Material Margin)</h3>
+<ul>
+<li><strong>Base:</strong> (Budget - Actual).</li>
+<li><strong>Fixed Costs Deduction:</strong> Subtract Rp 15.000.000 (Head, Accountant, Nutritionist, PIC).</li>
+<li><strong>Net Split (60:20:20):</strong>
+<ul>
+<li>60% DPP Wahdah.</li>
+<li>20% DPD.</li>
+<li>20% Koperasi.</li>
+</ul>
+</li>
+</ul>
+<h3 id="3-multi-investor-participant">3. Multi-Investor Participant</h3>
+<ul>
+<li><strong>Relationship:</strong> One Dapur can have multiple <code>InvestorParticipant</code>s.</li>
+<li><strong>Distribution:</strong> Profit split (Investor part) is shared among participants based on their <code>share_percentage</code>.</li>
+<li><strong>Logic:</strong> <code>calculateSplits</code> must iterate through participants to calculate individual payouts.</li>
+</ul>
+<h2 id="sharia-compliance-terminology">Sharia Compliance (Terminology)</h2>
+<ul>
+<li><strong>Interest Rate:</strong> NEVER use this term. Use <strong>Nisbah / Margin (%)</strong>.</li>
+<li><strong>Loan:</strong> Use for benevolent loans (Qardh).</li>
+<li><strong>Profit Sharing:</strong> Ensure logic represents a ratio (split) rather than a fixed interest fee.</li>
+</ul>
+<h2 id="verification-steps">Verification Steps</h2>
+<ul>
+<li>Check <code>main.go</code> -&gt; <code>calculateSplits</code> function.</li>
+<li>Verify zero-guards (e.g., if net margin is negative).</li>
+<li>Ensure currency types use <code>float64</code> or <code>int64</code> (decimal precision).</li>
+<li>Confirm &quot;Margin/Nisbah&quot; usage in both UI and code identifiers.</li>
+</ul>
+
+            
+            
+        </body>
+        </html>

@@ -25,7 +25,18 @@ Use this skill to ensure the MBG backend correctly implements the complex revenu
     - 20% DPD.
     - 20% Koperasi.
 
+### 3. Multi-Investor Participant
+- **Relationship:** One Dapur can have multiple `InvestorParticipant`s.
+- **Distribution:** Profit split (Investor part) is shared among participants based on their `share_percentage`.
+- **Logic:** `calculateSplits` must iterate through participants to calculate individual payouts.
+
+## Sharia Compliance (Terminology)
+- **Interest Rate:** NEVER use this term. Use **Nisbah / Margin (%)**.
+- **Loan:** Use for benevolent loans (Qardh). 
+- **Profit Sharing:** Ensure logic represents a ratio (split) rather than a fixed interest fee.
+
 ## Verification Steps
 - Check `main.go` -> `calculateSplits` function.
 - Verify zero-guards (e.g., if net margin is negative).
 - Ensure currency types use `float64` or `int64` (decimal precision).
+- Confirm "Margin/Nisbah" usage in both UI and code identifiers.

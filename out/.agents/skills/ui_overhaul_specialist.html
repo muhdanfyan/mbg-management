@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>UI Overhaul Specialist Skill</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <hr>
+<h2 id="name-ui_overhaul_specialistdescription-expert-skill-for-implementing-premium-modern-ui-designs-like-the-teamhub-ui-kit">name: ui_overhaul_specialist
+description: Expert skill for implementing premium, modern UI designs like the &quot;TeamHub&quot; UI Kit.</h2>
+<h1 id="ui-overhaul-specialist-skill">UI Overhaul Specialist Skill</h1>
+<p>Use this skill to transform basic application interfaces into premium, modern SaaS dashboards following the &quot;TeamHub&quot; design language.</p>
+<h2 id="design-system-teamhub-principles">Design System (TeamHub Principles)</h2>
+<h3 id="1-color-palette-mint--professional">1. Color Palette (Mint / Professional)</h3>
+<ul>
+<li><strong>Primary:</strong> <code>#2BBF9D</code> (Mint Green) - for primary actions, active states.</li>
+<li><strong>Secondary:</strong> <code>#1A4D43</code> (Dark Emerald) - for sidebar, strong headings.</li>
+<li><strong>Accent:</strong> <code>#E2F8F3</code> (Soft Mint) - for card backgrounds, subtle highlight.</li>
+<li><strong>Background:</strong> <code>#F8FAF9</code> (Off-white Mint) - for main page background.</li>
+</ul>
+<h3 id="2-glassmorphism--depth">2. Glassmorphism &amp; Depth</h3>
+<ul>
+<li><strong>Effect:</strong> Use <code>backdrop-blur-md bg-white/70 border border-white/20</code>.</li>
+<li><strong>Shadows:</strong> Use soft, diffused shadows: <code>shadow-[0_8px_30px_rgb(0,0,0,0.04)]</code>.</li>
+<li><strong>Corners:</strong> Use large border radii: <code>rounded-2xl</code> (1rem) for cards, <code>rounded-3xl</code> (1.5rem) for main containers.</li>
+</ul>
+<h3 id="3-layout-standards">3. Layout Standards</h3>
+<ul>
+<li><strong>Sidebar:</strong> Clean, slim when collapsed, bold when expanded. Neutral icons with primary color on active.</li>
+<li><strong>Cards:</strong> Modern data cards with iconography on the left and bold metrics on the right.</li>
+<li><strong>Tables:</strong> Minimalist, no borders between columns, soft row highlights on hover.</li>
+</ul>
+<h2 id="core-css-utility-tokens-add-to-indexcss">Core CSS Utility tokens (Add to index.css)</h2>
+<pre><code class="language-css"><span class="hljs-selector-pseudo">:root</span> {
+  <span class="hljs-attr">--primary</span>: <span class="hljs-number">#2BBF9D</span>;
+  <span class="hljs-attr">--primary-light</span>: <span class="hljs-number">#E2F8F3</span>;
+  <span class="hljs-attr">--secondary</span>: <span class="hljs-number">#1A4D43</span>;
+  <span class="hljs-attr">--bg-main</span>: <span class="hljs-number">#F8FAF9</span>;
+}
+
+<span class="hljs-selector-class">.glass-card</span> {
+  <span class="hljs-keyword">@apply</span> bg-white/<span class="hljs-number">70</span> backdrop-blur-md border border-white/<span class="hljs-number">20</span> rounded-<span class="hljs-number">2</span>xl shadow-sm;
+}
+</code></pre>
+<h2 id="implementation-steps">Implementation Steps</h2>
+<ol>
+<li><strong>Foundation:</strong> Update <code>index.css</code> with the palette and utility classes.</li>
+<li><strong>Layout:</strong> Revamp <code>MainLayout</code> and <code>Sidebar</code> to use the mint palette and soft shadows.</li>
+<li><strong>Pages:</strong> Rebuild page headers (using breadcrumbs and clean titles) and convert existing cards to the &quot;Glass Card&quot; style.</li>
+<li><strong>Interactive:</strong> Ensure all buttons and inputs use the new rounded-xl/2xl style and mint accents.</li>
+</ol>
+<h2 id="verification">Verification</h2>
+<ul>
+<li>Confirm all pages use the <code>#2BBF9D</code> primary color.</li>
+<li>Verify responsiveness of the new card layouts.</li>
+<li>Check accessibility (contrast) of white text on mint buttons.</li>
+</ul>
+
+            
+            
+        </body>
+        </html>

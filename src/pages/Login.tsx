@@ -33,9 +33,9 @@ export const Login: React.FC = () => {
     }
   };
 
-  const handleDemoLogin = (demoUser: typeof DEMO_USERS[0]) => {
-    setEmail(demoUser.email);
-    setPassword(demoUser.password);
+  const handleDemoLogin = (userEmail: string) => {
+    setEmail(userEmail);
+    setPassword('pass123');
   };
 
   return (
@@ -43,11 +43,11 @@ export const Login: React.FC = () => {
       <div className="max-w-6xl w-full grid md:grid-cols-2 gap-8">
         <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12">
           <div className="flex items-center gap-3 mb-8">
-            <div className="bg-blue-600 p-3 rounded-xl">
-              <ChefHat className="w-8 h-8 text-white" />
+            <div className="bg-white p-1 rounded-xl shadow-sm border border-gray-100">
+              <img src="/logo-wahdah.png?v=2" alt="Logo" className="w-10 h-10 object-contain" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">MBG Kitchen</h1>
+              <h1 className="text-2xl font-bold text-gray-900">Wahdah MBG</h1>
               <p className="text-sm text-gray-600">Management System</p>
             </div>
           </div>
@@ -120,6 +120,16 @@ export const Login: React.FC = () => {
                 </>
               )}
             </button>
+
+            <div className="mt-6 text-center">
+              <button 
+                type="button"
+                onClick={() => window.location.href = '/?page=workflow'}
+                className="text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors border-b border-transparent hover:border-blue-700"
+              >
+                Lihat Alur Kerja Sistem (Flowchart)
+              </button>
+            </div>
           </form>
         </div>
 
@@ -133,7 +143,7 @@ export const Login: React.FC = () => {
             {DEMO_USERS.map((user) => (
               <button
                 key={user.email}
-                onClick={() => handleDemoLogin(user)}
+                onClick={() => handleDemoLogin(user.email)}
                 className="w-full text-left p-4 border border-gray-200 rounded-lg hover:border-blue-600 hover:bg-blue-50 transition-all group"
               >
                 <div className="flex items-center justify-between mb-1">

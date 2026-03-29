@@ -1,0 +1,95 @@
+[
+  {
+    "page": "RUNNING",
+    "title": "DAPUR SPPG YAYASAN WADAH MERAH PUTIH YANG AKAN RUNNING",
+    "total_rows": 33,
+    "sample_data": [
+      {
+        "no": "1",
+        "sppg_name": "SPPG Manggala",
+        "pembangunan": "100%",
+        "ipal": "✅",
+        "gas_installation": "✅",
+        "exhaust_fan": "✅",
+        "electricity": "✅",
+        "water_filter": "✅",
+        "status": "Update: Selasa, 3 Feb pkl 14.10"
+      },
+      {
+        "no": "2",
+        "sppg_name": "SPPG Pamboang",
+        "pembangunan": "100%",
+        "ipal": "✅",
+        "gas_installation": "✅",
+        "exhaust_fan": "✅",
+        "status": "Update: Jumat, 6 Mar pkl 14.22"
+      }
+    ]
+  },
+  {
+    "page": "SPPG (YWMP)",
+    "title": "DAPUR YAYASAN WADAH MERAH PUTIH",
+    "total_rows": 102,
+    "description": "Berisi detail teknis lahan, alamat, maps, dan penanggung jawab (PJ) Dapur.",
+    "sample_data": [
+      {
+        "id": "EFGHJRC1",
+        "name": "SPPG Plaju",
+        "location": "Plaju, Palembang, Sumatera Selatan",
+        "progres": "6,60%",
+        "pj_dapur": "Abd Teguh Handoyo"
+      },
+      {
+        "id": "VMEUI185",
+        "name": "SPPG Jakabaring",
+        "location": "Jakabaring, Palembang, Sumatera Selatan",
+        "progres": "100%",
+        "pj_dapur": "Asriansa"
+      }
+    ]
+  },
+  {
+    "page": "PROGRES ALL",
+    "total_rows": 102,
+    "description": "Monitoring progres fisik pembangunan dapur dari Tahap I hingga IV.",
+    "columns": ["NO", "ID", "SPPG", "LOKASI", "PROGRES", "PJ DAPUR"]
+  },
+  {
+    "page": "MOBIL 102 TITIK",
+    "title": "MONITORING MOBIL YWMP",
+    "description": "Pendataan armada logistik (Mobil 1 & Mobil 2) untuk setiap titik dapur.",
+    "sample_data": [
+      { "sppg": "SPPG Plaju", "mobil_1": "Belum ada", "mobil_2": "Belum ada" },
+      { "sppg": "SPPG Jakabaring", "mobil_1": "Tersedia", "mobil_2": "Proses" }
+    ]
+  },
+  {
+    "page": "TITIK 49",
+    "total_rows": 49,
+    "description": "Daftar 49 titik prioritas dengan detail perizinan dan kesiapan operasional."
+  },
+  {
+    "page": "WILAYAH",
+    "description": "Rekapitulasi sebaran titik berdasarkan Provinsi dan Kabupaten/Kota.",
+    "summary": {
+      "Bali": "4 Kab/Kota (6 Titik)",
+      "Banten": "2 Kab/Kota (4 Titik)",
+      "DI Yogyakarta": "1 Kab/Kota (2 Titik)",
+      "Jawa Barat": "1 Kab/Kota (4 Titik)",
+      "Sulawesi Selatan": "17 Kab/Kota (42 Titik)",
+      "Sulawesi Tengah": "6 Kab/Kota (7 Titik)",
+      "Sumatera Selatan": "1 Kab/Kota (2 Titik)"
+    }
+  },
+  {
+    "page": "TITIK 5",
+    "title": "5 DAPUR PRIORITAS YWMP",
+    "data": [
+      { "id": "VMEUI185", "name": "SPPG Jakabaring", "status": "Ready" },
+      { "id": "UEML6X5N", "name": "SPPG Sleman", "status": "Ready" },
+      { "id": "BCRG3NFS", "name": "SPPG Manggala", "status": "Ready" },
+      { "id": "PGN5VW2I", "name": "SPPG Biringkanaya", "status": "Ready" },
+      { "id": "0AZDNY3K", "name": "SPPG Bacukiki", "status": "Ready" }
+    ]
+  }
+]

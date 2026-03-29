@@ -14,9 +14,12 @@ This anatomy is designed for a powerful Agentic AI to build and maintain the MBG
 
 ## 3. Toolset & Skills
 - **Skill: Financial Calculation Engine:** Logic to handle precise splits given specific Dapur configurations.
+- **Skill: Database Engineer:** Expert in schema design, optimization, migration, and data integrity.
+- **Skill: Penetration Testing Expert:** Specialist in identifying and fixing security vulnerabilities.
 - **Skill: VPS Deployment Specialist:** Knowledge of Docker, Nginx, and SSH for kassaone@103.191.92.247.
 - **Skill: GitHub Management Specialist:** Expertise in GitHub CLI, Actions, Secrets, and Pages visibility constraints.
-- **Skill: MySQL Schema Designer:** Optimized indexing for financial reporting.
+- [NEW] Skill: YWMP Data Synchronizer: Expert in scraping Google Sites via network interception and mapping JSON to GORM models.
+- **Skill: Agentic Anatomy Engineer:** Focused on agent prompt structure, instructions, and self-consistency.
 
 ## 4. Operational Steps (The Workflow)
 1. **Model Definition:** Define `Dapur`, `Koperasi`, and `FinancialRecord` in Gorm.
