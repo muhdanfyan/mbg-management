@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rencana Implementasi Pengembangan - MBG Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-light: #818cf8;
+            --primary-dark: #3730a3;
+            --secondary: #10b981;
+            --accent: #f59e0b;
+            --danger: #ef4444;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 70px;
+            border-radius: 32px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.06);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 12px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
+        }
+
+        header { text-align: center; margin-bottom: 80px; }
+        h1 { font-family: 'Outfit', sans-serif; font-size: 3rem; color: var(--primary-dark); margin-bottom: 12px; letter-spacing: -1.5px; }
+        .subtitle { font-size: 1.3rem; color: var(--text-muted); font-weight: 300; }
+
+        .section { margin-bottom: 100px; }
+        h2 { font-family: 'Outfit', sans-serif; font-size: 2rem; color: var(--primary); margin-bottom: 35px; display: flex; align-items: center; gap: 15px; }
+        h2::before { content: ''; display: inline-block; width: 10px; height: 35px; background: var(--primary); border-radius: 5px; }
+
+        /* MOCKUP TABBED VIEW FOR ADMIN */
+        .tab-mockup {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+            margin-top: 40px;
+        }
+
+        .tab-header { background: #f8fafc; display: flex; border-bottom: 1px solid #e2e8f0; }
+        .tab-item { padding: 18px 30px; font-size: 0.9rem; font-weight: 700; color: var(--text-muted); cursor: pointer; border-right: 1px solid #e2e8f0; }
+        .tab-item.active { background: white; color: var(--primary); border-bottom: 3px solid var(--primary); }
+        .tab-content { padding: 40px; }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        .card { padding: 30px; border-radius: 20px; border: 1px solid #e2e8f0; background: white; position: relative; }
+        .card-title { font-weight: 800; font-size: 1.1rem; margin-bottom: 20px; color: var(--primary-dark); border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
+
+        .data-row { display: flex; justify-content: space-between; margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px dashed #f1f5f9; font-size: 0.95rem; }
+        .data-label { color: var(--text-muted); font-weight: 500; }
+        .data-value { font-weight: 700; color: var(--text-main); }
+
+        .status-pill { padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; }
+        .status-success { background: #dcfce7; color: #166534; }
+        .status-primary { background: #e0e7ff; color: #3730a3; }
+        .status-warning { background: #fef3c7; color: #92400e; }
+
+        /* TIMELINE */
+        .timeline { position: relative; padding: 20px 0; }
+        .timeline-item { padding: 20px; border-left: 4px solid var(--primary); margin-left: 20px; position: relative; }
+        .timeline-item::before { content: ''; position: absolute; left: -10px; top: 25px; width: 16px; height: 16px; background: var(--primary); border-radius: 50%; border: 4px solid white; }
+        .phase-title { font-weight: 800; color: var(--primary-dark); margin-bottom: 8px; }
+
+        /* GLOSSARY */
+        .glossary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .glossary-card { background: #f1f5f9; padding: 20px; border-radius: 12px; }
+        .term { font-weight: 800; color: var(--primary); display: block; margin-bottom: 5px; }
+        .desc { font-size: 0.85rem; color: var(--text-muted); }
+
+        @media print { body { padding: 0; background: white; } .container { box-shadow: none; border: none; border-radius: 0; width: 100%; max-width: none; } .no-print { display: none; } }
+        .footer { margin-top: 100px; text-align: center; color: var(--text-muted); border-top: 1px solid #e2e8f0; padding-top: 40px; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Rencana Implementasi Pengembangan</h1>
+            <p class="subtitle">Panduan Operasional & Teknis MBG Management System (Fase Ekspansi)</p>
+        </header>
+
+        <!-- BAGIAN 1: STRUKTUR DASAR & ROLE -->
+        <div class="section">
+            <h2>Pilar Penggerak & Tanggung Jawab</h2>
+            <p style="margin-bottom: 30px; color: var(--text-muted);">Sistem ini memisahkan kewenangan untuk menjamin akurasi data keuangan dan operasional secara mandiri.</p>
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-title">👨‍💼 Administrator (Pusat)</div>
+                    <ul style="font-size: 0.9rem; color: var(--text-muted); padding-left: 20px; list-style-type: square;">
+                        <li>Melihat rekapitulasi nasional semua titik dapur</li>
+                        <li>Mengaudit efisiensi belanja bahan baku</li>
+                        <li>Memantau progres BEP (Balik Modal) investor</li>
+                        <li>Mengelola data konstruksi fisik & alat</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <div class="card-title">🏠 Tim Lapangan (Dapur)</div>
+                    <div style="margin-bottom: 15px;">
+                        <span class="status-pill status-primary">Role: PIC Dapur</span>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 5px;">Input bukti transfer dana BGN per 10 hari dan status sewa.</p>
+                    </div>
+                    <div>
+                        <span class="status-pill status-success">Role: Operator Koperasi</span>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 5px;">Input belanja harian (Harga Real Pasar vs Harga Nota/Kwitansi).</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BAGIAN 2: DETAIL DATA PER DAPUR (MODUL UTAMA) -->
+        <div class="section">
+            <h2>Manajemen Data Dapur (Tab-Based Overview)</h2>
+            <p style="color: var(--text-muted); margin-bottom: 20px;">Setiap unit Dapur akan dipantau melalui empat modul utama yang terintegrasi (Eksklusif untuk Admin).</p>
+            
+            <div class="tab-mockup">
+                <div class="tab-header">
+                    <div class="tab-item active">💰 KEUANGAN</div>
+                    <div class="tab-item">🏠 DATA DAPUR</div>
+                    <div class="tab-item">🏗️ KONSTRUKSI</div>
+                    <div class="tab-item">📋 LOGISTIK</div>
+                </div>
+                <div class="tab-content">
+                    <!-- Tab Keuangan Content -->
+                    <div class="grid-2">
+                        <div>
+                            <div class="data-row"><span class="data-label">Akumulasi Dana BGN</span><span class="data-value">Rp 148.500.000</span></div>
+                            <div class="data-row"><span class="data-label">Status Bagi Hasil</span><span class="status-pill status-primary">Pre-BEP (75%)</span></div>
+                            <div class="data-row"><span class="data-label">Jalan Menuju BEP</span><span class="status-pill status-success">78% Terlampaui</span></div>
+                            <div class="data-row"><span class="data-label">Margin Bahan Baku</span><span class="data-value">12.5%</span></div>
+                        </div>
+                        <div style="background: #eff6ff; padding: 25px; border-radius: 16px; border-left: 4px solid var(--primary);">
+                            <p style="font-weight: 700; color: var(--primary-dark); font-size: 0.9rem; margin-bottom: 10px;">Detail Logika BEP:</p>
+                            <p style="font-size: 0.85rem; color: var(--text-muted);">Sistem secara cerdas memantau total laba yang disetor ke investor. Begitu batas <strong>Modal Awal</strong> tercapai, rasio bagi hasil akan langsung berubah secara otomatis di periode berikutnya.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detail Tabs Expansion -->
+            <div class="grid-2" style="margin-top: 30px;">
+                <div class="card">
+                    <div class="card-title">🏗️ Konstruksi & Alat</div>
+                    <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 15px;">Admin memantau kesiapan fisik di lapangan:</p>
+                    <div class="data-row"><span>Persentase Bangunan</span><span class="data-value">100% (Selesai)</span></div>
+                    <div class="data-row"><span>Inventory Alat Dapur</span><span class="status-pill status-success">Terverifikasi</span></div>
+                </div>
+                <div class="card">
+                    <div class="card-title">🏠 Profil & Koperasi</div>
+                    <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 15px;">Informasi pendukung unit operasional:</p>
+                    <div class="data-row"><span>Provinsi / Wilayah</span><span class="data-value">SULAWESI SELATAN</span></div>
+                    <div class="data-row"><span>Kapasitas Produksi</span><span class="data-value">2.500 Porsi / Hari</span></div>
+                    <div class="data-row"><span>Koperasi Pendamping</span><span class="data-value">Ibroh Palopo</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BAGIAN 3: ALUR PELAPORAN 10 HARI -->
+        <div class="section">
+            <h2>Mekanisme Transparansi Dana</h2>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <p class="phase-title">Termin 1 (Tgl 1-10)</p>
+                    <p style="font-size: 0.85rem; color: var(--text-muted);">PIC Dapur lapor dana BGN masuk. Sistem mengunci data sewa untuk periode ini.</p>
+                </div>
+                <div class="timeline-item">
+                    <p class="phase-title">Audit Belanja Harian</p>
+                    <p style="font-size: 0.85rem; color: var(--text-muted);">Operator Koperasi input belanja. Sistem validasi agar tidak lewat <strong>Rp 10rb/porsi</strong>.</p>
+                </div>
+                <div class="timeline-item">
+                    <p class="phase-title">Tutup Buku Periode</p>
+                    <p style="font-size: 0.85rem; color: var(--text-muted);">Admin memverifikasi laporan. Bagi hasil lusa didepositkan otomatis sesuai rasio BEP.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- BAGIAN 4: GLOSARIUM & ISTILAH -->
+        <div class="section">
+            <h2>Kamus Istilah Pengembangan</h2>
+            <div class="glossary-grid">
+                <div class="glossary-card"><span class="term">BEP (Balik Modal)</span><p class="desc">Titik di mana keuntungan sewa sudah menutupi nilai investasi awal.</p></div>
+                <div class="glossary-card"><span class="term">Pre-BEP / Post-BEP</span><p class="desc">Perubahan rasio pembagian (misal 75:25 menjadi 50:50).</p></div>
+                <div class="glossary-card"><span class="term">BGN (Badan Gizi Nas)</span><p class="desc">Sumber dana utama yang masuk ke rekening dapur.</p></div>
+                <div class="glossary-card"><span class="term">Siklus 10 Hari</span><p class="desc">Jadwal rutin pelaporan dana masuk oleh PIC Dapur.</p></div>
+                <div class="glossary-card"><span class="term">Audit Mandiri</span><p class="desc">Validasi harga real belanja di pasar vs harga nota kwitansi.</p></div>
+                <div class="glossary-card"><span class="term">SPPG ID</span><p class="desc">Kode unik setiap unit Satuan Pelayanan dapur MBG.</p></div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>&copy; 2026 Wahdah Islamiyah - Sistem Manajemen MBG Nasional</p>
+            <p class="no-print">Selesai Disusun untuk Rencana Strategis Pengembangan | <strong>Cmd+P</strong> untuk Cetak PDF</p>
+        </div>
+    </div>
+
+</body>
+</html>
