@@ -1,12 +1,12 @@
 -- Seed Users
 INSERT IGNORE INTO users (id, email, password, full_name, role, department, position, phone, avatar_url, created_at, updated_at) VALUES
-('1', 'superadmin@mbg.com', '$2a$10$ddsW2ijPex8HqXIauzd63OH1GTEeDp7.oGyXb0dnf6dWLBBb6EdPe', 'Super Admin', 'Super Admin', 'IT', 'Administrator', '081234567890', 'https://i.pravatar.cc/150?u=1', NOW(), NOW()),
-('10007061', 'muhdanfyan@mbg.com', '$2a$10$ddsW2ijPex8HqXIauzd63OH1GTEeDp7.oGyXb0dnf6dWLBBb6EdPe', 'Muhdan Fyan', 'Management', 'Executive', 'Director', '081234567891', 'https://i.pravatar.cc/150?u=2', NOW(), NOW()),
-('demo-2', 'manager@mbg.com', '$2a$10$ddsW2ijPex8HqXIauzd63OH1GTEeDp7.oGyXb0dnf6dWLBBb6EdPe', 'Demo Manager', 'Manager', 'Management', 'Kitchen Manager', '081234567892', 'https://i.pravatar.cc/150?u=3', NOW(), NOW()),
-('demo-3', 'finance@mbg.com', '$2a$10$ddsW2ijPex8HqXIauzd63OH1GTEeDp7.oGyXb0dnf6dWLBBb6EdPe', 'Demo Finance', 'Finance', 'Finance', 'Accountant', '081234567893', 'https://i.pravatar.cc/150?u=4', NOW(), NOW()),
-('demo-4', 'hrd@mbg.com', '$2a$10$ddsW2ijPex8HqXIauzd63OH1GTEeDp7.oGyXb0dnf6dWLBBb6EdPe', 'Demo HRD', 'HRD', 'Human Resources', 'HR Specialist', '081234567894', 'https://i.pravatar.cc/150?u=5', NOW(), NOW()),
-('demo-5', 'procurement@mbg.com', '$2a$10$ddsW2ijPex8HqXIauzd63OH1GTEeDp7.oGyXb0dnf6dWLBBb6EdPe', 'Demo Procurement', 'Procurement', 'Procurement', 'Buyer', '081234567895', 'https://i.pravatar.cc/150?u=6', NOW(), NOW()),
-('demo-6', 'staff@mbg.com', '$2a$10$ddsW2ijPex8HqXIauzd63OH1GTEeDp7.oGyXb0dnf6dWLBBb6EdPe', 'Demo Staff', 'Staff', 'Operations', 'Kitchen Staff', '081234567896', 'https://i.pravatar.cc/150?u=7', NOW(), NOW());
+('1', 'superadmin@mbg.com', '$2a$10$T7NUZFakltdzg2xnh9xgQ.EkdaDG2CD2lGaNclFzUnAYBQE6qGLH.', 'Super Admin', 'Super Admin', 'IT', 'Administrator', '081234567890', 'https://i.pravatar.cc/150?u=1', NOW(), NOW()),
+('10007061', 'muhdanfyan@mbg.com', '$2a$10$T7NUZFakltdzg2xnh9xgQ.EkdaDG2CD2lGaNclFzUnAYBQE6qGLH.', 'Muhdan Fyan', 'Management', 'Executive', 'Director', '081234567891', 'https://i.pravatar.cc/150?u=2', NOW(), NOW()),
+('demo-2', 'manager@mbg.com', '$2a$10$T7NUZFakltdzg2xnh9xgQ.EkdaDG2CD2lGaNclFzUnAYBQE6qGLH.', 'Demo Manager', 'Manager', 'Management', 'Kitchen Manager', '081234567892', 'https://i.pravatar.cc/150?u=3', NOW(), NOW()),
+('demo-3', 'finance@mbg.com', '$2a$10$T7NUZFakltdzg2xnh9xgQ.EkdaDG2CD2lGaNclFzUnAYBQE6qGLH.', 'Demo Finance', 'Finance', 'Finance', 'Accountant', '081234567893', 'https://i.pravatar.cc/150?u=4', NOW(), NOW()),
+('demo-4', 'hrd@mbg.com', '$2a$10$T7NUZFakltdzg2xnh9xgQ.EkdaDG2CD2lGaNclFzUnAYBQE6qGLH.', 'Demo HRD', 'HRD', 'Human Resources', 'HR Specialist', '081234567894', 'https://i.pravatar.cc/150?u=5', NOW(), NOW()),
+('demo-5', 'procurement@mbg.com', '$2a$10$T7NUZFakltdzg2xnh9xgQ.EkdaDG2CD2lGaNclFzUnAYBQE6qGLH.', 'Demo Procurement', 'Procurement', 'Procurement', 'Buyer', '081234567895', 'https://i.pravatar.cc/150?u=6', NOW(), NOW()),
+('demo-6', 'staff@mbg.com', '$2a$10$T7NUZFakltdzg2xnh9xgQ.EkdaDG2CD2lGaNclFzUnAYBQE6qGLH.', 'Demo Staff', 'Staff', 'Operations', 'Kitchen Staff', '081234567896', 'https://i.pravatar.cc/150?u=7', NOW(), NOW());
 
 -- Seed Koperasi
 INSERT IGNORE INTO koperasis (id, name, address, created_at, updated_at) VALUES

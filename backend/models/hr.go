@@ -16,8 +16,8 @@ type Employee struct {
 	DepartmentID uint           `json:"department_id"`
 	Department   Department     `gorm:"foreignKey:DepartmentID" json:"department_detail"`
 	// Keeping these for legacy/simple display if needed, but we'll use IDs
-	PositionName   string    `json:"position"` 
-	DepartmentName string    `json:"department"`
+	PositionName   string    `gorm:"column:position" json:"position"` 
+	DepartmentName string    `gorm:"column:department" json:"department"`
 	HireDate       string    `json:"hire_date"`
 	Salary         float64   `json:"salary"`
 	Status         string    `json:"status"`
@@ -29,7 +29,7 @@ type Employee struct {
 
 type Department struct {
 	ID        uint           `gorm:"primaryKey" json:"id"`
-	Name      string         `gorm:"uniqueIndex" json:"name"`
+	Name      string         `gorm:"uniqueIndex;type:varchar(100)" json:"name"`
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
@@ -37,7 +37,7 @@ type Department struct {
 
 type Position struct {
 	ID        uint           `gorm:"primaryKey" json:"id"`
-	Name      string         `gorm:"uniqueIndex" json:"name"`
+	Name      string         `gorm:"uniqueIndex;type:varchar(100)" json:"name"`
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`

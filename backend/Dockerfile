@@ -21,6 +21,9 @@ WORKDIR /root/
 # Copy the binary from builder
 COPY --from=builder /app/main .
 
+# Copy the frontend dist folder
+COPY dist ./dist
+
 # Expose port
 EXPOSE 8080
 

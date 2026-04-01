@@ -37,6 +37,9 @@ type ProgressUpdate struct {
 	PhotoURL           string         `json:"photo_url"`
 	Percentage         int            `json:"percentage"` // fallback
 	Notes              string         `json:"notes"`      // fallback
+	Termin             int            `json:"termin"`
+	Amount             float64        `json:"amount"`
+	PaymentStatus      string         `json:"payment_status"`
 	CreatedAt          time.Time      `json:"created_at"`
 	UpdatedAt          time.Time      `json:"updated_at"`
 	DeletedAt          gorm.DeletedAt `gorm:"index" json:"-"`

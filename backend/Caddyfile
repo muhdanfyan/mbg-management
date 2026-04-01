@@ -1,0 +1,7 @@
+mbgone.site {
+    reverse_proxy backend:8080
+}
+
+api.mbgone.site {
+    reverse_proxy backend:8080
+}

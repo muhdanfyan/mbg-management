@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/muhdanfyan/mbg-management/backend/models"
@@ -20,17 +21,29 @@ func initDB() {
 	if dsn == "" {
 		dsn = "kassaone:Piblajar2020@tcp(127.0.0.1:3306)/mbg_management?charset=utf8mb4&parseTime=True&loc=Local"
 	}
+
 	var err error
-	db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
-	if err != nil {
-		fmt.Printf("Failed to connect database: %v\n", err)
-		return
+	// Try to connect up to 5 times
+	for i := 0; i < 5; i++ {
+		db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
+		if err == nil {
+			break
+		}
+		fmt.Printf("Failed to connect database (attempt %d/5): %v\n", i+1, err)
+		time.Sleep(3 * time.Second)
 	}
 
+	if err != nil {
+		fmt.Printf("Fatal: Could not connect to database after 5 attempts: %v\n", err)
+		os.Exit(1)
+	}
+
+	fmt.Println("Successfully connected to database")
+
 	// Auto Migration
-	db.AutoMigrate(
+	err = db.AutoMigrate(
 		&models.User{}, &models.Dapur{}, &models.Koperasi{}, &models.Route{},
-		&models.Sppg{}, &models.SppgMedia{}, 
+		&models.Sppg{}, &models.SppgMedia{},
 		&models.Employee{}, &models.Vacancy{}, &models.Applicant{},
 		&models.Contract{}, &models.ProgressUpdate{},
 		&models.Transaction{}, &models.Loan{},
@@ -41,11 +54,14 @@ func initDB() {
 		&models.Stakeholder{},
 		&models.Department{}, &models.Position{},
 	)
+	if err != nil {
+		fmt.Printf("Failed to auto-migrate: %v\n", err)
+		// We might still want to continue if some tables exist, but usually failure here is bad
+	}
 
 	// Seed Data
 	var deptCount int64
-	db.Model(&models.Department{}).Count(&deptCount)
-	if deptCount == 0 {
+	if err := db.Model(&models.Department{}).Count(&deptCount).Error; err == nil && deptCount == 0 {
 		depts := []string{"HR", "Finance", "IT", "Production", "Logistics", "Marketing"}
 		for _, name := range depts {
 			db.Create(&models.Department{Name: name})
@@ -53,8 +69,7 @@ func initDB() {
 	}
 
 	var posCount int64
-	db.Model(&models.Position{}).Count(&posCount)
-	if posCount == 0 {
+	if err := db.Model(&models.Position{}).Count(&posCount).Error; err == nil && posCount == 0 {
 		positions := []string{"Manager", "Supervisor", "Staff", "Field Officer", "Driver", "Security"}
 		for _, name := range positions {
 			db.Create(&models.Position{Name: name})
