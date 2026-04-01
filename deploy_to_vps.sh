@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Configuration
-VPS_USER="kassaone"
-VPS_IP="103.191.92.247"
-REMOTE_DIR="/home/kassaone/mbg-management/backend"
+VPS_USER="mbgone"
+VPS_IP="103.126.117.20"
+REMOTE_DIR="/home/mbgone/mbg-management/backend"
 
 echo "🚀 Preparing deployment to VPS..."
 

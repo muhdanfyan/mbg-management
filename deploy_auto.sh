@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # Configuration
-VPS_USER="kassaone"
-VPS_IP="103.191.92.247"
+VPS_USER="mbgone"
+VPS_IP="103.126.117.20"
 VPS_PASS="Piblajar2020"
-REMOTE_DIR="/home/kassaone/mbg-management/backend"
+REMOTE_DIR="/home/mbgone/mbg-management/backend"
 
 echo "🚀 Starting automated deployment..."
 
