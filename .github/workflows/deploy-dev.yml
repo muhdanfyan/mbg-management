@@ -1,0 +1,37 @@
+name: Deploy Staging to VPS
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  deploy-staging:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies and Build Frontend (Staging)
+        run: |
+          npm install
+          npm run build
+
+      - name: Deploy Staging to VPS via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /home/mbgone/mbg-management-dev
+            git fetch origin dev
+            git reset --hard origin/dev
+            cd backend
+            docker compose -f docker-compose.dev.yml build backend_dev
+            docker compose -f docker-compose.dev.yml up -d --build
