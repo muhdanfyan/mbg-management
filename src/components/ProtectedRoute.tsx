@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { UserRole } from '../lib/supabase';
+import { UserRole } from '../services/api';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
