@@ -75,6 +75,30 @@ func initDB() {
 			db.Create(&models.Position{Name: name})
 		}
 	}
+
+	// Ensure Super Admin exists with correct password
+	var adminCount int64
+	db.Model(&models.User{}).Where("email = ?", "superadmin@mbg.com").Count(&adminCount)
+	
+	// Create or Update Super Admin with 'pass123'
+	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte("pass123"), bcrypt.DefaultCost)
+	adminUser := models.User{
+		ID:         "1",
+		Email:      "superadmin@mbg.com",
+		Password:   string(hashedPassword),
+		FullName:   "Super Admin",
+		Role:       "Super Admin",
+		Department: "IT",
+		Position:   "Administrator",
+	}
+
+	if adminCount == 0 {
+		db.Create(&adminUser)
+	} else {
+		db.Model(&models.User{}).Where("email = ?", "superadmin@mbg.com").Updates(models.User{
+			Password: string(hashedPassword),
+		})
+	}
 }
 
 func main() {

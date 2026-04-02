@@ -116,14 +116,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
 
   return (
     <div className="space-y-10 animate-in fade-in duration-700">
-      <div className="flex items-end justify-between">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div>
           <h1 className="text-3xl font-bold text-[#1A4D43] tracking-tight">Selamat Datang, {profile?.full_name?.split(' ')[0]}!</h1>
           <p className="text-gray-500 mt-2 font-medium">
             Berikut adalah ringkasan sistem manajemen Wahdah MBG hari ini.
           </p>
         </div>
-        <div className="hidden md:flex gap-3">
+        <div className="flex items-center gap-3 overflow-x-auto pb-2 -mb-2 scrollbar-hide no-scrollbar lg:pb-0 lg:mb-0 lg:overflow-visible">
           {quickActions.map((action) => (
             <button
               key={action.label}
@@ -134,7 +134,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                   onNavigate?.(action.action);
                 }
               }}
-              className="flex items-center gap-2 bg-white px-5 py-2.5 rounded-xl text-sm font-semibold text-[#1A4D43] border border-gray-100 hover:border-[#2BBF9D] hover:text-[#2BBF9D] transition-all shadow-sm active:scale-95"
+              className="flex items-center gap-2 bg-white px-5 py-2.5 rounded-xl text-sm font-semibold text-[#1A4D43] border border-gray-100 hover:border-[#2BBF9D] hover:text-[#2BBF9D] transition-all shadow-sm active:scale-95 whitespace-nowrap flex-shrink-0"
             >
               <action.icon className="w-4 h-4" />
               {action.label}

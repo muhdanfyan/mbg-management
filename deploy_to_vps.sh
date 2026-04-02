@@ -8,14 +8,14 @@ REMOTE_DIR="/home/mbgone/mbg-management/backend"
 echo "🚀 Preparing deployment to VPS..."
 
 # Create directory on VPS
-ssh $VPS_USER@$VPS_IP "mkdir -p $REMOTE_DIR"
+ssh -i mbg.pem -o StrictHostKeyChecking=no $VPS_USER@$VPS_IP "mkdir -p $REMOTE_DIR"
 
 # Sync files
 echo "📦 Uploading files..."
-scp -r ./backend/* $VPS_USER@$VPS_IP:$REMOTE_DIR/
+scp -i mbg.pem -o StrictHostKeyChecking=no -r ./backend/* $VPS_USER@$VPS_IP:$REMOTE_DIR/
 
 # Deploy using Docker Compose
 echo "🐳 Starting Docker containers on VPS..."
-ssh $VPS_USER@$VPS_IP "cd $REMOTE_DIR && docker-compose down && docker-compose up -d --build"
+ssh -i mbg.pem -o StrictHostKeyChecking=no $VPS_USER@$VPS_IP "cd $REMOTE_DIR && docker compose down && docker compose up -d --build"
 
-echo "✅ Deployment complete! API is running at http://$VPS_IP:8080"
+echo "✅ Deployment complete!"
