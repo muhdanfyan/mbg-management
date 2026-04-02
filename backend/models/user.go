@@ -16,6 +16,8 @@ type User struct {
 	Position   string         `json:"position"`
 	Phone      string         `json:"phone"`
 	AvatarURL  string         `json:"avatar_url"`
+	KitchenID  *uint          `json:"kitchen_id"`
+	Kitchen    *Dapur         `gorm:"foreignKey:KitchenID" json:"kitchen"`
 	CreatedAt  time.Time      `json:"created_at"`
 	UpdatedAt  time.Time      `json:"updated_at"`
 	DeletedAt  gorm.DeletedAt `gorm:"index" json:"-"`

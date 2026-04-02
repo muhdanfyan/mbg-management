@@ -26,3 +26,5 @@ dist-ssr
 backend/tmp/
 backend/dist/
 backend/main
+backend/backend
+backend/mbg-*

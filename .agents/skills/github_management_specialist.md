@@ -37,6 +37,28 @@ Most operations in this skill utilize the `gh` tool.
 - **GitHub Pages:** Ensure `vite.config.ts` has the correct `base` path (usually `/<repo-name>/`).
 - **Release Management:** Create versioned tags and releases using `gh release create`.
 
+### 4. Branch Synchronization (Standard Sync)
+- **Main to Dev:** To keep the development branch updated with live fixes, perform:
+  `git checkout dev && git merge main && git push origin dev`
+- **Feature to Dev:** Ensure feature branches are merged into `dev` for integration testing before moving to `main`.
+
+### 5. Security & Hygiene Audit
+- **Pre-Push Check:** Always verify `.gitignore` before pushing to public repositories.
+- **Forbidden Patterns:** Ensure `*.pem`, `*.sql`, `.env`, and local binaries (`backend/main`, `backend/tmp/`) are explicitly ignored.
+- **Sensitive Data Removal:** If sensitive data is accidentally committed, use `git filter-repo` or `bfg-repo-cleaner` immediately.
+
+## Standard Git Workflows
+
+### The "Sync All" Pattern
+When the user asks to "sync all branches" or "update dev with main":
+1.  Verify current branch is `main`.
+2.  Commit any pending fixes to `main`.
+3.  Push `main`.
+4.  Checkout `dev`.
+5.  Merge `main` into `dev`.
+6.  Push `dev`.
+7.  Return to `main`.
+
 ## Common Commands
 ```bash
 # Check Pages status

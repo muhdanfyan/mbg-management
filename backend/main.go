@@ -101,6 +101,33 @@ func initDB() {
 	}
 }
 
+// Middleware to check roles
+func RequireRole(allowedRoles ...string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		role := c.GetHeader("X-User-Role")
+		if role == "" {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Role header missing"})
+			c.Abort()
+			return
+		}
+
+		isAllowed := false
+		for _, r := range allowedRoles {
+			if r == role {
+				isAllowed = true
+				break
+			}
+		}
+
+		if !isAllowed {
+			c.JSON(http.StatusForbidden, gin.H{"error": "Unauthorized role"})
+			c.Abort()
+			return
+		}
+		c.Next()
+	}
+}
+
 func main() {
 	initDB()
 
@@ -557,6 +584,108 @@ func main() {
 			c.JSON(http.StatusOK, user)
 		})
 
+		// --- Financial Reporting & Audit (Expansion Phase) ---
+
+		// 1. PIC Dapur: Submit Financial Record (10-day termin)
+		api.POST("/financial-records", RequireRole("PIC Dapur", "Super Admin"), func(c *gin.Context) {
+			var fr models.FinancialRecord
+			if err := c.ShouldBindJSON(&fr); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				return
+			}
+			fr.Status = "PENDING"
+			fr.Period = time.Now()
+			if err := db.Create(&fr).Error; err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create record: " + err.Error()})
+				return
+			}
+			c.JSON(http.StatusOK, fr)
+		})
+
+		// 2. Administrator: Approve Financial Record & Update BEP
+		api.PUT("/financial-records/:id/approve", RequireRole("Super Admin"), func(c *gin.Context) {
+			id := c.Param("id")
+			var fr models.FinancialRecord
+			if err := db.Preload("Dapur").First(&fr, id).Error; err != nil {
+				c.JSON(http.StatusNotFound, gin.H{"error": "Record not found"})
+				return
+			}
+
+			if fr.Status == "APPROVED" {
+				c.JSON(http.StatusBadRequest, gin.H{"error": "Already approved"})
+				return
+			}
+
+			// Update status
+			fr.Status = "APPROVED"
+			db.Save(&fr)
+
+			// Calculate investor portion from this record
+			splits := calculateSplits(fr.Dapur, fr)
+			investorShare := 0.0
+			if val, ok := splits["investor_share"].(float64); ok {
+				investorShare = val
+			}
+
+			// Update Dapur's Accumulated Profit
+			db.Model(&models.Dapur{}).Where("id = ?", fr.DapurID).
+				UpdateColumn("accumulated_profit", gorm.Expr("accumulated_profit + ?", investorShare))
+
+			// Check for BEP transition
+			var d models.Dapur
+			db.First(&d, fr.DapurID)
+			if d.InitialCapital > 0 && d.AccumulatedProfit >= d.InitialCapital && d.BEPStatus == "PRE-BEP" {
+				// Automatically adjust shares if needed (e.g. 75/25 -> 50/50 as per docs)
+				db.Model(&d).Updates(map[string]interface{}{
+					"bep_status":     "POST-BEP",
+					"investor_share": 0.50,
+					"dpp_share":      0.50,
+				})
+			}
+
+			c.JSON(http.StatusOK, gin.H{"message": "Approved and BEP updated", "record": fr})
+		})
+
+		// 3. Operator Koperasi: Audit Daily Spending
+		api.POST("/audit-spending", RequireRole("Operator Koperasi", "Super Admin"), func(c *gin.Context) {
+			var input struct {
+				DapurID   uint    `json:"dapur_id" binding:"required"`
+				Spending  float64 `json:"spending" binding:"required"`
+				Portions  int64   `json:"portions" binding:"required"`
+				Note      string  `json:"note"`
+			}
+			if err := c.ShouldBindJSON(&input); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				return
+			}
+
+			// Validation: Hard cap of Rp 10,000 / portion
+			portionCost := input.Spending / float64(input.Portions)
+			if portionCost > 10000 {
+				c.JSON(http.StatusBadRequest, gin.H{
+					"error":        "Spending exceeds Rp 10,000 per portion cap",
+					"portion_cost": portionCost,
+				})
+				return
+			}
+
+			// Save as a transaction
+			transaction := models.Transaction{
+				Date:     time.Now().Format("2006-01-02"),
+				Type:     "expense",
+				Category: "Bahan Baku",
+				Amount:   input.Spending,
+				Status:   "Audited",
+			}
+			db.Create(&transaction)
+
+			c.JSON(http.StatusOK, gin.H{
+				"message":      "Audit successful",
+				"portion_cost": portionCost,
+				"transaction":  transaction,
+			})
+		})
+
 		// User Management
 		api.GET("/users", func(c *gin.Context) {
 			var users []models.User
@@ -730,6 +859,7 @@ func calculateSplits(d models.Dapur, r models.FinancialRecord) gin.H {
 	dppShareSewa := 0.0
 	ywmpShareSewa := 0.0
 
+	// Use investor_share and dpp_share from the Dapur model (updated by BEP logic)
 	if d.Type == models.TypeInvestor {
 		investorPool = r.RentalIncome * d.InvestorShare
 		dppPool := r.RentalIncome * d.DPPShare
@@ -760,8 +890,12 @@ func calculateSplits(d models.Dapur, r models.FinancialRecord) gin.H {
 	}
 
 	return gin.H{
+		"dapur_id":           d.ID,
 		"dapur_name":         d.Name,
 		"type":               d.Type,
+		"bep_status":         d.BEPStatus,
+		"accumulated_profit": d.AccumulatedProfit,
+		"initial_capital":    d.InitialCapital,
 		"rental_income":      r.RentalIncome,
 		"investor_share":     investorPool,
 		"investor_payouts":   investorPayouts,
