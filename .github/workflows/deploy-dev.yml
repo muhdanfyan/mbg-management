@@ -29,9 +29,7 @@ jobs:
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd /home/mbgone/mbg-management-dev
+            cd /home/mbgone/mbg-management
             git fetch origin dev
             git reset --hard origin/dev
-            cd backend
-            docker compose -f docker-compose.dev.yml build backend_dev
-            docker compose -f docker-compose.dev.yml up -d --build
+            ./deploy_dev_vps.sh

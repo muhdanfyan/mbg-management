@@ -21,6 +21,11 @@ export const Login: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const { signIn } = useAuth();
+  
+  // Detect environment: Show demo accounts on all EXCEPT main production domain
+  const isDemoEnv = 
+    window.location.hostname !== 'mbgone.site' && 
+    window.location.hostname !== 'www.mbgone.site';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,7 +49,7 @@ export const Login: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center p-4">
-      <div className="max-w-6xl w-full grid md:grid-cols-2 gap-8">
+      <div className={`max-w-6xl w-full grid ${isDemoEnv ? 'md:grid-cols-2' : 'max-w-md'} gap-8`}>
         <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12">
           <div className="flex items-center gap-3 mb-8">
             <div className="bg-white p-1 rounded-xl shadow-sm border border-gray-100">
@@ -137,39 +142,41 @@ export const Login: React.FC = () => {
           </form>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-xl p-8">
-          <h3 className="text-xl font-semibold text-gray-900 mb-6">Demo Accounts</h3>
-          <p className="text-sm text-gray-600 mb-6">
-            Click any account below to auto-fill the login form
-          </p>
-
-          <div className="space-y-3">
-            {DEMO_USERS.map((user) => (
-              <button
-                key={user.email}
-                onClick={() => handleDemoLogin(user.email)}
-                className="w-full text-left p-4 border border-gray-200 rounded-lg hover:border-blue-600 hover:bg-blue-50 transition-all group"
-              >
-                <div className="flex items-center justify-between mb-1">
-                  <span className="font-medium text-gray-900 group-hover:text-blue-600">
-                    {user.role}
-                  </span>
-                  <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                    Demo
-                  </span>
-                </div>
-                <p className="text-sm text-gray-600 mb-1">{user.email}</p>
-                <p className="text-xs text-gray-500">{user.description}</p>
-              </button>
-            ))}
-          </div>
-
-          <div className="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-sm text-blue-800">
-              <strong>All accounts use password:</strong> pass123
+        {isDemoEnv && (
+          <div className="bg-white rounded-2xl shadow-xl p-8">
+            <h3 className="text-xl font-semibold text-gray-900 mb-6">Demo Accounts</h3>
+            <p className="text-sm text-gray-600 mb-6">
+              Click any account below to auto-fill the login form
             </p>
+
+            <div className="space-y-3">
+              {DEMO_USERS.map((user) => (
+                <button
+                  key={user.email}
+                  onClick={() => handleDemoLogin(user.email)}
+                  className="w-full text-left p-4 border border-gray-200 rounded-lg hover:border-blue-600 hover:bg-blue-50 transition-all group"
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="font-medium text-gray-900 group-hover:text-blue-600">
+                      {user.role}
+                    </span>
+                    <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                      Demo
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-600 mb-1">{user.email}</p>
+                  <p className="text-xs text-gray-500">{user.description}</p>
+                </button>
+              ))}
+            </div>
+
+            <div className="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-sm text-blue-800">
+                <strong>Password Default:</strong> pass123 / mbg12345
+              </p>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

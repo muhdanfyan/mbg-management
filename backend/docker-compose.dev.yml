@@ -1,28 +1,15 @@
 services:
-  db_dev:
-    image: mysql:8.0
-    container_name: mbg_mysql_dev
-    restart: always
-    environment:
-      MYSQL_DATABASE: mbg_management_dev
-      MYSQL_USER: kassaone
-      MYSQL_PASSWORD: Piblajar2020
-      MYSQL_ROOT_PASSWORD: rootpassword
-    ports:
-      - "3307:3306"
-    volumes:
-      - mysql_data_dev:/var/lib/mysql
-
   backend_dev:
     build: .
     container_name: mbg_backend_dev
     expose:
       - "8081"
-    depends_on:
-      - db_dev
     environment:
-      DB_DSN: "kassaone:Piblajar2020@tcp(db_dev:3306)/mbg_management_dev?charset=utf8mb4&parseTime=True&loc=Local"
+      DB_DSN: "kassaone:Piblajar2020@tcp(mbg_mysql:3306)/mbg_management_dev?charset=utf8mb4&parseTime=True&loc=Local"
       PORT: "8081"
+    networks:
+      - mbg_management_default
 
-volumes:
-  mysql_data_dev:
+networks:
+  mbg_management_default:
+    external: true

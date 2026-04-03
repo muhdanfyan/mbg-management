@@ -45,13 +45,32 @@ export const SppgGallery: React.FC = () => {
   };
 
   const getGoogleImageUrl = (url: string) => {
-    if (url && url.includes('lh3.googleusercontent.com/d/')) {
+    if (!url) return url;
+
+    // Handle lh3.googleusercontent.com/d/ format
+    if (url.includes('lh3.googleusercontent.com/d/')) {
       const parts = url.split('/d/');
       if (parts.length > 1) {
         const id = parts[1].split('/')[0];
         return `https://drive.google.com/thumbnail?id=${id}&sz=w1200`;
       }
     }
+
+    // Handle drive.google.com/open?id= format
+    if (url.includes('drive.google.com/open?id=')) {
+      const id = new URL(url).searchParams.get('id');
+      if (id) return `https://drive.google.com/thumbnail?id=${id}&sz=w1200`;
+    }
+
+    // Handle drive.google.com/file/d/ format
+    if (url.includes('drive.google.com/file/d/')) {
+      const parts = url.split('/file/d/');
+      if (parts.length > 1) {
+        const id = parts[1].split('/')[0];
+        return `https://drive.google.com/thumbnail?id=${id}&sz=w1200`;
+      }
+    }
+
     return url;
   };
 

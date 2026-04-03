@@ -1,27 +1,34 @@
+# User Credentials Reference (MBG Management)
+
+This file contains the demo accounts and system credentials for development and testing.
+
+## 1. Demo User Accounts
+All passwords except Super Admin are `mbg12345`.
+
+| Role | Email | Password |
+| :--- | :--- | :--- |
+| **Super Admin** | `superadmin@mbg.com` | `pass123` |
+| **PIC Dapur** | `dapur@mbg.com` | `mbg12345` |
+| **Investor** | `investor@mbg.com` | `mbg12345` |
+| **Operator Koperasi** | `koperasi@mbg.com` | `mbg12345` |
+
 ---
-name: User Credentials Reference
-description: List of demo user accounts and their roles for testing the MBG Management system.
----
 
-# User Credentials Reference
-
-These credentials are to be used for automated and manual testing of the MBG Management system.
-
-| Role | Email | Password | Allowed Modules |
+## 2. Server & Infrastructure
+| Service | Host / IP | User / Port | Password |
 | :--- | :--- | :--- | :--- |
-| **Super Admin** | `superadmin@mbg.com` | `pass123` | All (Dashboard, Locations, Construction, Procurement, HR, Finance, Users) |
-| **Manager** | `manager@mbg.com` | `pass123` | Dashboard, Locations, Construction |
-| **Finance** | `finance@mbg.com` | `pass123` | Dashboard, Finance |
-| **HRD** | `hrd@mbg.com` | `pass123` | Dashboard, HR |
-| **Procurement** | `procurement@mbg.com` | `pass123` | Dashboard, Procurement |
-| **Staff** | `staff@mbg.com` | `pass123` | Dashboard only |
+| **VPS (Main)** | `103.126.117.20` | `mbgone` | `Piblajar2020` |
+| **MariaDB/MySQL (Prod)** | `localhost` | `kassaone` | `Piblajar2020` |
+| **MariaDB/MySQL (Dev)** | `localhost` | `kassaone` | `Piblajar2020` |
+| **Caddy Reverse Proxy** | `localhost` | Ports 80, 443 | - |
 
-## Access Requirements
-- **Super Admin**: Full CRUD on all modules.
-- **Manager**: View and limited edit on Locations/Construction.
-- **Finance/HRD/Procurement**: Specific module focus.
-- **Staff**: View-only Dashboard.
+---
 
-## Login URL
-- `http://localhost:4729` (Local)
-- `http://localhost:8080/api/auth/login` (Backend API)
+## 3. Web Interfaces
+| Environment | Frontend URL | Backend URL |
+| :--- | :--- | :--- |
+| **Production** | [mbgone.site](https://mbgone.site) | [api.mbgone.site](https://api.mbgone.site) |
+| **Development** | [dev.mbgone.id](https://dev.mbgone.id) | [api-dev.mbgone.id](https://api-dev.mbgone.id) |
+
+> [!CAUTION]
+> These credentials are for **demo/staging** environments. Ensure production environments use unique, secure passwords stored in environmental secrets.
