@@ -64,25 +64,36 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   }, []);
 
   const stats = [
-    { label: 'Total Dapur', value: summary?.total_dapur?.toString() || '0', change: '+1', trend: 'up', icon: Building2, color: 'mint' },
-    { label: 'Progress Pembangunan', value: `${Math.round(summary?.construction_progress || 0)}%`, change: '+5%', trend: 'up', icon: TrendingUp, color: 'emerald' },
-    { label: 'Total Karyawan', value: summary?.total_employees?.toString() || '0', change: '+2', trend: 'up', icon: Users, color: 'mint' },
+    { label: profile?.role === 'Operator Koperasi' ? 'Harga per Porsi' : 'Total Dapur', 
+      value: profile?.role === 'Operator Koperasi' ? 'Rp 8.500' : (summary?.total_dapur?.toString() || '0'), 
+      change: profile?.role === 'Operator Koperasi' ? '-2%' : '+1', trend: 'up', icon: Building2, color: 'mint' },
+    
+    { label: profile?.role === 'PIC Dapur' ? 'Status BEP' : 'Progress Pembangunan', 
+      value: profile?.role === 'PIC Dapur' ? 'PRE-BEP' : `${Math.round(summary?.construction_progress || 0)}%`, 
+      change: '+5%', trend: 'up', icon: TrendingUp, color: 'emerald' },
+    
+    { label: profile?.role === 'Investor' ? 'Total Investasi' : (profile?.role === 'PIC Dapur' ? 'Laba Akumulasi' : 'Total Karyawan'), 
+      value: profile?.role === 'Investor' ? 'Rp 250jt+' : (profile?.role === 'PIC Dapur' ? 'Rp 14.5jt' : (summary?.total_employees?.toString() || '0')), 
+      change: '+2', trend: 'up', icon: (profile?.role === 'Investor' || profile?.role === 'PIC Dapur') ? DollarSign : Users, color: 'mint' },
+    
     { label: 'Cash Flow', value: `Rp ${(summary?.cash_flow || 0).toLocaleString()}`, change: '+10%', trend: 'up', icon: DollarSign, color: 'emerald' }
   ];
 
   const quickActions = [
-    { label: 'Kelola Dapur', icon: LayoutGrid, action: 'locations' },
-    { label: 'Input Progress', icon: Plus, action: 'construction' },
-    { label: 'Laporan Keuangan', icon: Calendar, action: 'finance' },
+    { label: 'Kelola Dapur', icon: LayoutGrid, action: 'locations', roles: ['Super Admin', 'Manager', 'PIC Dapur'] },
+    { label: 'Input Progress', icon: Plus, action: 'construction', roles: ['Super Admin', 'Manager', 'Staff'] },
+    { label: 'Laporan Keuangan', icon: Calendar, action: 'finance', roles: ['Super Admin', 'Finance', 'PIC Dapur'] },
+    { label: 'Audit Bahan Baku', icon: Activity, action: 'procurement?action=audit-belanja', roles: ['Super Admin', 'Operator Koperasi'] },
+    { label: 'Lapor Dana BGN', icon: DollarSign, action: 'finance?action=lapor-bgn', roles: ['PIC Dapur'] },
     { label: 'Panduan Finansial', icon: PieChart, action: 'external-finance-report' }
-  ];
+  ].filter(action => !action.roles || action.roles.includes(profile?.role || ''));
 
   const tabs = [
     { id: 'overview', label: 'Ringkasan', icon: LayoutGrid },
     { id: 'finance', label: 'Keuangan', icon: DollarSign },
-    { id: 'construction', label: 'Konstruksi', icon: Building2 },
-    { id: 'logistics', label: 'Logistik', icon: Activity },
-  ];
+    { id: 'construction', label: 'Konstruksi', icon: Building2, roles: ['Super Admin', 'Manager', 'Finance', 'HRD', 'Staff', 'PIC Dapur'] },
+    { id: 'logistics', label: 'Logistik', icon: Activity, roles: ['Super Admin', 'Manager', 'Procurement', 'PIC Dapur'] },
+  ].filter(tab => !tab.roles || tab.roles.includes(profile?.role || ''));
 
   if (loading) {
     return (

@@ -130,43 +130,43 @@ export const Investors: React.FC = () => {
                 </div>
             </div>
 
-             <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-                <div className="glass-card p-6 group hover:shadow-xl transition-all">
-                    <div className="flex items-center gap-5">
-                        <div className="bg-[#E2F8F3] p-4 rounded-2xl text-[#2BBF9D]">
-                            <DollarSign className="w-7 h-7" />
+             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="glass-card p-4 group hover:shadow-xl transition-all">
+                    <div className="flex items-center gap-3">
+                        <div className="bg-[#E2F8F3] p-3 rounded-2xl text-[#2BBF9D]">
+                            <DollarSign className="w-6 h-6" />
                         </div>
-                        <div>
-                            <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Total Investasi</p>
-                            <h3 className="text-2xl font-black text-[#1A4D43] tracking-tight">
+                        <div className="whitespace-nowrap">
+                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Total Investasi</p>
+                            <h3 className="text-xl font-black text-[#1A4D43] tracking-tight">
                                 Rp {totalInvestment.toLocaleString('id-ID')}
                             </h3>
                         </div>
                     </div>
                 </div>
 
-                <div className="glass-card p-6 group hover:shadow-xl transition-all">
-                    <div className="flex items-center gap-5">
-                        <div className="bg-[#1A4D43]/5 p-4 rounded-2xl text-[#1A4D43]">
-                            <Users className="w-7 h-7" />
+                <div className="glass-card p-4 group hover:shadow-xl transition-all">
+                    <div className="flex items-center gap-3">
+                        <div className="bg-[#1A4D43]/5 p-3 rounded-2xl text-[#1A4D43]">
+                            <Users className="w-6 h-6" />
                         </div>
-                        <div>
-                            <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Total Peserta</p>
-                            <h3 className="text-2xl font-black text-[#1A4D43] tracking-tight">
+                        <div className="whitespace-nowrap">
+                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Total Peserta</p>
+                            <h3 className="text-xl font-black text-[#1A4D43] tracking-tight">
                                 {participants.length} Peserta
                             </h3>
                         </div>
                     </div>
                 </div>
 
-                <div className="glass-card p-6 group hover:shadow-xl transition-all">
-                    <div className="flex items-center gap-5">
-                        <div className="bg-[#E2F8F3] p-4 rounded-2xl text-[#2BBF9D]">
-                            <PieChart className="w-7 h-7" />
+                <div className="glass-card p-4 group hover:shadow-xl transition-all">
+                    <div className="flex items-center gap-3">
+                        <div className="bg-[#E2F8F3] p-3 rounded-2xl text-[#2BBF9D]">
+                            <PieChart className="w-6 h-6" />
                         </div>
-                        <div>
-                            <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Kitchen Tercover</p>
-                            <h3 className="text-2xl font-black text-[#1A4D43] tracking-tight">
+                        <div className="whitespace-nowrap">
+                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Kitchen Tercover</p>
+                            <h3 className="text-xl font-black text-[#1A4D43] tracking-tight">
                                 {[...new Set(participants.map(p => p.kitchen_id))].length} Titik
                             </h3>
                         </div>
@@ -174,13 +174,13 @@ export const Investors: React.FC = () => {
                 </div>
 
                 <div className="glass-card p-6 group hover:shadow-xl transition-all bg-gradient-to-br from-[#1A4D43] to-[#2BBF9D]">
-                    <div className="flex items-center gap-5 text-white">
-                        <div className="bg-white/20 p-4 rounded-2xl">
-                            <Briefcase className="w-7 h-7" />
+                    <div className="flex items-center gap-3 text-white">
+                        <div className="bg-white/20 p-3 rounded-2xl">
+                            <Briefcase className="w-6 h-6" />
                         </div>
-                        <div>
-                            <p className="text-xs font-black text-white/60 uppercase tracking-widest mb-1">Target Funding</p>
-                            <h3 className="text-2xl font-black tracking-tight">
+                        <div className="whitespace-nowrap">
+                            <p className="text-[10px] font-black text-white/60 uppercase tracking-widest mb-0.5">Target Funding</p>
+                            <h3 className="text-xl font-black tracking-tight">
                                 100% Locked
                             </h3>
                         </div>
@@ -189,7 +189,7 @@ export const Investors: React.FC = () => {
             </div>
 
             <div className="glass-card overflow-hidden">
-                <div className="p-6 border-b border-gray-50 flex flex-wrap gap-4 items-center justify-between bg-white/30 backdrop-blur-md">
+                <div className="p-4 border-b border-gray-50 flex flex-wrap gap-4 items-center justify-between bg-white/30 backdrop-blur-md">
                     <div className="relative flex-1 max-w-md">
                         <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                         <input
@@ -212,35 +212,35 @@ export const Investors: React.FC = () => {
                     <table className="w-full text-left">
                         <thead className="bg-[#F8FAF9]/50 border-b border-gray-100">
                              <tr>
-                                <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.1em]">NO</th>
-                                <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.1em]">ID SPPG (DAPUR)</th>
-                                <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.1em]">STATUS FUNDING</th>
-                                <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.1em] text-right">TOTAL INVESTOR</th>
-                                <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.1em]">PESERTA</th>
-                                <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.1em] text-center">%</th>
-                                <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.1em]">EST. DIVIDEN (BULANAN)</th>
-                                <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.1em] text-right">AKSI</th>
+                                <th className="px-4 py-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.1em]">NO</th>
+                                <th className="px-4 py-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.1em]">ID SPPG (DAPUR)</th>
+                                <th className="px-4 py-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.1em]">STATUS FUNDING</th>
+                                <th className="px-4 py-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.1em] text-right">TOTAL INVESTOR</th>
+                                <th className="px-4 py-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.1em]">PESERTA</th>
+                                <th className="px-4 py-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.1em] text-center">%</th>
+                                <th className="px-4 py-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.1em]">EST. DIVIDEN</th>
+                                <th className="px-4 py-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.1em] text-right">AKSI</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50">
                             {paginatedParticipants.map((p, index) => (
                                 <tr key={p.id} className="hover:bg-[#F8FAF9] transition-colors group">
-                                    <td className="px-8 py-5 whitespace-nowrap text-sm font-bold text-gray-400">{(currentPage - 1) * itemsPerPage + index + 1}</td>
-                                    <td className="px-8 py-5 whitespace-nowrap">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-10 h-10 rounded-xl bg-[#E2F8F3] flex items-center justify-center text-[#2BBF9D] text-xs font-black shadow-sm group-hover:scale-110 transition-transform">
+                                     <td className="px-4 py-4 whitespace-nowrap text-[10px] font-bold text-gray-400">{(currentPage - 1) * itemsPerPage + index + 1}</td>
+                                    <td className="px-4 py-4 whitespace-nowrap">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-8 h-8 rounded-lg bg-[#E2F8F3] flex items-center justify-center text-[#2BBF9D] text-[10px] font-black shadow-sm group-hover:scale-110 transition-transform">
                                                 {p.kitchen?.name.slice(0, 2).toUpperCase() || '??'}
                                             </div>
                                             <div>
-                                                <div className="text-sm font-bold text-[#1A4D43] leading-tight">{p.kitchen?.name}</div>
-                                                <div className="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">ID: {p.kitchen?.id}</div>
+                                                <div className="text-[11px] font-bold text-[#1A4D43] leading-tight">{p.kitchen?.name}</div>
+                                                <div className="text-[8px] text-gray-400 font-bold uppercase tracking-tighter">ID: {p.kitchen?.id}</div>
                                             </div>
                                         </div>
                                     </td>
-                                     <td className="px-8 py-5">
+                                     <td className="px-4 py-4">
                                         {/* Kitchen Funding Progress */}
-                                        <div className="w-full max-w-[120px]">
-                                            <div className="flex justify-between text-[10px] font-bold mb-1">
+                                        <div className="w-full max-w-[100px]">
+                                            <div className="flex justify-between text-[8px] font-bold mb-1">
                                                 <span className="text-gray-400">Captured</span>
                                                 <span className={`${
                                                     participants.filter(pt => pt.kitchen_id === p.kitchen_id).reduce((s, x) => s + x.share_percentage, 0) >= 100 
@@ -249,7 +249,7 @@ export const Investors: React.FC = () => {
                                                     {participants.filter(pt => pt.kitchen_id === p.kitchen_id).reduce((s, x) => s + x.share_percentage, 0)}%
                                                 </span>
                                             </div>
-                                            <div className="w-full bg-gray-100 rounded-full h-1.5 border border-gray-50 overflow-hidden">
+                                            <div className="w-full bg-gray-100 rounded-full h-1 border border-gray-50 overflow-hidden">
                                                 <div 
                                                     className={`h-full rounded-full transition-all duration-1000 ${
                                                         participants.filter(pt => pt.kitchen_id === p.kitchen_id).reduce((s, x) => s + x.share_percentage, 0) >= 100 
@@ -260,46 +260,46 @@ export const Investors: React.FC = () => {
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="px-8 py-5 whitespace-nowrap text-sm text-[#1A4D43] text-right font-black">
+                                     <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#1A4D43] text-right font-black">
                                         Rp {p.investment_amount.toLocaleString('id-ID')}
                                     </td>
-                                    <td className="px-8 py-5 whitespace-nowrap text-sm font-bold text-[#1A4D43]">
+                                    <td className="px-4 py-4 whitespace-nowrap text-[11px] font-bold text-[#1A4D43]">
                                         {p.name}
                                     </td>
-                                    <td className="px-8 py-5 whitespace-nowrap text-center">
-                                        <div className="flex flex-col items-center">
-                                            <span className="px-3 py-1 rounded-full bg-[#E2F8F3] text-[#2BBF9D] text-[10px] font-black uppercase shadow-sm">
+                                    <td className="px-4 py-4 whitespace-nowrap text-center">
+                                        <div className="flex items-center gap-2 justify-center">
+                                            <span className="px-2 py-0.5 rounded-full bg-[#E2F8F3] text-[#2BBF9D] text-[9px] font-black uppercase shadow-sm">
                                                 {p.share_percentage}%
                                             </span>
-                                            <span className="text-[8px] text-gray-400 mt-1 font-bold">{p.saham_ratio}</span>
+                                            <span className="text-[7px] text-gray-400 font-bold">{p.saham_ratio}</span>
                                         </div>
                                     </td>
-                                    <td className="px-8 py-5 whitespace-nowrap">
+                                    <td className="px-4 py-4 whitespace-nowrap">
                                         <div className="flex flex-col">
-                                            <span className="text-xs font-black text-blue-600">
+                                            <span className="text-[10px] font-black text-blue-600">
                                                 Rp {(p.investment_amount * 0.05).toLocaleString('id-ID')}*
                                             </span>
-                                            <span className="text-[8px] text-gray-400 font-bold uppercase tracking-widest italic">Est. 5% ROI/Month</span>
+                                            <span className="text-[7px] text-gray-400 font-bold uppercase tracking-widest italic">Est. 5% ROI/mo</span>
                                         </div>
                                     </td>
-                                    <td className="px-8 py-5 whitespace-nowrap text-right">
-                                        <div className="flex justify-end gap-2">
+                                    <td className="px-4 py-4 whitespace-nowrap text-right">
+                                        <div className="flex justify-end gap-1.5">
                                             <button 
                                                 onClick={() => {
                                                     setEditingInvestor(p);
                                                     setIsModalOpen(true);
                                                 }}
-                                                className="p-2 text-gray-400 hover:text-[#2BBF9D] hover:bg-[#E2F8F3] rounded-xl transition-all"
+                                                className="p-1.5 text-gray-400 hover:text-[#2BBF9D] hover:bg-[#E2F8F3] rounded-lg transition-all"
                                                 title="Edit"
                                             >
-                                                <Edit className="w-4 h-4" />
+                                                <Edit className="w-3.5 h-3.5" />
                                             </button>
                                             <button 
                                                 onClick={() => handleDelete(p.id)}
-                                                className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                                                className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
                                                 title="Hapus"
                                             >
-                                                <Trash2 className="w-4 h-4" />
+                                                <Trash2 className="w-3.5 h-3.5" />
                                             </button>
                                         </div>
                                     </td>
@@ -309,7 +309,7 @@ export const Investors: React.FC = () => {
                     </table>
                 </div>
 
-                <div className="p-6 border-t border-gray-50 bg-[#F8FAF9]/30">
+                <div className="p-4 border-t border-gray-50 bg-[#F8FAF9]/30">
                     <Pagination
                         currentPage={currentPage}
                         totalItems={totalParticipants}

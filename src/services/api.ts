@@ -41,7 +41,7 @@ export const api = {
     },
 };
 
-export type UserRole = 'Super Admin' | 'Manager' | 'Finance' | 'HRD' | 'Procurement' | 'Staff';
+export type UserRole = 'Super Admin' | 'Manager' | 'Finance' | 'HRD' | 'Procurement' | 'Staff' | 'PIC Dapur' | 'Operator Koperasi' | 'Investor';
 
 export interface Profile {
     id: string;
@@ -52,6 +52,7 @@ export interface Profile {
     position: string;
     phone: string;
     avatar_url: string;
+    kitchen_id?: number;
     created_at: string;
     updated_at: string;
 }
@@ -68,6 +69,10 @@ export interface Kitchen {
     region: string;
     investor_share: number;
     dpp_share: number;
+    portion_target: number;
+    initial_capital: number;
+    accumulated_profit: number;
+    bep_status: string;
     sppg_id: string; // Hubungan ke data SPPG
     investors?: InvestorParticipant[];
     routes?: Route[];

@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { MapPin, Search, Filter, Edit, Trash2, Navigation, Clock, Plus, Info, ShieldCheck, Truck, CreditCard, ChevronRight, X } from 'lucide-react';
+import { MapPin, Search, Filter, Edit, Trash2, Navigation, Clock, Plus, Info, ShieldCheck, Truck, CreditCard, X, Building2, DollarSign, Activity, BarChart3 } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap, ZoomControl } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
 import { api, Kitchen, Route } from '../services/api';
 import { Pagination } from '../components/UI/Pagination';
+import { useAuth } from '../contexts/AuthContext';
 
 // Sub-component to fit map bounds to all markers
 // Sub-component for Map Picking
@@ -127,11 +128,13 @@ interface Regency {
 }
 
 export const Locations: React.FC = () => {
+  const { hasRole } = useAuth();
   const [isKitchenModalOpen, setIsKitchenModalOpen] = useState(false);
   const [isRouteModalOpen, setIsRouteModalOpen] = useState(false);
   const [editingKitchen, setEditingKitchen] = useState<Kitchen | null>(null);
   const [editingRoute, setEditingRoute] = useState<Route | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [activeDetailTab, setActiveDetailTab] = useState<'finance' | 'construction' | 'data' | 'logistics'>('finance');
   const [viewingKitchen, setViewingKitchen] = useState<Kitchen | null>(null);
   const [kitchens, setKitchens] = useState<Kitchen[]>([]);
   const [routes, setRoutes] = useState<Route[]>([]);
@@ -301,6 +304,22 @@ export const Locations: React.FC = () => {
     setCurrentPage(1);
   }, [searchTerm, selectedRegion]);
 
+  const handleSyncSppg = async () => {
+    if (!window.confirm('Apakah Anda yakin ingin menyelaraskan data SPPG dari sumber YWMP? Ini akan memperbarui data infrastruktur, readiness, dan armada.')) {
+      return;
+    }
+    setLoading(true);
+    try {
+      await api.post('/sync-sppg', {});
+      alert('Sinkronisasi SPPG berhasil!');
+      window.location.reload();
+    } catch (error: any) {
+      alert('Gagal melakukan sinkronisasi: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     const styles = {
       active: 'bg-[#E2F8F3] text-[#2BBF9D]',
@@ -334,19 +353,30 @@ export const Locations: React.FC = () => {
           <h1 className="text-3xl font-bold text-[#1A4D43] tracking-tight">Peta Lokasi & Distribusi</h1>
           <p className="text-gray-500 mt-1 font-medium">Kelola lokasi dapur dan rute distribusi di Makassar</p>
         </div>
-        <button 
-          onClick={() => {
-            setEditingKitchen(null);
-            setPickerPos({ lat: -5.14, lng: 119.43 });
-            setDetectedRegion('KOTA MAKASSAR');
-            setAddressValue('');
-            setIsKitchenModalOpen(true);
-          }}
-          className="premium-button-primary flex items-center gap-2 shadow-lg shadow-[#2BBF9D]/20"
-        >
-          <Plus className="w-5 h-5 font-bold" />
-          Tambah Lokasi
-        </button>
+        <div className="flex gap-3">
+          {hasRole(['Super Admin']) && (
+            <button 
+              onClick={handleSyncSppg}
+              className="bg-orange-600 text-white px-6 py-2.5 rounded-2xl font-bold text-sm shadow-xl shadow-orange-500/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
+            >
+              <Activity className="w-5 h-5" />
+              Sync Data Sppg
+            </button>
+          )}
+          <button 
+            onClick={() => {
+              setEditingKitchen(null);
+              setPickerPos({ lat: -5.14, lng: 119.43 });
+              setDetectedRegion('KOTA MAKASSAR');
+              setAddressValue('');
+              setIsKitchenModalOpen(true);
+            }}
+            className="premium-button-primary flex items-center gap-2 shadow-lg shadow-[#2BBF9D]/20 px-6 py-2.5"
+          >
+            <Plus className="w-5 h-5 font-bold" />
+            Tambah Lokasi
+          </button>
+        </div>
       </div>
 
       <div className="bg-white rounded-xl border border-gray-200">
@@ -844,15 +874,16 @@ export const Locations: React.FC = () => {
       {/* Kitchen Detail Modal */}
       {isDetailModalOpen && viewingKitchen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[9999] p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl flex flex-col scale-in-center shadow-blue-500/20">
+          <div className="bg-white rounded-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden shadow-2xl flex flex-col scale-in-center shadow-blue-500/20">
+            {/* Header */}
             <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
               <div className="flex items-center gap-4">
-                <div className="bg-gradient-to-br from-blue-600 to-blue-700 p-3 rounded-xl shadow-lg shadow-blue-200">
+                <div className="bg-gradient-to-br from-[#1A4D43] to-[#2BBF9D] p-3 rounded-xl shadow-lg shadow-green-200">
                   <MapPin className="w-6 h-6 text-white" />
                 </div>
                 <div>
                   <h2 className="text-2xl font-bold text-gray-900 leading-tight">{viewingKitchen.name}</h2>
-                  <p className="text-sm text-gray-500 font-medium">ID SPPG: <span className="text-blue-600 font-bold">{viewingKitchen.sppg_id || '-'}</span></p>
+                  <p className="text-sm text-gray-500 font-medium">Siklus: <span className="text-[#2BBF9D] font-bold">10 Hari (Termin)</span> | Wilayah: <span className="font-bold">{viewingKitchen.region}</span></p>
                 </div>
               </div>
               <button 
@@ -863,110 +894,159 @@ export const Locations: React.FC = () => {
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-                {/* Section 1: Fisik & Infrastruktur */}
-                <div className="space-y-6">
-                  <div className="flex items-center gap-2 text-[#1A4D43] font-extrabold text-lg border-b-2 border-green-100 pb-2">
-                    <Info className="w-5 h-5 text-green-600" />
-                    Infrastruktur & Fisik
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-gradient-to-br from-gray-50 to-white p-5 rounded-2xl border border-gray-100 shadow-sm border-l-4 border-l-blue-500">
-                      <p className="text-[10px] text-gray-400 uppercase font-black tracking-widest mb-1">Luas Lahan</p>
-                      <p className="text-2xl font-black text-gray-900">{viewingKitchen.sppg_detail?.infrastructure?.land_area || 0} <span className="text-sm font-normal text-gray-400 italic">m²</span></p>
-                    </div>
-                    <div className="bg-gradient-to-br from-gray-50 to-white p-5 rounded-2xl border border-gray-100 shadow-sm border-l-4 border-l-indigo-500">
-                      <p className="text-[10px] text-gray-400 uppercase font-black tracking-widest mb-1">Luas Bangunan</p>
-                      <p className="text-2xl font-black text-gray-900">{viewingKitchen.sppg_detail?.infrastructure?.building_area || 0} <span className="text-sm font-normal text-gray-400 italic">m²</span></p>
-                    </div>
-                  </div>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center p-4 bg-white border border-gray-100 rounded-xl shadow-sm hover:border-blue-200 transition-colors">
-                      <span className="text-sm text-gray-600 font-medium">Akses Lebar Jalan</span>
-                      <div className="flex items-center gap-2">
-                         <Truck className="w-4 h-4 text-blue-400" />
-                         <span className="text-sm font-black text-gray-900">{viewingKitchen.sppg_detail?.infrastructure?.road_access_size || 0} Meter</span>
+            {/* Tab Navigation */}
+            <div className="flex px-8 bg-white border-b border-gray-100 gap-8">
+              {[
+                { id: 'finance', label: 'Keuangan', icon: CreditCard },
+                { id: 'data', label: 'Data Dapur', icon: Info },
+                { id: 'construction', label: 'Konstruksi', icon: Building2 },
+                { id: 'logistics', label: 'Logistik', icon: Truck },
+              ].map((tab) => {
+                const TabIcon = tab.icon;
+                const isActive = activeDetailTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveDetailTab(tab.id as any)}
+                    className={`py-4 flex items-center gap-2 border-b-2 transition-all font-bold text-sm ${
+                      isActive 
+                        ? 'border-[#2BBF9D] text-[#1A4D43]' 
+                        : 'border-transparent text-gray-400 hover:text-gray-600'
+                    }`}
+                  >
+                    <TabIcon className={`w-4 h-4 ${isActive ? 'text-[#2BBF9D]' : 'text-gray-300'}`} />
+                    {tab.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Content Area */}
+            <div className="flex-1 overflow-y-auto p-8 custom-scrollbar bg-gray-50/30">
+              {activeDetailTab === 'finance' && (
+                <div className="space-y-8 animate-in slide-in-from-bottom-2 duration-300">
+                  {/* Financial Summary Cards */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm border-l-4 border-l-blue-500">
+                      <div className="flex items-center gap-2 text-gray-400 text-[10px] font-black uppercase tracking-widest mb-2">
+                        <DollarSign className="w-3 h-3" />
+                        Target Porsi (BGN)
                       </div>
+                      <p className="text-3xl font-black text-gray-900">{viewingKitchen.portion_target?.toLocaleString() || 0} <span className="text-sm font-normal text-gray-400">/ hari</span></p>
                     </div>
-                    <div className="flex justify-between items-center p-4 bg-white border border-gray-100 rounded-xl shadow-sm hover:border-blue-200 transition-colors">
-                      <span className="text-sm text-gray-600 font-medium">Status Penguasaan</span>
-                      <span className="px-3 py-1 bg-blue-50 text-blue-700 text-xs font-black rounded-lg uppercase tracking-wider">{viewingKitchen.sppg_detail?.infrastructure?.building_status || '-'}</span>
-                    </div>
-                    <div className="p-4 bg-emerald-50/50 border border-emerald-100 rounded-xl">
-                      <p className="text-[10px] text-emerald-600 font-black uppercase tracking-widest mb-2 flex items-center gap-1">
-                        <ShieldCheck className="w-3 h-3" />
-                        Kendaraan Operasional Diizinkan
+                    <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm border-l-4 border-l-orange-500">
+                      <div className="flex items-center gap-2 text-gray-400 text-[10px] font-black uppercase tracking-widest mb-2">
+                        <Activity className="w-3 h-3" />
+                        Status BEP
+                      </div>
+                      <p className={`text-2xl font-black ${viewingKitchen.bep_status === 'POST-BEP' ? 'text-emerald-600' : 'text-orange-600'}`}>
+                        {viewingKitchen.bep_status || 'PRE-BEP'}
                       </p>
-                      <p className="text-sm text-emerald-900 font-bold leading-relaxed">{viewingKitchen.sppg_detail?.infrastructure?.allowed_vehicles || '-'}</p>
+                    </div>
+                    <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm border-l-4 border-l-emerald-500">
+                      <div className="flex items-center gap-2 text-gray-400 text-[10px] font-black uppercase tracking-widest mb-2">
+                        <BarChart3 className="w-3 h-3" />
+                        Total Akumulasi Laba
+                      </div>
+                      <p className="text-2xl font-black text-emerald-700">Rp {(viewingKitchen.accumulated_profit || 0).toLocaleString()}</p>
+                    </div>
+                  </div>
+
+                  {/* BEP Progress Bar */}
+                  <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-xl">
+                    <div className="flex justify-between items-end mb-4">
+                      <div>
+                        <h3 className="text-lg font-black text-[#1A4D43] mb-1">Kemajuan Balik Modal (BEP)</h3>
+                        <p className="text-sm text-gray-500">Target Modal: <span className="font-bold text-gray-900">Rp {(viewingKitchen.initial_capital || 0).toLocaleString()}</span></p>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-3xl font-black text-[#2BBF9D]">
+                          {viewingKitchen.initial_capital > 0 
+                            ? Math.min(100, Math.round((viewingKitchen.accumulated_profit / viewingKitchen.initial_capital) * 100))
+                            : 0}%
+                        </span>
+                        <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest">Progress Investasi</p>
+                      </div>
+                    </div>
+                    <div className="h-6 w-full bg-gray-100 rounded-full overflow-hidden p-1 border border-gray-200">
+                      <div 
+                        className="h-full bg-gradient-to-r from-[#1A4D43] to-[#2BBF9D] rounded-full transition-all duration-1000 shadow-inner"
+                        style={{ width: `${viewingKitchen.initial_capital > 0 ? Math.min(100, (viewingKitchen.accumulated_profit / viewingKitchen.initial_capital) * 100) : 0}%` }}
+                      ></div>
+                    </div>
+                    <div className="mt-4 grid grid-cols-2 gap-4 text-sm font-bold">
+                      <div className="p-4 bg-gray-50 rounded-xl flex items-center justify-between">
+                        <span className="text-gray-500">Jatah Investor:</span>
+                        <span className="text-[#1A4D43] font-black">{(viewingKitchen.investor_share * 100).toFixed(0)}%</span>
+                      </div>
+                      <div className="p-4 bg-gray-50 rounded-xl flex items-center justify-between">
+                        <span className="text-gray-500">Jatah DPP/Pusat:</span>
+                        <span className="text-[#1A4D43] font-black">{(viewingKitchen.dpp_share * 100).toFixed(0)}%</span>
+                      </div>
                     </div>
                   </div>
                 </div>
+              )}
 
-                {/* Section 2: Stakeholder & Finance */}
-                <div className="space-y-6">
-                  <div className="flex items-center gap-2 text-[#1A4D43] font-extrabold text-lg border-b-2 border-blue-100 pb-2">
-                    <CreditCard className="w-5 h-5 text-blue-600" />
-                    Stakeholder & Finansial
-                  </div>
-                  
-                  {/* PJ Dapur */}
-                  <div className="group relative bg-white p-5 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all hover:-translate-y-1">
-                    <div className="absolute top-0 left-0 w-1 h-full bg-blue-600 rounded-l-2xl"></div>
-                    <div className="flex justify-between items-center mb-3">
-                      <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest">PENANGGUNG JAWAB (PJ)</span>
-                      <div className="p-1.5 bg-blue-50 rounded-lg">
-                        <ChevronRight className="w-3 h-3 text-blue-600" />
+              {activeDetailTab === 'data' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-in slide-in-from-right-2 duration-300">
+                  <div className="space-y-6">
+                    <h3 className="text-lg font-black text-[#1A4D43] flex items-center gap-2">
+                       <Building2 className="w-5 h-5" /> Penanggung Jawab & Lahan
+                    </h3>
+                    <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4">
+                      <div>
+                        <p className="text-[10px] text-gray-400 font-black uppercase tracking-[0.2em] mb-1">Nama PJ Dapur</p>
+                        <p className="text-lg font-black text-gray-900">{viewingKitchen.sppg_detail?.stakeholder?.pj?.name || '-'}</p>
                       </div>
-                    </div>
-                    <div className="mb-4">
-                      <p className="text-xl font-black text-gray-900 leading-none mb-1">{viewingKitchen.sppg_detail?.stakeholder?.pj?.name || '-'}</p>
-                      <p className="text-sm text-gray-500 font-medium">{viewingKitchen.sppg_detail?.stakeholder?.pj?.phone || '-'}</p>
-                    </div>
-                    <div className="pt-3 border-t border-gray-100 bg-gray-50/30 -mx-5 px-5 rounded-b-2xl">
-                      <p className="text-[9px] text-gray-400 font-black uppercase tracking-widest mb-1">Target Penyaluran (Bank)</p>
-                      <div className="flex items-center justify-between">
-                        <p className="text-sm font-black text-gray-700 font-mono tracking-tight">
-                          <span className="text-blue-600">{viewingKitchen.sppg_detail?.stakeholder?.pj?.bank_name}</span> {viewingKitchen.sppg_detail?.stakeholder?.pj?.bank_account_number}
-                        </p>
-                        <button className="text-[10px] bg-white border px-2 py-1 rounded shadow-sm hover:bg-gray-50 font-bold uppercase transition-colors">Copy</button>
+                      <div>
+                        <p className="text-[10px] text-gray-400 font-black uppercase tracking-[0.2em] mb-1">Kontak</p>
+                        <p className="text-sm font-bold text-blue-600">{viewingKitchen.sppg_detail?.stakeholder?.pj?.phone || '-'}</p>
                       </div>
-                      <p className="text-[11px] text-gray-500 font-medium italic mt-1">a.n {viewingKitchen.sppg_detail?.stakeholder?.pj?.bank_account_name}</p>
+                      <div className="pt-4 border-t border-gray-100">
+                        <p className="text-[10px] text-gray-400 font-black uppercase tracking-[0.2em] mb-1">Pemilik Lahan</p>
+                        <p className="text-lg font-black text-gray-900">{viewingKitchen.sppg_detail?.stakeholder?.landlord?.name || '-'}</p>
+                      </div>
                     </div>
                   </div>
-
-                  {/* Pemilik Lahan */}
-                  <div className="group relative bg-white p-5 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all hover:-translate-y-1">
-                    <div className="absolute top-0 left-0 w-1 h-full bg-emerald-500 rounded-l-2xl"></div>
-                    <div className="flex justify-between items-center mb-3">
-                      <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">PEMILIK LAHAN (LANDLORD)</span>
-                      <div className="px-2 py-1 bg-emerald-50 text-emerald-700 text-[10px] font-black rounded-full">
-                        SEWA: Rp{(viewingKitchen.sppg_detail?.stakeholder?.annual_rent_cost || 0).toLocaleString()}
+                  <div className="space-y-6">
+                    <h3 className="text-lg font-black text-[#1A4D43] flex items-center gap-2">
+                       <Info className="w-5 h-5 text-[#2BBF9D]" /> Spesifikasi Fisik
+                    </h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="bg-white p-5 rounded-2xl border border-gray-100">
+                        <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">Luas Lahan</p>
+                        <p className="text-xl font-black text-gray-900">{viewingKitchen.sppg_detail?.infrastructure?.land_area || 0} m²</p>
+                      </div>
+                      <div className="bg-white p-5 rounded-2xl border border-gray-100">
+                        <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">Luas Bangunan</p>
+                        <p className="text-xl font-black text-gray-900">{viewingKitchen.sppg_detail?.infrastructure?.building_area || 0} m²</p>
                       </div>
                     </div>
-                    <div className="mb-4">
-                      <p className="text-xl font-black text-gray-900 leading-none mb-1">{viewingKitchen.sppg_detail?.stakeholder?.landlord?.name || '-'}</p>
-                    </div>
-                    <div className="pt-3 border-t border-gray-100 bg-gray-50/30 -mx-5 px-5 rounded-b-2xl">
-                      <p className="text-[9px] text-gray-400 font-black uppercase tracking-widest mb-1">Target Penyaluran (Bank)</p>
-                      <div className="flex items-center justify-between">
-                        <p className="text-sm font-black text-gray-700 font-mono tracking-tight">
-                          <span className="text-emerald-600">{viewingKitchen.sppg_detail?.stakeholder?.landlord?.bank_name}</span> {viewingKitchen.sppg_detail?.stakeholder?.landlord?.bank_account_number}
-                        </p>
-                        <button className="text-[10px] bg-white border px-2 py-1 rounded shadow-sm hover:bg-gray-50 font-bold uppercase transition-colors">Copy</button>
-                      </div>
-                      <p className="text-[11px] text-gray-500 font-medium italic mt-1">a.n {viewingKitchen.sppg_detail?.stakeholder?.landlord?.bank_account_name}</p>
+                    <div className="bg-[#1A4D43] p-6 rounded-2xl text-white">
+                      <p className="text-[10px] text-white/50 font-black uppercase tracking-[0.3em] mb-2">Alat Dapur Terverifikasi</p>
+                      <ul className="text-sm space-y-1 opacity-90 font-medium">
+                        <li>• Kuali Industri & Kompor High Pressure</li>
+                        <li>• Meja Persiapan Stainless Steel</li>
+                        <li>• Cold Storage / Freezer 600L</li>
+                      </ul>
                     </div>
                   </div>
                 </div>
+              )}
 
-                {/* Section 3: Readiness (Full Width) */}
-                <div className="lg:col-span-2 space-y-4">
-                  <div className="flex items-center gap-2 text-[#1A4D43] font-black text-lg border-b-2 border-gray-100 pb-2">
-                    <ShieldCheck className="w-5 h-5 text-orange-500" />
-                    Kesiapan Operasional (Checklist)
+              {activeDetailTab === 'construction' && (
+                <div className="space-y-6 animate-in zoom-in-95 duration-300">
+                  <div className="flex items-center justify-between bg-white p-6 rounded-2xl border border-gray-100">
+                    <div>
+                      <h3 className="text-xl font-black text-gray-900">Kesiapan Infrastruktur</h3>
+                      <p className="text-sm text-gray-500">Checklist kelayakan operasional gedung</p>
+                    </div>
+                    <div className={`px-4 py-2 rounded-xl text-sm font-black ${viewingKitchen.sppg_detail?.readiness?.is_ready_to_run ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-400'}`}>
+                      {viewingKitchen.sppg_detail?.readiness?.is_ready_to_run ? 'READY - SIAP PAKAI' : 'PENDING - DALAM PROSES'}
+                    </div>
                   </div>
-                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {[
                       { label: 'Instalasi IPAL', status: viewingKitchen.sppg_detail?.readiness?.has_ipal },
                       { label: 'Sistem Sentral Gas', status: viewingKitchen.sppg_detail?.readiness?.has_gas },
@@ -975,63 +1055,69 @@ export const Locations: React.FC = () => {
                       { label: 'Sistem Exhaust', status: viewingKitchen.sppg_detail?.readiness?.has_exhaust },
                       { label: 'Sertifikasi Halal', status: viewingKitchen.sppg_detail?.readiness?.has_halal_cert },
                     ].map((item, i) => (
-                      <div key={i} className={`flex items-center justify-between p-4 rounded-2xl border-2 transition-all ${item.status ? 'bg-emerald-50 border-emerald-100 text-emerald-700 shadow-sm' : 'bg-gray-50 border-gray-100 text-gray-400'}`}>
-                        <span className="text-[10px] font-black uppercase tracking-wider">{item.label}</span>
-                        <div className={`p-1 rounded-full ${item.status ? 'bg-emerald-500 text-white' : 'bg-gray-200 text-gray-400'}`}>
-                          {item.status ? <ShieldCheck className="w-3 h-3" /> : <X className="w-3 h-3" />}
+                      <div key={i} className="flex items-center justify-between p-5 bg-white rounded-2xl border border-gray-100 group hover:border-[#2BBF9D] transition-colors">
+                        <span className="text-xs font-bold text-gray-600">{item.label}</span>
+                        <div className={`p-1.5 rounded-full ${item.status ? 'bg-emerald-500 text-white' : 'bg-gray-100 text-gray-300'}`}>
+                          {item.status ? <ShieldCheck className="w-4 h-4" /> : <X className="w-4 h-4" />}
                         </div>
                       </div>
                     ))}
-                    <div className={`lg:col-span-2 flex items-center justify-center gap-3 p-4 rounded-2xl border-2 border-dashed ${viewingKitchen.sppg_detail?.readiness?.is_ready_to_run ? 'bg-blue-600 border-blue-400 text-white animate-pulse' : 'bg-gray-50 border-gray-200 text-gray-400'}`}>
-                       <span className="text-xs font-black uppercase tracking-[0.2em]">Status Akhir:</span>
-                       <span className="text-lg font-black uppercase">{viewingKitchen.sppg_detail?.readiness?.is_ready_to_run ? 'SIAP BEROPERASI' : 'BELUM SIAP'}</span>
+                  </div>
+                </div>
+              )}
+
+              {activeDetailTab === 'logistics' && (
+                <div className="space-y-8 animate-in slide-in-from-left-2 duration-300">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="bg-white p-6 rounded-2xl border border-gray-100 text-center">
+                       <Truck className="w-10 h-10 text-[#2BBF9D] mx-auto mb-3" />
+                       <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">Total Armada</p>
+                       <p className="text-3xl font-black text-gray-900">{viewingKitchen.sppg_detail?.fleets?.length || 0}</p>
+                    </div>
+                    <div className="md:col-span-2 bg-[#1A4D43] p-6 rounded-2xl text-white flex items-center justify-between">
+                       <div>
+                         <p className="text-white/50 text-[10px] font-black uppercase tracking-[0.2em] mb-1">Status Pengiriman</p>
+                         <h4 className="text-2xl font-black">All Routes Active</h4>
+                       </div>
+                       <div className="text-right">
+                         <button className="bg-[#2BBF9D] px-4 py-2 rounded-xl font-bold text-xs shadow-lg shadow-black/20">Manage Routes</button>
+                       </div>
+                    </div>
+                  </div>
+                  <div className="bg-white p-6 rounded-2xl border border-gray-100">
+                    <h4 className="text-sm font-black text-gray-400 uppercase tracking-widest mb-4">Daftar Unit Kendaraan</h4>
+                    <div className="space-y-3">
+                      {viewingKitchen.sppg_detail?.fleets?.map((f: any, i: number) => (
+                        <div key={i} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+                          <div className="flex items-center gap-3">
+                            <div className="bg-white p-2 rounded-lg shadow-sm font-black text-xs text-[#1A4D43]">{i+1}</div>
+                            <span className="font-bold text-gray-700">{f.fleet_type} - {f.vehicle_description}</span>
+                          </div>
+                          <span className="bg-emerald-100 text-emerald-700 text-[10px] font-black px-2 py-1 rounded-lg uppercase">Aktif</span>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </div>
-
-                {/* Section 4: Armada (Full Width) */}
-                <div className="lg:col-span-2 space-y-4">
-                  <div className="flex items-center gap-2 text-[#1A4D43] font-black text-lg border-b-2 border-gray-100 pb-2">
-                    <Truck className="w-5 h-5 text-indigo-500" />
-                    Inventaris Armada Pengiriman
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {viewingKitchen.sppg_detail?.fleets?.map((fleet: any, i: number) => (
-                      <div key={i} className="group flex items-center gap-6 p-5 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition-all border-l-4 border-l-indigo-600">
-                        <div className="bg-indigo-50 p-4 rounded-xl group-hover:bg-indigo-600 group-hover:text-white transition-colors duration-300">
-                          <Truck className="w-8 h-8" />
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-[10px] text-indigo-600 font-extrabold uppercase tracking-[0.2em] mb-1">{fleet.fleet_type}</p>
-                          <p className="text-lg font-black text-gray-900 leading-tight">{fleet.vehicle_description || 'Unit Belum Terdaftar'}</p>
-                          <div className="mt-2 flex items-center gap-1.5 opacity-60">
-                             <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
-                             <span className="text-[10px] font-bold uppercase text-gray-500">Kondisi Aktif</span>
-                          </div>
-                        </div>
-                        <ChevronRight className="w-5 h-5 text-gray-200 group-hover:text-indigo-600 transition-colors" />
-                      </div>
-                    )) || (
-                      <div className="col-span-2 flex flex-col items-center justify-center py-12 bg-gray-50/50 rounded-3xl border-2 border-dashed border-gray-100">
-                        <div className="bg-white p-4 rounded-full shadow-sm mb-4">
-                          <Truck className="w-10 h-10 text-gray-200" />
-                        </div>
-                        <p className="text-gray-400 text-sm font-bold italic">Data armada belum dipetakan untuk lokasi ini.</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
+              )}
             </div>
 
+            {/* Footer */}
             <div className="p-6 border-t border-gray-100 bg-gray-50/50 flex justify-between items-center">
-              <p className="text-[10px] text-gray-400 font-medium italic">Sinkronisasi terakhir dari YWMP Portal: {new Date().toLocaleDateString('id-ID')}</p>
-              <button 
-                onClick={() => setIsDetailModalOpen(false)}
-                className="px-12 py-3.5 bg-gradient-to-r from-[#1A4D43] to-[#256b5d] text-white rounded-2xl font-black shadow-xl shadow-[#1A4D43]/20 hover:shadow-2xl hover:-translate-y-1 active:translate-y-0 transition-all uppercase tracking-widest text-xs"
-              >
-                Tutup Dashboard Detail
-              </button>
+              <p className="text-[10px] text-gray-400 font-medium italic">Data Sinkron: {new Date().toLocaleDateString('id-ID')} | Power by Wahdah MBG Engine</p>
+              <div className="flex gap-3">
+                <button 
+                  onClick={() => setIsDetailModalOpen(false)}
+                  className="px-8 py-3 bg-gray-200 text-gray-700 rounded-xl font-black text-xs hover:bg-gray-300 transition-all uppercase tracking-widest"
+                >
+                  Tutup
+                </button>
+                <button 
+                   className="px-8 py-3 bg-[#1A4D43] text-white rounded-xl font-black text-xs shadow-xl shadow-[#1A4D43]/20 hover:shadow-2xl hover:-translate-y-1 transition-all uppercase tracking-widest"
+                >
+                  Cetak Laporan
+                </button>
+              </div>
             </div>
           </div>
         </div>

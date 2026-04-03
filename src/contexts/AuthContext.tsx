@@ -54,9 +54,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     localStorage.removeItem('mbg_profile');
   };
 
-  const hasRole = (roles: UserRole[]): boolean => {
+  const hasRole = (roles: UserRole[] | UserRole): boolean => {
     if (!profile) return false;
-    return roles.includes(profile.role);
+    if (Array.isArray(roles)) {
+      return roles.includes(profile.role);
+    }
+    return profile.role === roles;
   };
 
   return (

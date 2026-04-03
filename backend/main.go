@@ -1,9 +1,13 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
+	"path/filepath"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -98,6 +102,57 @@ func initDB() {
 		db.Model(&models.User{}).Where("email = ?", "superadmin@mbg.com").Updates(models.User{
 			Password: string(hashedPassword),
 		})
+	}
+
+	// Seed PIC Dapur Account
+	hashedDapur, _ := bcrypt.GenerateFromPassword([]byte("mbg12345"), bcrypt.DefaultCost)
+	dapurUser := models.User{
+		ID:         "2",
+		Email:      "dapur@mbg.com",
+		Password:   string(hashedDapur),
+		FullName:   "Demo PIC Dapur",
+		Role:       "PIC Dapur",
+		Department: "Operasional",
+		Position:   "Kitchen Lead",
+	}
+	var countDapur int64
+	db.Model(&models.User{}).Where("email = ?", "dapur@mbg.com").Count(&countDapur)
+	if countDapur == 0 {
+		db.Create(&dapurUser)
+	}
+
+	// Seed Investor Account
+	hashedInvestor, _ := bcrypt.GenerateFromPassword([]byte("mbg12345"), bcrypt.DefaultCost)
+	investorUser := models.User{
+		ID:         "3",
+		Email:      "investor@mbg.com",
+		Password:   string(hashedInvestor),
+		FullName:   "Demo Investor",
+		Role:       "Investor",
+		Department: "Investment",
+		Position:   "Investor",
+	}
+	var countInvestor int64
+	db.Model(&models.User{}).Where("email = ?", "investor@mbg.com").Count(&countInvestor)
+	if countInvestor == 0 {
+		db.Create(&investorUser)
+	}
+
+	// Seed Operator Koperasi Account
+	hashedKoperasi, _ := bcrypt.GenerateFromPassword([]byte("mbg12345"), bcrypt.DefaultCost)
+	koperasiUser := models.User{
+		ID:         "4",
+		Email:      "koperasi@mbg.com",
+		Password:   string(hashedKoperasi),
+		FullName:   "Demo Operator Koperasi",
+		Role:       "Operator Koperasi",
+		Department: "Audit & Logistik",
+		Position:   "Koperasi Lead",
+	}
+	var countKoperasi int64
+	db.Model(&models.User{}).Where("email = ?", "koperasi@mbg.com").Count(&countKoperasi)
+	if countKoperasi == 0 {
+		db.Create(&koperasiUser)
 	}
 }
 
@@ -686,6 +741,16 @@ func main() {
 			})
 		})
 
+		// 4. Admin: Trigger SPPG Sync from YWMP JSON data
+		api.POST("/sync-sppg", RequireRole("Super Admin"), func(c *gin.Context) {
+			err := SyncSppgData(db)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Sync failed: " + err.Error()})
+				return
+			}
+			c.JSON(http.StatusOK, gin.H{"message": "SPPG Data synchronized successfully"})
+		})
+
 		// User Management
 		api.GET("/users", func(c *gin.Context) {
 			var users []models.User
@@ -798,6 +863,171 @@ func main() {
 		port = "8080"
 	}
 	r.Run(":" + port)
+}
+
+// Helper Functions for SPPG Syncing
+func parseMoney(s string) float64 {
+	s = strings.ReplaceAll(s, "Rp", "")
+	s = strings.ReplaceAll(s, ".", "")
+	s = strings.ReplaceAll(s, ",", ".")
+	s = strings.ReplaceAll(s, "\n", "")
+	s = strings.TrimSpace(s)
+	if strings.Contains(s, "tahun") {
+		s = strings.Split(s, "per")[0]
+		s = strings.TrimSpace(s)
+	}
+	val, _ := strconv.ParseFloat(s, 64)
+	return val
+}
+
+func parseArea(s string) float64 {
+	parts := strings.Split(s, ":")
+	if len(parts) > 1 {
+		s = parts[1]
+	}
+	s = strings.ReplaceAll(s, "m²", "")
+	s = strings.ReplaceAll(s, "m2", "")
+	s = strings.TrimSpace(s)
+	val, _ := strconv.ParseFloat(s, 64)
+	return val
+}
+
+func parseBankInfo(s string) (bank, number, name string) {
+	s = strings.ReplaceAll(s, "\n", " ")
+	parts := strings.Fields(s)
+	if len(parts) >= 1 {
+		bank = parts[0]
+	}
+	if len(parts) >= 2 {
+		number = parts[1]
+	}
+	if len(parts) >= 3 {
+		name = strings.Join(parts[2:], " ")
+	}
+	return
+}
+
+func SyncSppgData(db *gorm.DB) error {
+	dataDir := "wadah_merah_putih_data"
+
+	// 1. Sync Titik 49 (Infrastructure & Stakeholders)
+	path49 := filepath.Join(dataDir, "data_titik_49.json")
+	content49, err := os.ReadFile(path49)
+	if err == nil {
+		var raw49 []map[string]interface{}
+		if err := json.Unmarshal(content49, &raw49); err == nil {
+			for _, item := range raw49 {
+				sppgID, _ := item["ID SPPG"].(string)
+				if sppgID == "" {
+					continue
+				}
+				infra := models.SppgInfrastructure{SppgID: sppgID}
+				lahanBangunanVal, _ := item["LAHAN & BANGUNAN"].(string)
+				lines := strings.Split(lahanBangunanVal, "\n")
+				for _, line := range lines {
+					if strings.Contains(strings.ToLower(line), "lahan") {
+						infra.LandArea = parseArea(line)
+					}
+					if strings.Contains(strings.ToLower(line), "bangunan") {
+						infra.BuildingArea = parseArea(line)
+					}
+				}
+				infra.BuildingStatus, _ = item["STATUS BANGUNAN DAN LAHAN"].(string)
+				aksesJalanVal, _ := item["AKSES JALAN"].(string)
+				infra.RoadAccessSize, _ = strconv.ParseFloat(strings.TrimSpace(strings.Split(aksesJalanVal, "meter")[0]), 64)
+				infra.AllowedVehicles = strings.ReplaceAll(aksesJalanVal, "\n", " ")
+				infra.BuildingCondition, _ = item["KONDISI BANGUNAN"].(string)
+				db.Where(models.SppgInfrastructure{SppgID: sppgID}).Assign(infra).FirstOrCreate(&infra)
+
+				// PJ Dapur
+				pjName, _ := item["PJ DAPUR"].(string)
+				pjPhone, _ := item["WA PJ DAPUR"].(string)
+				pjBankRaw, _ := item["REKENING PJ DAPUR"].(string)
+				bank, num, accName := parseBankInfo(pjBankRaw)
+				var pj models.Stakeholder
+				db.Where(models.Stakeholder{Name: pjName, Role: "PJ_DAPUR"}).Assign(models.Stakeholder{
+					Phone: pjPhone, BankName: bank, BankAccountNumber: num, BankAccountName: accName,
+				}).FirstOrCreate(&pj)
+
+				// Landlord
+				llNameRaw, _ := item["PEMILIK BANGUNAN/LAHAN"].(string)
+				llName := strings.Split(llNameRaw, "\n")[0]
+				llBankRaw, _ := item["REKENING PEMILIK BANGUNAN/LAHAN"].(string)
+				lbank, lnum, laccName := parseBankInfo(llBankRaw)
+				var landlord models.Stakeholder
+				db.Where(models.Stakeholder{Name: llName, Role: "LANDLORD"}).Assign(models.Stakeholder{
+					BankName: lbank, BankAccountNumber: lnum, BankAccountName: laccName,
+				}).FirstOrCreate(&landlord)
+
+				stake := models.SppgStakeholder{SppgID: sppgID}
+				stake.PjID = pj.ID
+				stake.LandlordID = landlord.ID
+				stake.AnnualRentCost = parseMoney(item["BERAPA"].(string))
+				db.Where(models.SppgStakeholder{SppgID: sppgID}).Assign(stake).FirstOrCreate(&stake)
+			}
+		}
+	}
+
+	// 2. Sync Mobil 102 Titik
+	pathMobil := filepath.Join(dataDir, "data_mobil_102_titik.json")
+	contentMobil, err := os.ReadFile(pathMobil)
+	if err == nil {
+		var rawMobil []map[string]interface{}
+		if err := json.Unmarshal(contentMobil, &rawMobil); err == nil {
+			for _, item := range rawMobil {
+				sppgID, _ := item["ID SPPG"].(string)
+				if sppgID == "" {
+					continue
+				}
+				db.Unscoped().Where("sppg_id = ?", sppgID).Delete(&models.OperationalFleet{})
+				if m1, ok := item["MOBIL 1"].(string); ok && m1 != "" {
+					db.Create(&models.OperationalFleet{SppgID: sppgID, FleetType: "Mobil 1", VehicleDescription: m1})
+				}
+				if m2, ok := item["MOBIL 2"].(string); ok && m2 != "" {
+					db.Create(&models.OperationalFleet{SppgID: sppgID, FleetType: "Mobil 2", VehicleDescription: m2})
+				}
+			}
+		}
+	}
+
+	// 3. Sync Readiness
+	for _, f := range []string{"data_running.json", "data_titik_5.json", "data_sppg.json"} {
+		path := filepath.Join(dataDir, f)
+		content, err := os.ReadFile(path)
+		if err == nil {
+			var raw []map[string]interface{}
+			if err := json.Unmarshal(content, &raw); err == nil {
+				for _, item := range raw {
+					sppgID, ok := item["ID_SPPG"].(string)
+					if !ok {
+						sppgID, ok = item["ID SPPG"].(string)
+					}
+					if !ok || sppgID == "" {
+						continue
+					}
+					readiness := models.SppgReadiness{SppgID: sppgID}
+					check := func(key string) bool {
+						val, ok := item[key].(string)
+						if !ok {
+							return false
+						}
+						return strings.Contains(val, "✅")
+					}
+					readiness.HasIpal = check("IPAL")
+					readiness.HasGas = check("GAS")
+					readiness.HasListrik = check("LISTRIK")
+					readiness.HasWaterFilter = check("FILTER AIR")
+					readiness.HasExhaust = check("EXHAUST FAN")
+					readiness.HasHalalCert = check("SERTIFIKAT HALAL")
+					runningVal, _ := item["RUNNING"].(string)
+					readiness.IsReadyToRun = strings.Contains(runningVal, "✅") || item["KETERANGAN"] == "SIAP RUNNING"
+					db.Where(models.SppgReadiness{SppgID: sppgID}).Assign(readiness).FirstOrCreate(&readiness)
+				}
+			}
+		}
+	}
+
+	return nil
 }
 
 func getDashboardSummary(c *gin.Context) {

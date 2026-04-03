@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { ShoppingCart, Package, FileText, Search, Filter, QrCode, TrendingUp, AlertCircle, Plus, Edit, Trash2 } from 'lucide-react';
+import { ShoppingCart, Package, FileText, Search, Filter, QrCode, TrendingUp, AlertCircle, Plus, Edit, Trash2, Activity } from 'lucide-react';
 import { api, Equipment, PurchaseOrder } from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 
 export const Procurement: React.FC = () => {
+  const { profile } = useAuth();
   const [activeTab, setActiveTab] = useState<'catalog' | 'orders' | 'inventory'>('catalog');
   const [searchTerm, setSearchTerm] = useState('');
   const [equipment, setEquipment] = useState<Equipment[]>([]);
@@ -11,8 +13,17 @@ export const Procurement: React.FC = () => {
 
   const [isEquipmentModalOpen, setIsEquipmentModalOpen] = useState(false);
   const [isPOModalOpen, setIsPOModalOpen] = useState(false);
+  const [isAuditModalOpen, setIsAuditModalOpen] = useState(false);
   const [editingEquipment, setEditingEquipment] = useState<Equipment | null>(null);
   const [editingPO, setEditingPO] = useState<PurchaseOrder | null>(null);
+
+  const [auditForm, setAuditForm] = useState({
+    date: new Date().toISOString().split('T')[0],
+    total_cost: 0,
+    portions: 0,
+    items: '',
+    kitchen_id: profile?.kitchen_id || null
+  });
 
   const fetchData = async () => {
     try {
@@ -30,8 +41,35 @@ export const Procurement: React.FC = () => {
     }
   };
 
+  const handleAuditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const pricePerPortion = auditForm.total_cost / (auditForm.portions || 1);
+    
+    try {
+      await api.post('/purchase-orders', {
+        number: `AUDIT-${Date.now()}`,
+        supplier: 'Audit Belanja Harian',
+        total_amount: auditForm.total_cost,
+        date: auditForm.date,
+        status: 'delivered',
+        notes: `Porsi: ${auditForm.portions}, Per Porsi: Rp ${pricePerPortion.toLocaleString()}, Item: ${auditForm.items}`
+      });
+      setIsAuditModalOpen(false);
+      fetchData();
+      // Remove query param from URL
+      window.history.replaceState({}, '', window.location.pathname);
+    } catch (error: any) {
+      alert('Gagal Simpan Audit: ' + (error.response?.data?.error || error.message));
+    }
+  };
+
   React.useEffect(() => {
     fetchData();
+    // Check for query actions
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('action') === 'audit-belanja') {
+      setIsAuditModalOpen(true);
+    }
   }, []);
 
   const handleDeleteEquipment = async (id: number) => {
@@ -112,6 +150,24 @@ export const Procurement: React.FC = () => {
             <ShoppingCart className="w-5 h-5" />
             Buat PO
           </button>
+          {(profile?.role === 'Super Admin' || profile?.role === 'Operator Koperasi') && (
+            <button 
+              onClick={() => {
+                setAuditForm({
+                  date: new Date().toISOString().split('T')[0],
+                  total_cost: 0,
+                  portions: 0,
+                  items: '',
+                  kitchen_id: profile?.kitchen_id || null
+                });
+                setIsAuditModalOpen(true);
+              }}
+              className="bg-[#1A4D43] text-white px-4 py-2 rounded-lg hover:bg-[#1A4D43]/90 transition-colors flex items-center gap-2 shadow-sm"
+            >
+              <Activity className="w-5 h-5" />
+              Audit Belanja
+            </button>
+          )}
         </div>
       </div>
 
@@ -432,6 +488,114 @@ export const Procurement: React.FC = () => {
                   setEditingPO(null);
                 }} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Cancel</button>
                 <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">{editingPO ? 'Update PO' : 'Create PO'}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Audit Belanja Modal */}
+      {isAuditModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-8 shadow-2xl animate-in zoom-in duration-300">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="bg-[#E2F8F3] p-3 rounded-xl">
+                <Activity className="w-6 h-6 text-[#2BBF9D]" />
+              </div>
+              <div>
+                <h2 className="text-xl font-black text-[#1A4D43]">Audit Belanja Harian</h2>
+                <p className="text-sm text-gray-500 font-medium tracking-tight">Validasi biaya bahan baku per porsi</p>
+              </div>
+            </div>
+            
+            <form onSubmit={handleAuditSubmit} className="space-y-6">
+              <div className="grid grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Tanggal Belanja</label>
+                  <input 
+                    type="date" 
+                    required
+                    value={auditForm.date}
+                    onChange={e => setAuditForm({...auditForm, date: e.target.value})}
+                    className="w-full border border-gray-100 rounded-xl px-4 py-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-[#2BBF9D] focus:border-transparent transition-all outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Jumlah Porsi</label>
+                  <input 
+                    type="number" 
+                    required
+                    placeholder="Contoh: 500"
+                    value={auditForm.portions || ''}
+                    onChange={e => setAuditForm({...auditForm, portions: Number(e.target.value)})}
+                    className="w-full border border-gray-100 rounded-xl px-4 py-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-[#2BBF9D] focus:border-transparent transition-all outline-none"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Total Biaya Belanja (IDR)</label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-gray-400">Rp</span>
+                  <input 
+                    type="number" 
+                    required
+                    placeholder="Total nota hari ini"
+                    value={auditForm.total_cost || ''}
+                    onChange={e => setAuditForm({...auditForm, total_cost: Number(e.target.value)})}
+                    className="w-full border border-gray-100 rounded-xl pl-12 pr-4 py-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-[#2BBF9D] focus:border-transparent transition-all outline-none font-bold"
+                  />
+                </div>
+              </div>
+
+              {auditForm.portions > 0 && auditForm.total_cost > 0 && (
+                <div className={`p-4 rounded-xl border ${
+                  auditForm.total_cost / auditForm.portions > 10000 
+                  ? 'bg-red-50 border-red-100 text-red-700' 
+                  : 'bg-emerald-50 border-emerald-100 text-emerald-700'
+                }`}>
+                  <div className="flex items-center justify-between font-bold">
+                    <span>Estimasi Biaya per Porsi:</span>
+                    <span className="text-lg">Rp {(auditForm.total_cost / auditForm.portions).toLocaleString()}</span>
+                  </div>
+                  {auditForm.total_cost / auditForm.portions > 10000 && (
+                    <p className="text-[10px] mt-2 font-medium flex items-center gap-1">
+                      <AlertCircle className="w-3 h-3" /> PERINGATAN: Melebihi target Rp 10.000 per porsi!
+                    </p>
+                  )}
+                </div>
+              )}
+
+              <div>
+                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Item Belanja Utama</label>
+                <textarea 
+                  placeholder="Contoh: Beras 50kg, Ayam 25kg, Sayuran..."
+                  required
+                  rows={2}
+                  value={auditForm.items}
+                  onChange={e => setAuditForm({...auditForm, items: e.target.value})}
+                  className="w-full border border-gray-100 rounded-xl px-4 py-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-[#2BBF9D] focus:border-transparent transition-all outline-none resize-none"
+                />
+              </div>
+
+              <div className="flex gap-4 pt-4">
+                <button 
+                  type="button"
+                  onClick={() => setIsAuditModalOpen(false)}
+                  className="flex-1 px-4 py-3 border border-gray-100 rounded-xl hover:bg-gray-50 font-bold text-gray-500 transition-all active:scale-95"
+                >
+                  Batal
+                </button>
+                <button 
+                  type="submit"
+                  className={`flex-1 px-4 py-3 text-white rounded-xl font-bold transition-all shadow-lg active:scale-95 ${
+                    auditForm.total_cost / auditForm.portions > 10000 
+                    ? 'bg-red-600 hover:bg-red-700 shadow-red-200' 
+                    : 'bg-[#1A4D43] hover:bg-[#1A4D43]/90 shadow-[#1A4D43]/10'
+                  }`}
+                >
+                  Simpan Audit
+                </button>
               </div>
             </form>
           </div>

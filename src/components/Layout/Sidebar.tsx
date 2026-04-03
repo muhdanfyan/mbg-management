@@ -21,16 +21,16 @@ interface SidebarProps {
 }
 
 const menuItems = [
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['Super Admin', 'Manager', 'Finance', 'HRD', 'Procurement', 'Staff'], path: '/' },
-  { id: 'locations', label: 'Peta Lokasi', icon: Map, roles: ['Super Admin', 'Manager'], path: '/locations' },
+  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['Super Admin', 'Manager', 'Finance', 'HRD', 'Procurement', 'Staff', 'Investor', 'PIC Dapur'], path: '/' },
+  { id: 'locations', label: 'Peta Lokasi', icon: Map, roles: ['Super Admin', 'Manager', 'PIC Dapur', 'Investor'], path: '/locations' },
   { id: 'construction', label: 'Pengawasan', icon: Building2, roles: ['Super Admin', 'Manager'], path: '/construction' },
   { id: 'sppg-gallery', label: 'Galeri Foto', icon: ImageIcon, roles: ['Super Admin', 'Manager', 'Staff'], path: '/sppg-gallery' },
-  { id: 'procurement', label: 'Procurement', icon: ShoppingCart, roles: ['Super Admin', 'Procurement'], path: '/procurement' },
+  { id: 'procurement', label: 'Procurement', icon: ShoppingCart, roles: ['Super Admin', 'Procurement', 'Operator Koperasi'], path: '/procurement' },
   { id: 'hr', label: 'Manajemen SDM', icon: Users, roles: ['Super Admin', 'HRD'], path: '/hr' },
-  { id: 'finance', label: 'Keuangan', icon: DollarSign, roles: ['Super Admin', 'Finance'], path: '/finance' },
-  { id: 'investors', label: 'Monitoring Investor', icon: Users, roles: ['Super Admin', 'Manager', 'Finance'], path: '/investors' },
+  { id: 'finance', label: 'Keuangan', icon: DollarSign, roles: ['Super Admin', 'Finance', 'PIC Dapur', 'Investor'], path: '/finance' },
+  { id: 'investors', label: 'Monitoring Investor', icon: Users, roles: ['Super Admin', 'Manager', 'Finance', 'Investor'], path: '/investors' },
   { id: 'users', label: 'Manajemen User', icon: Shield, roles: ['Super Admin'], path: '/users' },
-  { id: 'system-guide', label: 'Panduan Sistem', icon: BookOpen, roles: ['Super Admin', 'Manager', 'Finance', 'HRD', 'Procurement', 'Staff'], path: '/panduan-penggunaan' },
+  { id: 'system-guide', label: 'Panduan Sistem', icon: BookOpen, roles: ['Super Admin', 'Manager', 'Finance', 'HRD', 'Procurement', 'Staff', 'PIC Dapur', 'Operator Koperasi'], path: '/panduan-penggunaan' },
 ];
 
 export const Sidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {

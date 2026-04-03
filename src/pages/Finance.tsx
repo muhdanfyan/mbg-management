@@ -3,8 +3,10 @@ import { DollarSign, TrendingUp, TrendingDown, CreditCard, PieChart, ArrowUpRigh
 
 import { api, Transaction, Loan, FinancialSummary } from '../services/api';
 import { Pagination } from '../components/UI/Pagination';
+import { useAuth } from '../contexts/AuthContext';
 
 export const Finance: React.FC = () => {
+  const { profile } = useAuth();
   const [activeTab, setActiveTab] = useState<'dashboard' | 'transactions' | 'loans' | 'expenses' | 'reports'>('dashboard');
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loans, setLoans] = useState<Loan[]>([]);
@@ -16,6 +18,7 @@ export const Finance: React.FC = () => {
 
   const [isTransModalOpen, setIsTransModalOpen] = useState(false);
   const [isLoanModalOpen, setIsLoanModalOpen] = useState(false);
+  const [isBGNModalOpen, setIsBGNModalOpen] = useState(false);
   const [editingTrans, setEditingTrans] = useState<Transaction | null>(null);
   const [editingLoan, setEditingLoan] = useState<Loan | null>(null);
 
@@ -31,6 +34,14 @@ export const Finance: React.FC = () => {
     category: '',
     amount: 0,
     status: 'pending'
+  });
+
+  const [bgnForm, setBgnForm] = useState({
+    date: new Date().toISOString().split('T')[0],
+    period: 'Tgl 1-10',
+    amount: 0,
+    proof_ref: '',
+    kitchen_id: profile?.kitchen_id || null
   });
 
   const [loanForm, setLoanForm] = useState({
@@ -76,7 +87,32 @@ export const Finance: React.FC = () => {
 
   React.useEffect(() => {
     fetchData();
+    // Check for query actions
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('action') === 'lapor-bgn') {
+      setIsBGNModalOpen(true);
+    }
   }, []);
+
+  const handleBGNSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await api.post('/transactions', {
+        date: bgnForm.date,
+        type: 'income',
+        category: `Dana BGN (${bgnForm.period})`,
+        amount: bgnForm.amount,
+        status: 'pending',
+        notes: `Bukti: ${bgnForm.proof_ref}`
+      });
+      setIsBGNModalOpen(false);
+      fetchData();
+      // Remove query param from URL
+      window.history.replaceState({}, '', window.location.pathname);
+    } catch (error: any) {
+      alert('Gagal Lapor Dana: ' + (error.response?.data?.error || error.message));
+    }
+  };
 
   const handleTransSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -272,6 +308,24 @@ export const Finance: React.FC = () => {
             <DollarSign className="w-5 h-5" />
             New Transaction
           </button>
+          {(profile?.role === 'Super Admin' || profile?.role === 'PIC Dapur') && (
+            <button 
+              onClick={() => {
+                setBgnForm({
+                  date: new Date().toISOString().split('T')[0],
+                  period: 'Tgl 1-10',
+                  amount: 0,
+                  proof_ref: '',
+                  kitchen_id: profile?.kitchen_id || null
+                });
+                setIsBGNModalOpen(true);
+              }}
+              className="bg-[#1A4D43] text-white px-4 py-2 rounded-lg hover:bg-[#1A4D43]/90 transition-colors flex items-center gap-2 shadow-sm"
+            >
+              <CheckCircle className="w-5 h-5" />
+              Lapor Dana BGN
+            </button>
+          )}
         </div>
       </div>
 
@@ -1014,6 +1068,93 @@ export const Finance: React.FC = () => {
                   className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
                 >
                   Save Loan
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* BGN Modal */}
+      {isBGNModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-8 shadow-2xl animate-in zoom-in duration-300">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="bg-[#E2F8F3] p-3 rounded-xl">
+                <CheckCircle className="w-6 h-6 text-[#2BBF9D]" />
+              </div>
+              <div>
+                <h2 className="text-xl font-black text-[#1A4D43]">Lapor Dana BGN</h2>
+                <p className="text-sm text-gray-500 font-medium tracking-tight">Input dana masuk per 10 hari</p>
+              </div>
+            </div>
+            
+            <form onSubmit={handleBGNSubmit} className="space-y-6">
+              <div className="grid grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Tanggal Masuk</label>
+                  <input 
+                    type="date" 
+                    required
+                    value={bgnForm.date}
+                    onChange={e => setBgnForm({...bgnForm, date: e.target.value})}
+                    className="w-full border border-gray-100 rounded-xl px-4 py-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-[#2BBF9D] focus:border-transparent transition-all outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Periode Termin</label>
+                  <select 
+                    value={bgnForm.period}
+                    onChange={e => setBgnForm({...bgnForm, period: e.target.value})}
+                    className="w-full border border-gray-100 rounded-xl px-4 py-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-[#2BBF9D] focus:border-transparent transition-all outline-none"
+                  >
+                    <option value="Tgl 1-10">Tgl 1-10</option>
+                    <option value="Tgl 11-20">Tgl 11-20</option>
+                    <option value="Tgl 21-30">Tgl 21-30</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Jumlah Dana (IDR)</label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-gray-400">Rp</span>
+                  <input 
+                    type="number" 
+                    required
+                    placeholder="Contoh: 150000000"
+                    value={bgnForm.amount || ''}
+                    onChange={e => setBgnForm({...bgnForm, amount: Number(e.target.value)})}
+                    className="w-full border border-gray-100 rounded-xl pl-12 pr-4 py-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-[#2BBF9D] focus:border-transparent transition-all outline-none font-bold"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Ref/Bukti Transfer</label>
+                <input 
+                  type="text" 
+                  placeholder="Nomor referensi atau link bukti"
+                  required
+                  value={bgnForm.proof_ref}
+                  onChange={e => setBgnForm({...bgnForm, proof_ref: e.target.value})}
+                  className="w-full border border-gray-100 rounded-xl px-4 py-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-[#2BBF9D] focus:border-transparent transition-all outline-none"
+                />
+              </div>
+
+              <div className="flex gap-4 pt-4">
+                <button 
+                  type="button"
+                  onClick={() => setIsBGNModalOpen(false)}
+                  className="flex-1 px-4 py-3 border border-gray-100 rounded-xl hover:bg-gray-50 font-bold text-gray-500 transition-all active:scale-95"
+                >
+                  Batal
+                </button>
+                <button 
+                  type="submit"
+                  className="flex-1 px-4 py-3 bg-[#1A4D43] text-white rounded-xl hover:bg-[#1A4D43]/90 font-bold transition-all shadow-lg shadow-[#1A4D43]/20 active:scale-95"
+                >
+                  Kirim Laporan
                 </button>
               </div>
             </form>
