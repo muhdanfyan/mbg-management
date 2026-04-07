@@ -5,11 +5,7 @@ services:
     expose:
       - "8081"
     environment:
-      DB_DSN: "kassaone:Piblajar2020@tcp(mbg_mysql:3306)/mbg_management_dev?charset=utf8mb4&parseTime=True&loc=Local"
+      DB_DSN: "kassaone:Piblajar2020@tcp(db:3306)/mbg_management_dev?charset=utf8mb4&parseTime=True&loc=Local"
       PORT: "8081"
-    networks:
-      - mbg_management_default
-
-networks:
-  mbg_management_default:
-    external: true
+    depends_on:
+      - db
