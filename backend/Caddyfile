@@ -6,10 +6,10 @@ api.mbgone.site {
     reverse_proxy mbg_backend:8080
 }
 
-dev.mbgone.id {
+dev.mbgone.site {
     reverse_proxy mbg_backend_dev:8081
 }
 
-api-dev.mbgone.id {
+api-dev.mbgone.site {
     reverse_proxy mbg_backend_dev:8081
 }

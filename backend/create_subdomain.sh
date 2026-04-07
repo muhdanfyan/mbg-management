@@ -4,7 +4,7 @@
 
 ZONE_ID="YOUR_ZONE_ID" # Replace with actual Zone ID
 API_TOKEN="YOUR_API_TOKEN" # Replace with actual API Token
-DOMAIN="mbgone.id"
+DOMAIN="mbgone.site"
 SERVER_IP="103.126.117.20"
 
 create_record() {
@@ -16,11 +16,10 @@ create_record() {
          --data "{\"type\":\"A\",\"name\":\"${name}\",\"content\":\"${SERVER_IP}\",\"ttl\":1,\"proxied\":true}"
 }
 
-if [ "$1" == "dev" ]; then
-    create_record "dev"
-elif [ "$1" == "api-dev" ]; then
-    create_record "api-dev"
-else
-    create_record "dev"
-    create_record "api-dev"
+if [ "$ZONE_ID" == "YOUR_ZONE_ID" ] || [ "$API_TOKEN" == "YOUR_API_TOKEN" ]; then
+    echo "Error: Please set ZONE_ID and API_TOKEN in the script or environment variables."
+    exit 1
 fi
+
+create_record "dev"
+create_record "api-dev"
