@@ -19,12 +19,15 @@ export const Construction: React.FC = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
+      const isRestricted = profile?.role === 'PIC Dapur' || profile?.role === 'Operator Koperasi';
+      const params = isRestricted && profile?.kitchen_id ? { kitchen_id: profile.kitchen_id } : undefined;
+
       const [contractData, updateData] = await Promise.all([
-        api.get('/contracts'),
-        api.get('/progress-updates')
+        api.get('/contracts', params),
+        api.get('/progress-updates', params)
       ]);
-      setContracts(contractData);
-      setUpdates(updateData);
+      setContracts(Array.isArray(contractData) ? contractData : []);
+      setUpdates(Array.isArray(updateData) ? updateData : []);
     } catch (error) {
       console.error('Failed to fetch construction data:', error);
     } finally {

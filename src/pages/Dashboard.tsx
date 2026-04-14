@@ -44,18 +44,32 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   React.useEffect(() => {
     const fetchData = async () => {
       try {
-        const [summaryData, kitchensData, activitiesData] = await Promise.all([
-          api.get('/dashboard/summary'),
-          api.get('/kitchens'),
-          api.get('/progress-updates')
+        setLoading(true);
+        const isRestricted = profile?.role === 'PIC Dapur' || profile?.role === 'Operator Koperasi';
+        const params = isRestricted && profile?.kitchen_id ? { kitchen_id: profile.kitchen_id } : undefined;
+
+        const [summaryData, kitchensData, activitiesData, financeData, logisticsData] = await Promise.all([
+          api.get('/dashboard/summary', params).catch(() => ({})),
+          api.get('/kitchens', params).catch(() => []),
+          api.get('/progress-updates', params).catch(() => []),
+          api.get('/financial-records', params).catch(() => []),
+          api.get('/purchase-orders', params).catch(() => [])
         ]);
-        setSummary(summaryData);
-        setKitchens(kitchensData);
-        setActivities(activitiesData.sort((a: any, b: any) => 
-          new Date(b.created_at || b.date).getTime() - new Date(a.created_at || a.date).getTime()
-        ).slice(0, 5));
+        
+        setSummary(summaryData || {});
+        setKitchens(Array.isArray(kitchensData) ? kitchensData : []);
+        
+        const sortedActivities = Array.isArray(activitiesData) 
+          ? [...activitiesData].sort((a: any, b: any) => 
+              new Date(b.created_at || b.date || 0).getTime() - new Date(a.created_at || a.date || 0).getTime()
+            ).slice(0, 5)
+          : [];
+        setActivities(sortedActivities);
       } catch (error) {
         console.error('Failed to fetch dashboard data:', error);
+        setSummary({});
+        setKitchens([]);
+        setActivities([]);
       } finally {
         setLoading(false);
       }
@@ -68,13 +82,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
       value: profile?.role === 'Operator Koperasi' ? 'Rp 8.500' : (summary?.total_dapur?.toString() || '0'), 
       change: profile?.role === 'Operator Koperasi' ? '-2%' : '+1', trend: 'up', icon: Building2, color: 'mint' },
     
-    { label: profile?.role === 'PIC Dapur' ? 'Status BEP' : 'Progress Pembangunan', 
-      value: profile?.role === 'PIC Dapur' ? 'PRE-BEP' : `${Math.round(summary?.construction_progress || 0)}%`, 
+    { label: profile?.role === 'Super Admin' ? 'Total Dana Sewa' : (profile?.role === 'PIC Dapur' ? 'Status BEP' : 'Progress Pembangunan'), 
+      value: profile?.role === 'Super Admin' ? `Rp ${(summary?.total_sewa_nasional || 0).toLocaleString()}` : (profile?.role === 'PIC Dapur' ? 'PRE-BEP' : `${Math.round(summary?.construction_progress || 0)}%`), 
       change: '+5%', trend: 'up', icon: TrendingUp, color: 'emerald' },
     
-    { label: profile?.role === 'Investor' ? 'Total Investasi' : (profile?.role === 'PIC Dapur' ? 'Laba Akumulasi' : 'Total Karyawan'), 
-      value: profile?.role === 'Investor' ? 'Rp 250jt+' : (profile?.role === 'PIC Dapur' ? 'Rp 14.5jt' : (summary?.total_employees?.toString() || '0')), 
-      change: '+2', trend: 'up', icon: (profile?.role === 'Investor' || profile?.role === 'PIC Dapur') ? DollarSign : Users, color: 'mint' },
+    { label: profile?.role === 'Super Admin' ? 'Bagi Hasil Terbayar' : (profile?.role === 'Investor' ? 'Total Investasi' : (profile?.role === 'PIC Dapur' ? 'Laba Akumulasi' : 'Total Karyawan')), 
+      value: profile?.role === 'Super Admin' ? `Rp ${(summary?.total_payout || 0).toLocaleString()}` : (profile?.role === 'Investor' ? 'Rp 250jt+' : (profile?.role === 'PIC Dapur' ? 'Rp 14.5jt' : (summary?.total_employees?.toString() || '0'))), 
+      change: '+15%', trend: 'up', icon: (profile?.role === 'Investor' || profile?.role === 'PIC Dapur' || profile?.role === 'Super Admin') ? DollarSign : Users, color: 'mint' },
     
     { label: 'Cash Flow', value: `Rp ${(summary?.cash_flow || 0).toLocaleString()}`, change: '+10%', trend: 'up', icon: DollarSign, color: 'emerald' }
   ];
@@ -303,15 +317,24 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
           <div className="glass-card p-8 bg-white overflow-hidden relative">
              <h2 className="text-xl font-bold text-[#1A4D43] mb-4">Target BEP Investor</h2>
              <div className="space-y-6 mt-8">
-                <div className="relative pt-1">
-                  <div className="flex mb-2 items-center justify-between">
-                    <span className="text-xs font-black uppercase text-[#2BBF9D]">Progress BEP (Estimasi)</span>
-                    <span className="text-sm font-black text-[#1A4D43]">65%</span>
-                  </div>
-                  <div className="overflow-hidden h-3 flex rounded-full bg-gray-100 p-0.5">
-                    <div style={{ width: '65%' }} className="rounded-full bg-gradient-to-r from-[#1A4D43] to-[#2BBF9D] shadow-sm"></div>
-                  </div>
-                </div>
+                 <div className="relative pt-1">
+                   {(()=>{
+                     const totalCap = (kitchens || []).reduce((sum, k) => sum + (k.initial_capital || 0), 0);
+                     const totalProf = (kitchens || []).reduce((sum, k) => sum + (k.accumulated_profit || 0), 0);
+                     const progress = totalCap > 0 ? (totalProf / totalCap) * 100 : 0;
+                     return (
+                       <>
+                         <div className="flex mb-2 items-center justify-between">
+                           <span className="text-xs font-black uppercase text-[#2BBF9D]">Progress BEP (Real-time)</span>
+                           <span className="text-sm font-black text-[#1A4D43]">{progress.toFixed(1)}%</span>
+                         </div>
+                         <div className="overflow-hidden h-3 flex rounded-full bg-gray-100 p-0.5">
+                           <div style={{ width: `${Math.min(100, progress)}%` }} className="rounded-full bg-gradient-to-r from-[#1A4D43] to-[#2BBF9D] shadow-sm transition-all duration-1000"></div>
+                         </div>
+                       </>
+                     );
+                   })()}
+                 </div>
              </div>
           </div>
         </div>
@@ -320,20 +343,32 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
       {activeTab === 'construction' && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
            <div className="glass-card p-6 md:col-span-2">
-              <h2 className="text-xl font-bold text-[#1A4D43] mb-4">Status Kontrak & SPPG</h2>
+              <h2 className="text-xl font-bold text-[#1A4D43] mb-4">Kesehatan Operasional Dapur</h2>
               <div className="overflow-x-auto">
                 <table className="w-full text-left">
                   <thead>
                     <tr className="border-b border-gray-100">
                       <th className="pb-4 text-xs font-black text-gray-400 uppercase">Dapur</th>
-                      <th className="pb-4 text-xs font-black text-gray-400 uppercase">Status</th>
+                      <th className="pb-4 text-xs font-black text-gray-400 uppercase">Wilayah</th>
+                      <th className="pb-4 text-xs font-black text-gray-400 uppercase">Kesehatan</th>
+                      <th className="pb-4 text-xs font-black text-gray-400 uppercase">Aksi</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-50">
                      {kitchens.slice(0, 5).map(k => (
-                       <tr key={k.id}>
+                       <tr key={k.id} className="hover:bg-gray-50 transition-colors">
                          <td className="py-4 font-bold text-[#1A4D43]">{k.name}</td>
-                         <td className="py-4"><span className="px-2 py-1 bg-green-50 text-green-600 rounded text-[10px] font-black uppercase">Aktif</span></td>
+                         <td className="py-4 text-xs text-gray-400 font-bold uppercase tracking-widest">{k.region || 'Nasional'}</td>
+                         <td className="py-4">
+                            <span className={`px-2 py-1 rounded text-[9px] font-black uppercase tracking-tighter ${
+                                k.accumulated_profit > 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-orange-50 text-orange-600'
+                            }`}>
+                                {k.accumulated_profit > 0 ? '🟢 Healthy' : '🟡 Warning'}
+                            </span>
+                         </td>
+                         <td className="py-4">
+                            <button onClick={() => onNavigate?.('locations')} className="text-[#2BBF9D] hover:underline font-bold text-[10px] uppercase">Rincian</button>
+                         </td>
                        </tr>
                      ))}
                   </tbody>

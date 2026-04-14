@@ -34,41 +34,36 @@ export const SppgGallery: React.FC = () => {
     try {
       setLoading(true);
       const data = await api.get('/sppgs');
-      setSppgs(data);
+      setSppgs(Array.isArray(data) ? data : []);
       return data;
     } catch (error) {
       console.error('Failed to fetch SPPG data:', error);
-      return null;
+      setSppgs([]);
+      return [];
     } finally {
       setLoading(false);
     }
   };
 
   const getGoogleImageUrl = (url: string) => {
-    if (!url) return url;
+    if (!url) return '';
 
-    // Handle lh3.googleusercontent.com/d/ format
-    if (url.includes('lh3.googleusercontent.com/d/')) {
-      const parts = url.split('/d/');
-      if (parts.length > 1) {
-        const id = parts[1].split('/')[0];
-        return `https://drive.google.com/thumbnail?id=${id}&sz=w1200`;
-      }
+    // If it's already a modern googleusercontent link, use it directly (optimized for size)
+    if (url.includes('googleusercontent.com')) {
+      // Ensure we don't truncate existing parameters but prefer high res
+      return url.split('=')[0] + '=s1200';
     }
 
-    // Handle drive.google.com/open?id= format
-    if (url.includes('drive.google.com/open?id=')) {
-      const id = new URL(url).searchParams.get('id');
-      if (id) return `https://drive.google.com/thumbnail?id=${id}&sz=w1200`;
-    }
-
-    // Handle drive.google.com/file/d/ format
-    if (url.includes('drive.google.com/file/d/')) {
-      const parts = url.split('/file/d/');
-      if (parts.length > 1) {
-        const id = parts[1].split('/')[0];
-        return `https://drive.google.com/thumbnail?id=${id}&sz=w1200`;
-      }
+    // Handle standard drive links, view links, and direct file IDs
+    const driveIdMatch = 
+      url.match(/[?&]id=([^&]+)/) || 
+      url.match(/\/d\/([^/?]+)/) ||
+      url.match(/\/file\/d\/([^/?]+)/);
+    
+    if (driveIdMatch && driveIdMatch[1]) {
+      const id = driveIdMatch[1];
+      // Use modern direct content link format instead of the restricted 'uc' endpoint
+      return `https://lh3.googleusercontent.com/d/${id}=s1200`;
     }
 
     return url;

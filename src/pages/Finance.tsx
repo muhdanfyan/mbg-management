@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { DollarSign, TrendingUp, TrendingDown, CreditCard, PieChart, ArrowUpRight, ArrowDownRight, CheckCircle, Clock, XCircle } from 'lucide-react';
 
-import { api, Transaction, Loan, FinancialSummary } from '../services/api';
+import { api, Transaction, Loan, FinancialSummary, ProfitDistribution } from '../services/api';
 import { Pagination } from '../components/UI/Pagination';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -15,10 +15,12 @@ export const Finance: React.FC = () => {
   const [kitchens, setKitchens] = useState<any[]>([]);
   const [selectedKitchenId, setSelectedKitchenId] = useState<number | null>(null);
   const [reportData, setReportData] = useState<any>(null);
+  const [distributions, setDistributions] = useState<ProfitDistribution[]>([]);
 
   const [isTransModalOpen, setIsTransModalOpen] = useState(false);
   const [isLoanModalOpen, setIsLoanModalOpen] = useState(false);
   const [isBGNModalOpen, setIsBGNModalOpen] = useState(false);
+  const [isSewaModalOpen, setIsSewaModalOpen] = useState(false);
   const [editingTrans, setEditingTrans] = useState<Transaction | null>(null);
   const [editingLoan, setEditingLoan] = useState<Loan | null>(null);
 
@@ -39,6 +41,7 @@ export const Finance: React.FC = () => {
   const [bgnForm, setBgnForm] = useState({
     date: new Date().toISOString().split('T')[0],
     period: 'Tgl 1-10',
+    portions: 0,
     amount: 0,
     proof_ref: '',
     kitchen_id: profile?.kitchen_id || null
@@ -57,18 +60,23 @@ export const Finance: React.FC = () => {
   });
 
   const fetchData = async () => {
-    setLoading(true);
     try {
-      const [transData, loansData, summaryData, kitchensData] = await Promise.all([
-        api.get('/transactions'),
-        api.get('/loans'),
-        api.get('/dashboard/summary'),
-        api.get('/kitchens')
+      setLoading(true);
+      const isRestricted = profile?.role === 'PIC Dapur' || profile?.role === 'Operator Koperasi';
+      const params = isRestricted && profile?.kitchen_id ? { kitchen_id: profile.kitchen_id } : undefined;
+
+      const [transData, loansData, summaryData, kitchensData, distData] = await Promise.all([
+        api.get('/transactions', params),
+        api.get('/loans', params),
+        api.get('/dashboard/summary', params),
+        api.get('/kitchens'),
+        api.getPayouts(params)
       ]);
-      setTransactions(transData || []);
-      setLoans(loansData || []);
-      setSummary(summaryData);
-      setKitchens(kitchensData || []);
+      setTransactions(Array.isArray(transData) ? transData : []);
+      setLoans(Array.isArray(loansData) ? loansData : []);
+      setSummary(summaryData || {});
+      setKitchens(Array.isArray(kitchensData) ? kitchensData : []);
+      setDistributions(Array.isArray(distData) ? distData : []);
     } catch (error) {
       console.error('Failed to fetch financial data:', error);
     } finally {
@@ -97,18 +105,32 @@ export const Finance: React.FC = () => {
   const handleBGNSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      // Alokasi standar MBG: Rp5.000 sewa, Rp10.000 bahan baku
+      const rentalPortion = bgnForm.portions * 5000;
+      const materialPortion = bgnForm.portions * 10000;
+
+      await api.postFinancialRecord({
+        dapur_id: Number(bgnForm.kitchen_id || profile?.kitchen_id),
+        total_portions: bgnForm.portions,
+        rental_income: rentalPortion,
+        selisih_bahan_baku: materialPortion, // Awalnya diisi budget penuh, nanti diupdate audit koperasi
+        status: 'PENDING'
+      });
+      
+      // Juga simpan sebagai transaksi income umum untuk cashflow global
       await api.post('/transactions', {
         date: bgnForm.date,
         type: 'income',
         category: `Dana BGN (${bgnForm.period})`,
         amount: bgnForm.amount,
-        status: 'pending',
-        notes: `Bukti: ${bgnForm.proof_ref}`
+        status: 'approved',
+        notes: `Bukti: ${bgnForm.proof_ref} | Porsi: ${bgnForm.portions}`
       });
+
       setIsBGNModalOpen(false);
       fetchData();
-      // Remove query param from URL
       window.history.replaceState({}, '', window.location.pathname);
+      alert('Dana BGN berhasil dilaporkan dan dialokasikan!');
     } catch (error: any) {
       alert('Gagal Lapor Dana: ' + (error.response?.data?.error || error.message));
     }
@@ -314,6 +336,7 @@ export const Finance: React.FC = () => {
                 setBgnForm({
                   date: new Date().toISOString().split('T')[0],
                   period: 'Tgl 1-10',
+                  portions: 0,
                   amount: 0,
                   proof_ref: '',
                   kitchen_id: profile?.kitchen_id || null
@@ -324,6 +347,24 @@ export const Finance: React.FC = () => {
             >
               <CheckCircle className="w-5 h-5" />
               Lapor Dana BGN
+            </button>
+          )}
+          {(profile?.role === 'Super Admin' || profile?.role === 'PIC Dapur' || profile?.role === 'Finance') && (
+            <button 
+              onClick={() => {
+                setTransForm({
+                  date: new Date().toISOString().split('T')[0],
+                  type: 'income',
+                  category: 'Sewa Dapur (Harian)',
+                  amount: 0,
+                  status: 'pending'
+                });
+                setIsTransModalOpen(true);
+              }}
+              className="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors flex items-center gap-2 shadow-sm"
+            >
+              <TrendingUp className="w-5 h-5" />
+              Lapor Sewa Harian
             </button>
           )}
         </div>
@@ -393,6 +434,37 @@ export const Finance: React.FC = () => {
                   </p>
                   <p className="text-xs text-blue-600 mt-2">Positive flow</p>
                 </div>
+              </div>
+
+              {/* Distribution Summary Row */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                 <div className="glass-card p-6">
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Total Bagi Hasil</p>
+                    <p className="text-xl font-black text-[#1A4D43]">
+                       Rp {(Array.isArray(distributions) ? distributions : []).reduce((sum, d) => sum + (d.total_pool || 0), 0).toLocaleString('id-ID')}
+                    </p>
+                    <div className="mt-2 w-full bg-[#1A4D43]/5 h-1 rounded-full overflow-hidden">
+                       <div className="bg-[#2BBF9D] h-full rounded-full" style={{width: '100%'}}></div>
+                    </div>
+                 </div>
+                 <div className="glass-card p-6">
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Porsi Investor</p>
+                    <p className="text-xl font-black text-[#2BBF9D]">
+                       Rp {(Array.isArray(distributions) ? distributions : []).reduce((sum, d) => sum + (d.investor_split || 0), 0).toLocaleString('id-ID')}
+                    </p>
+                 </div>
+                 <div className="glass-card p-6">
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Porsi DPP/YWMP</p>
+                    <p className="text-xl font-black text-blue-600">
+                       Rp {(Array.isArray(distributions) ? distributions : []).reduce((sum, d) => sum + (d.dpp_split || 0) + (d.ywmp_split || 0), 0).toLocaleString('id-ID')}
+                    </p>
+                 </div>
+                 <div className="glass-card p-6 bg-gradient-to-br from-[#1A4D43] to-[#2BBF9D] border-none shadow-lg shadow-[#2BBF9D]/20">
+                    <p className="text-[10px] font-black text-white/60 uppercase tracking-widest mb-1">Remitansi Selesai</p>
+                    <p className="text-xl font-black text-white">
+                       {(Array.isArray(distributions) ? distributions : []).flatMap(d => d.details || []).filter(dt => dt.status === 'PAID').length} Transaksi
+                    </p>
+                 </div>
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -827,32 +899,53 @@ export const Finance: React.FC = () => {
                       </div>
 
                       {/* Margin Split */}
-                      <div className="space-y-2">
+                      <div className="space-y-4">
                         <div className="flex items-center justify-between">
                           <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Bagi Hasil Selisih Bahan</p>
-                          <span className="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded">60:20:20 Split</span>
+                          <span className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded font-black">60:20:20 Split</span>
                         </div>
+                        
+                        {/* Margin Calculation Box */}
+                        <div className="bg-[#F8FAF9] border border-[#2BBF9D]/10 rounded-xl p-4 space-y-2">
+                           <div className="flex justify-between text-xs text-gray-500">
+                              <span>Anggaran Bahan ({reportData.total_portions} porsi × Rp 10k)</span>
+                              <span>Rp {(reportData.total_portions * 10000).toLocaleString('id-ID')}</span>
+                           </div>
+                           <div className="flex justify-between text-xs font-bold text-[#1A4D43]">
+                              <span>Surplus / Margin Tabungan</span>
+                              <span>Rp {reportData.selisih_bahan_baku.toLocaleString('id-ID')}</span>
+                           </div>
+                           <div className="flex justify-between text-[10px] text-red-500 pt-2 border-t border-dashed border-gray-200">
+                              <span>Biaya Tetap (4 Tenaga Utama)</span>
+                              <span>- Rp 15.000.000</span>
+                           </div>
+                           <div className="flex justify-between text-sm font-black text-[#2BBF9D]">
+                              <span>Laba Selisih Bersih (Net)</span>
+                              <span>Rp {reportData.sisa_bersih.toLocaleString('id-ID')}</span>
+                           </div>
+                        </div>
+
                         <div className="grid grid-cols-1 gap-2">
                            <div className="flex justify-between p-3 bg-blue-50 rounded-lg border border-blue-100">
                              <div>
                                <span className="text-sm font-medium text-blue-800">DPP Wahdah (60%)</span>
                                <p className="text-[10px] text-blue-600">Pusat Management</p>
                              </div>
-                             <span className="font-bold text-blue-900">Rp {reportData.dpp_share_selisih.toLocaleString()}</span>
+                             <span className="font-bold text-blue-900">Rp {reportData.dpp_share_selisih.toLocaleString('id-ID')}</span>
                            </div>
                            <div className="flex justify-between p-3 bg-emerald-50 rounded-lg border border-emerald-100">
                              <div>
                                <span className="text-sm font-medium text-emerald-800">DPD (20%)</span>
                                <p className="text-[10px] text-emerald-600">Daerah Pelaksana</p>
                              </div>
-                             <span className="font-bold text-emerald-900">Rp {reportData.dpd_share_selisih.toLocaleString()}</span>
+                             <span className="font-bold text-emerald-900">Rp {reportData.dpd_share_selisih.toLocaleString('id-ID')}</span>
                            </div>
                            <div className="flex justify-between p-3 bg-purple-50 rounded-lg border border-purple-100">
                              <div>
                                <span className="text-sm font-medium text-purple-800">Koperasi (20%)</span>
                                <p className="text-[10px] text-purple-600">Penyedia Bahan Baku</p>
                              </div>
-                             <span className="font-bold text-purple-900">Rp {reportData.kop_share_selisih.toLocaleString()}</span>
+                             <span className="font-bold text-purple-900">Rp {reportData.kop_share_selisih.toLocaleString('id-ID')}</span>
                            </div>
                         </div>
                       </div>
@@ -1115,30 +1208,58 @@ export const Finance: React.FC = () => {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Jumlah Dana (IDR)</label>
-                <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-gray-400">Rp</span>
+              <div className="grid grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Jumlah Porsi</label>
                   <input 
                     type="number" 
                     required
-                    placeholder="Contoh: 150000000"
-                    value={bgnForm.amount || ''}
-                    onChange={e => setBgnForm({...bgnForm, amount: Number(e.target.value)})}
-                    className="w-full border border-gray-100 rounded-xl pl-12 pr-4 py-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-[#2BBF9D] focus:border-transparent transition-all outline-none font-bold"
+                    placeholder="E.g. 500"
+                    value={bgnForm.portions || ''}
+                    onChange={e => {
+                      const p = Number(e.target.value);
+                      setBgnForm({...bgnForm, portions: p, amount: p * 15000});
+                    }}
+                    className="w-full border border-gray-100 rounded-xl px-4 py-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-[#2BBF9D] focus:border-transparent transition-all outline-none"
                   />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Total Dana (Auto)</label>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-gray-400">Rp</span>
+                    <input 
+                      type="number" 
+                      readOnly
+                      value={bgnForm.amount}
+                      className="w-full border border-gray-100 rounded-xl pl-12 pr-4 py-3 bg-[#F8FAF9] text-[#1A4D43] font-bold outline-none"
+                    />
+                  </div>
                 </div>
               </div>
 
+              {bgnForm.portions > 0 && (
+                <div className="bg-[#E2F8F3] p-4 rounded-xl border border-[#2BBF9D]/20 space-y-2">
+                  <p className="text-[10px] font-black text-[#1A4D43] uppercase tracking-widest">Estimasi Alokasi Dana (Rp 15.000/porsi)</p>
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-gray-500 font-medium">Bahan Baku (Rp 10k)</span>
+                    <span className="font-bold text-[#1A4D43]">Rp {(bgnForm.portions * 10000).toLocaleString('id-ID')}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-gray-500 font-medium">Ops Dapur (Rp 5k)</span>
+                    <span className="font-bold text-[#2BBF9D]">Rp {(bgnForm.portions * 5000).toLocaleString('id-ID')}</span>
+                  </div>
+                </div>
+              )}
+
               <div>
-                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Ref/Bukti Transfer</label>
+                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Ref. Bukti Transfer / Rekening Koran</label>
                 <input 
                   type="text" 
-                  placeholder="Nomor referensi atau link bukti"
                   required
+                  placeholder="ID Transaksi atau Link Bukti"
                   value={bgnForm.proof_ref}
                   onChange={e => setBgnForm({...bgnForm, proof_ref: e.target.value})}
-                  className="w-full border border-gray-100 rounded-xl px-4 py-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-[#2BBF9D] focus:border-transparent transition-all outline-none"
+                  className="w-full border border-gray-100 rounded-xl px-4 py-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-[#1A4D43] focus:border-transparent transition-all outline-none"
                 />
               </div>
 

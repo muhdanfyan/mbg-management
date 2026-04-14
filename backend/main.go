@@ -44,20 +44,16 @@ func initDB() {
 
 	fmt.Println("Successfully connected to database")
 
-	// Auto Migration
-	err = db.AutoMigrate(
-		&models.User{}, &models.Dapur{}, &models.Koperasi{}, &models.Route{},
-		&models.Sppg{}, &models.SppgMedia{},
-		&models.Employee{}, &models.Vacancy{}, &models.Applicant{},
-		&models.Contract{}, &models.ProgressUpdate{},
-		&models.Transaction{}, &models.Loan{},
-		&models.Equipment{}, &models.PurchaseOrder{},
-		&models.FinancialRecord{}, &models.InvestorParticipant{},
-		&models.SppgInfrastructure{}, &models.SppgStakeholder{},
-		&models.SppgReadiness{}, &models.OperationalFleet{},
-		&models.Stakeholder{},
-		&models.Department{}, &models.Position{},
-	)
+	// Auto Migration - Split into chunks to ensure new tables are created even if complex relations fail
+	_ = db.AutoMigrate(&models.User{}, &models.Koperasi{}, &models.Department{}, &models.Position{})
+	_ = db.AutoMigrate(&models.Sppg{}, &models.SppgMedia{}, &models.SppgInfrastructure{}, &models.SppgStakeholder{}, &models.SppgReadiness{}, &models.OperationalFleet{}, &models.Stakeholder{})
+	_ = db.AutoMigrate(&models.Dapur{}, &models.Route{}, &models.InvestorParticipant{}) // Probabilistic fail point
+	_ = db.AutoMigrate(&models.Employee{}, &models.Vacancy{}, &models.Applicant{})
+	_ = db.AutoMigrate(&models.Contract{}, &models.ProgressUpdate{})
+	_ = db.AutoMigrate(&models.Transaction{}, &models.Loan{}, &models.Equipment{}, &models.PurchaseOrder{}, &models.FinancialRecord{})
+	
+	// New Financial/Sharing Modules (Critical for current task)
+	err = db.AutoMigrate(&models.RentalRecord{}, &models.ProfitDistribution{}, &models.PayoutDetail{}, &models.Remittance{})
 	if err != nil {
 		fmt.Printf("Failed to auto-migrate: %v\n", err)
 		// We might still want to continue if some tables exist, but usually failure here is bad
@@ -209,8 +205,9 @@ func main() {
 	{
 		// GET endpoints (Read)
 		api.GET("/kitchens", func(c *gin.Context) {
-			var kitchens []models.Dapur
+			kitchens := []models.Dapur{}
 			db.Preload("Routes").
+				Preload("Investors").
 				Preload("SppgDetail.Infrastructure").
 				Preload("SppgDetail.Stakeholder.Pj").
 				Preload("SppgDetail.Stakeholder.Landlord").
@@ -220,10 +217,17 @@ func main() {
 			c.JSON(http.StatusOK, kitchens)
 		})
 
-		api.GET("/routes", func(c *gin.Context) {
-			var routes []models.Route
-			db.Find(&routes)
-			c.JSON(http.StatusOK, routes)
+		api.GET("/contracts", func(c *gin.Context) {
+			kitchenID := c.Query("kitchen_id")
+			contracts := []models.Contract{}
+			q := db.Order("created_at desc")
+			if kitchenID != "" {
+				// We might need to map Contract to Kitchen via a field or SPPG_ID
+				// For now, filtering by kitchen_id if the field exists
+				q = q.Where("kitchen_id = ?", kitchenID)
+			}
+			q.Find(&contracts)
+			c.JSON(http.StatusOK, contracts)
 		})
 
 		api.GET("/employees", func(c *gin.Context) {
@@ -232,16 +236,27 @@ func main() {
 			c.JSON(http.StatusOK, emps)
 		})
 
+		api.GET("/financial-records", func(c *gin.Context) {
+			kitchenID := c.Query("kitchen_id")
+			records := []models.FinancialRecord{}
+			q := db.Preload("Dapur").Order("period desc")
+			if kitchenID != "" {
+				q = q.Where("dapur_id = ?", kitchenID)
+			}
+			q.Find(&records)
+			c.JSON(http.StatusOK, records)
+		})
+
+		api.GET("/routes", func(c *gin.Context) {
+			var routes []models.Route
+			db.Find(&routes)
+			c.JSON(http.StatusOK, routes)
+		})
+
 		api.GET("/vacancies", func(c *gin.Context) {
 			var v []models.Vacancy
 			db.Preload("Applicants").Find(&v)
 			c.JSON(http.StatusOK, v)
-		})
-
-		api.GET("/contracts", func(c *gin.Context) {
-			var ct []models.Contract
-			db.Preload("Updates").Find(&ct)
-			c.JSON(http.StatusOK, ct)
 		})
 
 		api.GET("/transactions", func(c *gin.Context) {
@@ -257,15 +272,25 @@ func main() {
 		})
 
 		api.GET("/equipment", func(c *gin.Context) {
-			var e []models.Equipment
-			db.Find(&e)
-			c.JSON(http.StatusOK, e)
+			kitchenID := c.Query("kitchen_id")
+			items := []models.Equipment{}
+			q := db.Order("created_at desc")
+			if kitchenID != "" {
+				q = q.Where("kitchen_id = ?", kitchenID)
+			}
+			q.Find(&items)
+			c.JSON(http.StatusOK, items)
 		})
 
 		api.GET("/purchase-orders", func(c *gin.Context) {
-			var po []models.PurchaseOrder
-			db.Find(&po)
-			c.JSON(http.StatusOK, po)
+			kitchenID := c.Query("kitchen_id")
+			orders := []models.PurchaseOrder{}
+			q := db.Order("date desc")
+			if kitchenID != "" {
+				q = q.Where("kitchen_id = ?", kitchenID)
+			}
+			q.Find(&orders)
+			c.JSON(http.StatusOK, orders)
 		})
 
 		api.GET("/progress-updates", func(c *gin.Context) {
@@ -275,7 +300,7 @@ func main() {
 		})
 
 		api.GET("/sppgs", func(c *gin.Context) {
-			var sppgs []models.Sppg
+			sppgs := []models.Sppg{}
 			db.Preload("Media").
 				Preload("Infrastructure").
 				Preload("Stakeholder.Pj").
@@ -613,6 +638,35 @@ func main() {
 		// Dashboard & Reports
 		api.GET("/dashboard/summary", getDashboardSummary)
 		api.GET("/dapur/:id/report", getDapurReport)
+		api.GET("/dapur/:id/growth", func(c *gin.Context) {
+			id := c.Param("id")
+			var records []models.FinancialRecord
+			if err := db.Where("dapur_id = ?", id).Order("period asc").Find(&records).Error; err != nil {
+				c.JSON(http.StatusNotFound, gin.H{"error": "No records found"})
+				return
+			}
+
+			type GrowthPoint struct {
+				Date      string  `json:"date"`
+				Profit    float64 `json:"profit"`
+				TotalAcc  float64 `json:"total_acc"`
+			}
+			var growth []GrowthPoint
+			acc := 0.0
+			for _, r := range records {
+				// We assume investor profit is the metric for BEP
+				// Using calculateSplits logic simplified here or just the profit stored
+				// For chart, let's use the raw material margin + rental income portion
+				payout := r.RentalIncome + r.SelisihBahanBaku 
+				acc += payout
+				growth = append(growth, GrowthPoint{
+					Date:     r.Period.Format("2006-01-02"),
+					Profit:   payout,
+					TotalAcc: acc,
+				})
+			}
+			c.JSON(http.StatusOK, growth)
+		})
 
 		// Authentication
 		api.POST("/auth/login", func(c *gin.Context) {
@@ -690,11 +744,13 @@ func main() {
 			var d models.Dapur
 			db.First(&d, fr.DapurID)
 			if d.InitialCapital > 0 && d.AccumulatedProfit >= d.InitialCapital && d.BEPStatus == "PRE-BEP" {
-				// Automatically adjust shares if needed (e.g. 75/25 -> 50/50 as per docs)
+				// Logic flip: 75:25 -> 25:75, 60:40 -> 40:60
+				newInvShare := d.DPPShare
+				newDPPShare := d.InvestorShare
 				db.Model(&d).Updates(map[string]interface{}{
 					"bep_status":     "POST-BEP",
-					"investor_share": 0.50,
-					"dpp_share":      0.50,
+					"investor_share": newInvShare,
+					"dpp_share":      newDPPShare,
 				})
 			}
 
@@ -724,18 +780,29 @@ func main() {
 				return
 			}
 
-			// Save as a transaction
+			// 1. Save as a transaction for ledger
 			transaction := models.Transaction{
 				Date:     time.Now().Format("2006-01-02"),
 				Type:     "expense",
-				Category: "Bahan Baku",
+				Category: "Audit Belanja Bahan",
 				Amount:   input.Spending,
 				Status:   "Audited",
 			}
 			db.Create(&transaction)
 
+			// 2. IMPORTANT: Update the FinancialRecord for Profit Sharing
+			// We find the latest PENDING record for this kitchen to apply the margin
+			var fr models.FinancialRecord
+			if err := db.Where("dapur_id = ? AND status = ?", input.DapurID, "PENDING").Order("created_at desc").First(&fr).Error; err == nil {
+				// Budget is Portions * 10,000. Margin is Budget - Spending.
+				// We update the SelisihBahanBaku to the REAL margin.
+				budget := float64(input.Portions) * 10000
+				realMargin := budget - input.Spending
+				db.Model(&fr).Update("selisih_bahan_baku", realMargin)
+			}
+
 			c.JSON(http.StatusOK, gin.H{
-				"message":      "Audit successful",
+				"message":      "Audit successful and margin updated",
 				"portion_cost": portionCost,
 				"transaction":  transaction,
 			})
@@ -822,7 +889,7 @@ func main() {
 
 		// Investors Management
 		api.GET("/investors", func(c *gin.Context) {
-			var inv []models.InvestorParticipant
+			inv := []models.InvestorParticipant{}
 			db.Preload("Kitchen").Find(&inv)
 			c.JSON(http.StatusOK, inv)
 		})
@@ -839,6 +906,135 @@ func main() {
 			id := c.Param("id")
 			db.Delete(&models.InvestorParticipant{}, id)
 			c.JSON(http.StatusOK, gin.H{"message": "Investor deleted"})
+		})
+
+		// Rental Records
+		api.GET("/rental-records", func(c *gin.Context) {
+			kitchenID := c.Query("kitchen_id")
+			records := []models.RentalRecord{}
+			q := db.Order("date desc")
+			if kitchenID != "" {
+				q = q.Where("kitchen_id = ?", kitchenID)
+			}
+			q.Find(&records)
+			c.JSON(http.StatusOK, records)
+		})
+
+		api.POST("/rental-records", func(c *gin.Context) {
+			var r models.RentalRecord
+			if err := c.ShouldBindJSON(&r); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				return
+			}
+			if err := db.Create(&r).Error; err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
+			c.JSON(http.StatusOK, r)
+		})
+
+		// Payout Management
+		api.POST("/calculate-payout", func(c *gin.Context) {
+			var input struct {
+				KitchenID uint    `json:"kitchen_id"`
+				Pool      float64 `json:"pool"`
+				Period    string  `json:"period"`
+			}
+			if err := c.ShouldBindJSON(&input); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				return
+			}
+
+			var d models.Dapur
+			if err := db.Preload("Investors").First(&d, input.KitchenID).Error; err != nil {
+				c.JSON(http.StatusNotFound, gin.H{"error": "Kitchen not found"})
+				return
+			}
+
+			// Simulation of splits
+			res := calculateSplits(d, models.FinancialRecord{
+				RentalIncome: input.Pool,
+			})
+			c.JSON(http.StatusOK, res)
+		})
+
+		api.POST("/payouts", func(c *gin.Context) {
+			var p models.ProfitDistribution
+			if err := c.ShouldBindJSON(&p); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				return
+			}
+
+			if err := db.Transaction(func(tx *gorm.DB) error {
+				if err := tx.Create(&p).Error; err != nil {
+					return fmt.Errorf("failed to create distribution: %w", err)
+				}
+
+				// Update Dapur status if needed
+				if p.Status == "EXECUTED" {
+					var d models.Dapur
+					if err := tx.First(&d, p.KitchenID).Error; err != nil {
+						return fmt.Errorf("dapur not found for ID %d: %w", p.KitchenID, err)
+					}
+					
+					if err := tx.Model(&d).UpdateColumn("accumulated_profit", gorm.Expr("accumulated_profit + ?", p.InvestorSplit)).Error; err != nil {
+						return fmt.Errorf("failed to update accumulated profit: %w", err)
+					}
+					
+					// Check for BEP transition
+					if d.InitialCapital > 0 && d.AccumulatedProfit >= d.InitialCapital && d.BEPStatus == "PRE-BEP" {
+						// Logic flip: 75:25 -> 25:75, 60:40 -> 40:60
+						newInvShare := d.DPPShare
+						newDPPShare := d.InvestorShare
+						if err := tx.Model(&d).Updates(map[string]interface{}{
+							"bep_status":     "POST-BEP",
+							"investor_share": newInvShare,
+							"dpp_share":      newDPPShare,
+						}).Error; err != nil {
+							return fmt.Errorf("failed to update BEP status: %w", err)
+						}
+					}
+				}
+				return nil
+			}); err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Payout error: " + err.Error()})
+				return
+			}
+			c.JSON(http.StatusOK, p)
+		})
+
+		api.GET("/payouts", func(c *gin.Context) {
+			kitchenID := c.Query("kitchen_id")
+			payouts := []models.ProfitDistribution{}
+			q := db.Preload("Details.Remittance").Order("created_at desc")
+			if kitchenID != "" {
+				q = q.Where("kitchen_id = ?", kitchenID)
+			}
+			q.Find(&payouts)
+			c.JSON(http.StatusOK, payouts)
+		})
+
+		api.PUT("/payout-details/:id/remit", func(c *gin.Context) {
+			id := c.Param("id")
+			var rem models.Remittance
+			if err := c.ShouldBindJSON(&rem); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				return
+			}
+
+			if err := db.Transaction(func(tx *gorm.DB) error {
+				if err := tx.Create(&rem).Error; err != nil {
+					return err
+				}
+				return tx.Model(&models.PayoutDetail{}).Where("id = ?", id).Updates(map[string]interface{}{
+					"status":        "PAID",
+					"remittance_id": rem.ID,
+				}).Error
+			}); err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
+			c.JSON(http.StatusOK, rem)
 		})
 	}
 
@@ -862,7 +1058,7 @@ func main() {
 	if port == "" {
 		port = "8080"
 	}
-	r.Run(":" + port)
+	r.Run("0.0.0.0:" + port)
 }
 
 // Helper Functions for SPPG Syncing
@@ -1027,10 +1223,38 @@ func SyncSppgData(db *gorm.DB) error {
 		}
 	}
 
+	// 4. Sync Photos/Media from foto.txt
+	pathFoto := filepath.Join(dataDir, "foto.txt")
+	contentFoto, err := os.ReadFile(pathFoto)
+	if err == nil {
+		var rawFoto struct {
+			Data []struct {
+				ID_SPPG            string   `json:"ID_SPPG"`
+				FOTO_PREVIEW_LINKS []string `json:"FOTO_PREVIEW_LINKS"`
+			} `json:"data"`
+		}
+		if err := json.Unmarshal(contentFoto, &rawFoto); err == nil {
+			for _, item := range rawFoto.Data {
+				if item.ID_SPPG == "" {
+					continue
+				}
+				db.Unscoped().Where("sppg_id = ?", item.ID_SPPG).Delete(&models.SppgMedia{})
+				for _, link := range item.FOTO_PREVIEW_LINKS {
+					db.Create(&models.SppgMedia{
+						SppgID:     item.ID_SPPG,
+						PreviewURL: link,
+						MediaType:  "image",
+					})
+				}
+			}
+		}
+	}
+
 	return nil
 }
 
 func getDashboardSummary(c *gin.Context) {
+	kitchenID := c.Query("kitchen_id")
 	var summary struct {
 		TotalIncome          float64 `json:"total_income"`
 		TotalExpense         float64 `json:"total_expense"`
@@ -1038,11 +1262,19 @@ func getDashboardSummary(c *gin.Context) {
 		TotalDapur           int64   `json:"total_dapur"`
 		TotalEmployees       int64   `json:"total_employees"`
 		ConstructionProgress float64 `json:"construction_progress"`
+		TotalSewaNasional    float64 `json:"total_sewa_nasional"`
+		TotalPayout          float64 `json:"total_payout"`
 	}
 
 	// Calculate from transactions for better accuracy
 	var transactions []models.Transaction
-	db.Find(&transactions)
+	q := db.Model(&models.Transaction{})
+	if kitchenID != "" {
+		// Note: we might need kitchen_id in Transaction model too, but for summary, 
+		// if scoped, we'll filter related records. Assuming Transaction has kitchen_id or similar.
+		q = q.Where("kitchen_id = ?", kitchenID)
+	}
+	q.Find(&transactions)
 
 	for _, t := range transactions {
 		if t.Type == "income" {
@@ -1053,11 +1285,29 @@ func getDashboardSummary(c *gin.Context) {
 	}
 	summary.CashFlow = summary.TotalIncome - summary.TotalExpense
 
-	db.Model(&models.Dapur{}).Count(&summary.TotalDapur)
+	// Calculate national rent and payouts
+	frQ := db.Model(&models.FinancialRecord{})
+	poQ := db.Model(&models.PayoutDetail{})
+	if kitchenID != "" {
+		frQ = frQ.Where("dapur_id = ?", kitchenID)
+		poQ = poQ.Joins("JOIN profit_distributions ON profit_distributions.id = payout_details.distribution_id").Where("profit_distributions.kitchen_id = ?", kitchenID)
+	}
+	frQ.Select("SUM(rental_income)").Scan(&summary.TotalSewaNasional)
+	poQ.Where("payout_details.status = ?", "PAID").Select("SUM(payout_details.amount)").Scan(&summary.TotalPayout)
+
+	if kitchenID != "" {
+		summary.TotalDapur = 1
+	} else {
+		db.Model(&models.Dapur{}).Count(&summary.TotalDapur)
+	}
 	db.Model(&models.Employee{}).Count(&summary.TotalEmployees)
 
 	var contracts []models.Contract
-	db.Find(&contracts)
+	cQ := db.Model(&models.Contract{})
+	if kitchenID != "" {
+		cQ = cQ.Where("kitchen_id = ?", kitchenID)
+	}
+	cQ.Find(&contracts)
 	if len(contracts) > 0 {
 		var totalProgress int
 		for _, ct := range contracts {
@@ -1131,6 +1381,7 @@ func calculateSplits(d models.Dapur, r models.FinancialRecord) gin.H {
 		"investor_payouts":   investorPayouts,
 		"dpp_share_sewa":     dppShareSewa,
 		"ywmp_share_sewa":    ywmpShareSewa,
+		"total_portions":    r.TotalPortions,
 		"selisih_bahan_baku": r.SelisihBahanBaku,
 		"sisa_bersih":        netSelisih,
 		"dpp_share_selisih":  netSelisih * 0.60,

@@ -12,7 +12,7 @@ export const Users: React.FC = () => {
   const fetchUsers = async () => {
     try {
       const data = await api.get('/users');
-      setUsers(data);
+      setUsers(Array.isArray(data) ? data : []);
     } catch (err: any) {
       setError('Failed to fetch users');
     } finally {

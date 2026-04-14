@@ -20,6 +20,7 @@ This anatomy is designed for a powerful Agentic AI to build and maintain the MBG
 - **Skill: GitHub Management Specialist:** Expertise in GitHub CLI, Actions, Secrets, and Pages visibility constraints.
 - [NEW] Skill: YWMP Data Synchronizer: Expert in scraping Google Sites via network interception and mapping JSON to GORM models.
 - **Skill: Agentic Anatomy Engineer:** Focused on agent prompt structure, instructions, and self-consistency.
+- [NEW] Skill: Profit Sharing & BEP Manager: Expert in automated payout distributions with dynamic ratio flipping (75:25 <-> 25:75) and remittance tracking.
 
 ## 4. Operational Steps (The Workflow)
 1. **Model Definition:** Define `Dapur`, `Koperasi`, and `FinancialRecord` in Gorm.
@@ -27,6 +28,7 @@ This anatomy is designed for a powerful Agentic AI to build and maintain the MBG
 3. **API Layer:** Expose REST endpoints for Dashboard Summary and Dapur detail.
 4. **Environment Setup:** Local via Docker Compose, VPS via manual deployment/CI-CD.
 5. **Validation:** Cross-check API output with whiteboard simulation values.
+6. **Maintenance:** Update agent skills and development history after each major logical change.
 
 ## 5. Output Format
 - Clean, idiomatic Go code.

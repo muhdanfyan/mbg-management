@@ -30,10 +30,10 @@ export const HR: React.FC = () => {
         api.get('/departments'),
         api.get('/positions')
       ]);
-      setEmployees(empData);
-      setVacancies(vacData);
-      setDepartments(deptData);
-      setPositions(posData);
+      setEmployees(Array.isArray(empData) ? empData : []);
+      setVacancies(Array.isArray(vacData) ? vacData : []);
+      setDepartments(Array.isArray(deptData) ? deptData : []);
+      setPositions(Array.isArray(posData) ? posData : []);
     } catch (error) {
       console.error('Failed to fetch HR data:', error);
     } finally {

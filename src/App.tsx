@@ -14,8 +14,9 @@ import { MainLayout } from './components/Layout/MainLayout';
 import { Workflow } from './pages/Workflow';
 import { SppgGallery } from './pages/SppgGallery';
 import { SystemGuide } from './pages/SystemGuide';
+import { BagiHasil } from './pages/BagiHasil';
 
-type PageType = 'dashboard' | 'locations' | 'construction' | 'procurement' | 'hr' | 'finance' | 'users' | 'workflow' | 'investors' | 'sppg-gallery' | 'system-guide';
+type PageType = 'dashboard' | 'locations' | 'construction' | 'procurement' | 'hr' | 'finance' | 'users' | 'workflow' | 'investors' | 'sppg-gallery' | 'system-guide' | 'bagi-hasil';
 
 const AppContent: React.FC = () => {
   const { user, loading } = useAuth();
@@ -64,6 +65,7 @@ const AppContent: React.FC = () => {
       investors: ['Dashboard', 'Monitoring Investor'],
       'sppg-gallery': ['Dashboard', 'Galeri Foto SPPG'],
       'system-guide': ['Dashboard', 'Panduan Sistem'],
+      'bagi-hasil': ['Dashboard', 'Bagi Hasil & Manajemen Sewa'],
     };
     return breadcrumbMap[currentPage] || ['Dashboard'];
   };
@@ -98,7 +100,10 @@ const AppContent: React.FC = () => {
         )}
 
         {user.role === 'Super Admin' && (
-          <Route path="/users" element={<Users />} />
+          <>
+            <Route path="/users" element={<Users />} />
+            <Route path="/bagi-hasil" element={<BagiHasil />} />
+          </>
         )}
 
         {(user.role === 'Super Admin' || user.role === 'Manager' || user.role === 'Staff' || user.role === 'PIC Dapur') && (

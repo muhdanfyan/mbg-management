@@ -35,7 +35,7 @@ type Dapur struct {
 	Koperasi        Koperasi              `gorm:"foreignKey:KoperasiID" json:"koperasi"`
 	Investors       []InvestorParticipant `gorm:"foreignKey:KitchenID" json:"investors"`
 	Routes          []Route               `gorm:"foreignKey:KitchenID" json:"routes"`
-	SppgID          string                `gorm:"type:varchar(50);index" json:"sppg_id"`
+	SppgID          string                `gorm:"type:varchar(50);uniqueIndex" json:"sppg_id"`
 	SppgDetail      *Sppg                  `gorm:"foreignKey:SppgID;references:SppgID" json:"sppg_detail"`
 	CreatedAt       time.Time             `json:"created_at"`
 	UpdatedAt       time.Time             `json:"updated_at"`

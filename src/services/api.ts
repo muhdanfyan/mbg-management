@@ -3,8 +3,16 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
     : 'https://api.mbgone.site/api';
 
 export const api = {
-    get: async (endpoint: string) => {
-        const response = await fetch(`${API_BASE_URL}${endpoint}`);
+    get: async (endpoint: string, params?: Record<string, any>) => {
+        let url = `${API_BASE_URL}${endpoint}`;
+        if (params) {
+            const query = new URLSearchParams();
+            Object.entries(params).forEach(([key, value]) => {
+                if (value !== undefined && value !== null) query.append(key, String(value));
+            });
+            url += `?${query.toString()}`;
+        }
+        const response = await fetch(url);
         if (!response.ok) throw new Error('API request failed');
         return response.json();
     },
@@ -39,6 +47,15 @@ export const api = {
         if (!response.ok) throw new Error('API request failed');
         return response.json();
     },
+    // New Helper Methods
+    getRentalRecords: (params?: any) => api.get('/rental-records', params),
+    postRentalRecord: (data: any) => api.post('/rental-records', data),
+    calculatePayout: (data: any) => api.post('/calculate-payout', data),
+    postPayout: (data: any) => api.post('/payouts', data),
+    getPayouts: (params?: any) => api.get('/payouts', params),
+    updateRemittance: (detailId: number, data: any) => api.put(`/payout-details/${detailId}/remit`, data),
+    postFinancialRecord: (data: any) => api.post('/financial-records', data),
+    getKitchenGrowth: (id: number) => api.get(`/dapur/${id}/growth`),
 };
 
 export type UserRole = 'Super Admin' | 'Manager' | 'Finance' | 'HRD' | 'Procurement' | 'Staff' | 'PIC Dapur' | 'Operator Koperasi' | 'Investor';
@@ -302,4 +319,60 @@ export interface SppgMedia {
     sppg_id: string;
     preview_url: string;
     media_type: string;
+}
+
+export interface RentalRecord {
+    id?: number;
+    kitchen_id: number;
+    date: string;
+    amount: number;
+    period: string;
+    status: string;
+    notes: string;
+}
+
+export interface ProfitDistribution {
+    id?: number;
+    kitchen_id: number;
+    period: string;
+    total_pool: number;
+    investor_split: number;
+    dpp_split: number;
+    ywmp_split: number;
+    is_post_bep: boolean;
+    status: string;
+    details?: PayoutDetail[];
+    created_at?: string;
+}
+
+export interface PayoutDetail {
+    id?: number;
+    distribution_id: number;
+    recipient_name: string;
+    role: string;
+    amount: number;
+    percentage: number;
+    status: string;
+    remittance_id?: number;
+    remittance?: Remittance;
+}
+
+export interface Remittance {
+    id?: number;
+    payout_id: number;
+    paid_at: string;
+    payment_method: string;
+    evidence_url: string;
+    notes: string;
+    status: string;
+}
+
+export interface FinancialRecord {
+  id?: number;
+  dapur_id: number;
+  period?: string;
+  total_portions: number;
+  rental_income: number;
+  selisih_bahan_baku: number;
+  status: string;
 }

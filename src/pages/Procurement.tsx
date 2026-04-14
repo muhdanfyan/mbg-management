@@ -28,12 +28,15 @@ export const Procurement: React.FC = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
+      const isRestricted = profile?.role === 'PIC Dapur' || profile?.role === 'Operator Koperasi';
+      const params = isRestricted && profile?.kitchen_id ? { kitchen_id: profile.kitchen_id } : undefined;
+
       const [equipData, ordersData] = await Promise.all([
-        api.get('/equipment'),
-        api.get('/purchase-orders')
+        api.get('/equipment', params),
+        api.get('/purchase-orders', params)
       ]);
-      setEquipment(equipData);
-      setOrders(ordersData);
+      setEquipment(Array.isArray(equipData) ? equipData : []);
+      setOrders(Array.isArray(ordersData) ? ordersData : []);
     } catch (error) {
       console.error('Failed to fetch procurement data:', error);
     } finally {
@@ -43,21 +46,28 @@ export const Procurement: React.FC = () => {
 
   const handleAuditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const pricePerPortion = auditForm.total_cost / (auditForm.portions || 1);
-    
     try {
+      await api.post('/audit-spending', {
+        dapur_id: Number(auditForm.kitchen_id || profile?.kitchen_id),
+        spending: auditForm.total_cost,
+        portions: auditForm.portions,
+        note: auditForm.items
+      });
+
+      // Juga simpan sebagai PO untuk record inventaris (Opsional tapi bagus untuk ledger)
       await api.post('/purchase-orders', {
         number: `AUDIT-${Date.now()}`,
         supplier: 'Audit Belanja Harian',
         total_amount: auditForm.total_cost,
         date: auditForm.date,
         status: 'delivered',
-        notes: `Porsi: ${auditForm.portions}, Per Porsi: Rp ${pricePerPortion.toLocaleString()}, Item: ${auditForm.items}`
+        notes: `Porsi: ${auditForm.portions}, Item: ${auditForm.items}`
       });
+
       setIsAuditModalOpen(false);
       fetchData();
-      // Remove query param from URL
       window.history.replaceState({}, '', window.location.pathname);
+      alert('Audit Belanja Berhasil Disimpan!');
     } catch (error: any) {
       alert('Gagal Simpan Audit: ' + (error.response?.data?.error || error.message));
     }

@@ -22,8 +22,8 @@ export const Investors: React.FC = () => {
                 api.get('/investors'),
                 api.get('/kitchens')
             ]);
-            setParticipants(investorsData);
-            setKitchens(kitchensData);
+            setParticipants(Array.isArray(investorsData) ? investorsData : []);
+            setKitchens(Array.isArray(kitchensData) ? kitchensData : []);
         } catch (error) {
             console.error('Failed to fetch data:', error);
         } finally {

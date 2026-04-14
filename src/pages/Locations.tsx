@@ -243,8 +243,8 @@ export const Locations: React.FC = () => {
         api.get('/kitchens'),
         api.get('/routes')
       ]);
-      setKitchens(kitchensData);
-      setRoutes(routesData);
+      setKitchens(Array.isArray(kitchensData) ? kitchensData : []);
+      setRoutes(Array.isArray(routesData) ? routesData : []);
     } catch (error) {
       console.error('Failed to fetch locations data:', error);
     } finally {
