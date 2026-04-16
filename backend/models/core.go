@@ -15,6 +15,7 @@ type FinancialRecord struct {
 	RentalIncome     float64        `json:"rental_income"`
 	SelisihBahanBaku float64        `json:"selisih_bahan_baku"`
 	Status           string         `json:"status"` // PENDING, APPROVED
+	EvidenceURL      string         `json:"evidence_url"`
 	CreatedAt        time.Time      `json:"created_at"`
 	UpdatedAt        time.Time      `json:"updated_at"`
 	DeletedAt        gorm.DeletedAt `gorm:"index" json:"-"`

@@ -45,7 +45,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const isRestricted = profile?.role === 'PIC Dapur' || profile?.role === 'Operator Koperasi';
+        const isRestricted = profile?.role === 'PIC Dapur' || profile?.role === 'Operator Koperasi' || profile?.role === 'Investor';
         const params = isRestricted && profile?.kitchen_id ? { kitchen_id: profile.kitchen_id } : undefined;
 
         const [summaryData, kitchensData, activitiesData, financeData, logisticsData] = await Promise.all([

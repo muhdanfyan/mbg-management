@@ -7,7 +7,7 @@ import { useAuth } from '../contexts/AuthContext';
 
 export const Finance: React.FC = () => {
   const { profile } = useAuth();
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'transactions' | 'loans' | 'expenses' | 'reports'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'transactions' | 'loans' | 'expenses' | 'reports' | 'investments' | 'selisih' | 'operasional'>('dashboard');
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loans, setLoans] = useState<Loan[]>([]);
   const [summary, setSummary] = useState<FinancialSummary | null>(null);
@@ -15,7 +15,10 @@ export const Finance: React.FC = () => {
   const [kitchens, setKitchens] = useState<any[]>([]);
   const [selectedKitchenId, setSelectedKitchenId] = useState<number | null>(null);
   const [reportData, setReportData] = useState<any>(null);
+  const [investors, setInvestors] = useState<any[]>([]);
+  const [audits, setAudits] = useState<any[]>([]);
   const [distributions, setDistributions] = useState<ProfitDistribution[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const [isTransModalOpen, setIsTransModalOpen] = useState(false);
   const [isLoanModalOpen, setIsLoanModalOpen] = useState(false);
@@ -29,6 +32,14 @@ export const Finance: React.FC = () => {
   const [transItemsPerPage, setTransItemsPerPage] = useState(15);
   const [loanPage, setLoanPage] = useState(1);
   const [loanItemsPerPage, setLoanItemsPerPage] = useState(10);
+
+  const formatDate = (dateStr: string) => {
+    if (!dateStr) return '-';
+    // Handle YYYY-MM-DD
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return dateStr;
+    return date.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+  };
   
   const [transForm, setTransForm] = useState({
     date: new Date().toISOString().split('T')[0],
@@ -44,6 +55,7 @@ export const Finance: React.FC = () => {
     portions: 0,
     amount: 0,
     proof_ref: '',
+    evidence_url: '',
     kitchen_id: profile?.kitchen_id || null
   });
 
@@ -62,21 +74,25 @@ export const Finance: React.FC = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const isRestricted = profile?.role === 'PIC Dapur' || profile?.role === 'Operator Koperasi';
+      const isRestricted = profile?.role === 'PIC Dapur' || profile?.role === 'Operator Koperasi' || profile?.role === 'Investor';
       const params = isRestricted && profile?.kitchen_id ? { kitchen_id: profile.kitchen_id } : undefined;
 
-      const [transData, loansData, summaryData, kitchensData, distData] = await Promise.all([
+      const [transData, loansData, summaryData, kitchensData, distData, investorData, auditData] = await Promise.all([
         api.get('/transactions', params),
         api.get('/loans', params),
         api.get('/dashboard/summary', params),
         api.get('/kitchens'),
-        api.getPayouts(params)
+        api.getPayouts(params),
+        api.get('/investors', params),
+        api.get('/audit-spending', params)
       ]);
       setTransactions(Array.isArray(transData) ? transData : []);
       setLoans(Array.isArray(loansData) ? loansData : []);
       setSummary(summaryData || {});
       setKitchens(Array.isArray(kitchensData) ? kitchensData : []);
       setDistributions(Array.isArray(distData) ? distData : []);
+      setInvestors(Array.isArray(investorData) ? investorData : []);
+      setAudits(Array.isArray(auditData) ? auditData : []);
     } catch (error) {
       console.error('Failed to fetch financial data:', error);
     } finally {
@@ -95,12 +111,25 @@ export const Finance: React.FC = () => {
 
   React.useEffect(() => {
     fetchData();
-    // Check for query actions
+    // Check for query actions and tabs
     const params = new URLSearchParams(window.location.search);
-    if (params.get('action') === 'lapor-bgn') {
+    const action = params.get('action');
+    const tab = params.get('tab');
+
+    if (action === 'lapor-bgn') {
       setIsBGNModalOpen(true);
     }
-  }, []);
+
+    if (tab === 'transactions') {
+      setActiveTab('transactions');
+    } else if (tab === 'expenses') {
+      setActiveTab('expenses');
+    } else if (tab === 'loans') {
+      setActiveTab('loans');
+    } else if (tab === 'reports') {
+      setActiveTab('reports');
+    }
+  }, [location.search]);
 
   const handleBGNSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -114,7 +143,8 @@ export const Finance: React.FC = () => {
         total_portions: bgnForm.portions,
         rental_income: rentalPortion,
         selisih_bahan_baku: materialPortion, // Awalnya diisi budget penuh, nanti diupdate audit koperasi
-        status: 'PENDING'
+        status: 'PENDING',
+        evidence_url: bgnForm.evidence_url
       });
       
       // Juga simpan sebagai transaksi income umum untuk cashflow global
@@ -139,10 +169,11 @@ export const Finance: React.FC = () => {
   const handleTransSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      const payload = { ...transForm, kitchen_id: (profile?.role === 'PIC Dapur' || profile?.role === 'Operator Koperasi') ? profile.kitchen_id : transForm.kitchen_id };
       if (editingTrans) {
-        await api.put(`/transactions/${editingTrans.id}`, transForm);
+        await api.put(`/transactions/${editingTrans.id}`, payload);
       } else {
-        await api.post('/transactions', transForm);
+        await api.post('/transactions', payload);
       }
       setIsTransModalOpen(false);
       setEditingTrans(null);
@@ -156,10 +187,11 @@ export const Finance: React.FC = () => {
   const handleLoanSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      const payload = { ...loanForm, kitchen_id: (profile?.role === 'PIC Dapur' || profile?.role === 'Operator Koperasi') ? profile.kitchen_id : loanForm.kitchen_id };
       if (editingLoan) {
-        await api.put(`/loans/${editingLoan.id}`, loanForm);
+        await api.put(`/loans/${editingLoan.id}`, payload);
       } else {
-        await api.post('/loans', loanForm);
+        await api.post('/loans', payload);
       }
       setIsLoanModalOpen(false);
       setEditingLoan(null);
@@ -373,7 +405,7 @@ export const Finance: React.FC = () => {
       <div className="bg-white rounded-xl border border-gray-200">
         <div className="border-b border-gray-200">
           <div className="flex gap-4 px-6">
-            {['dashboard', 'transactions', 'loans', 'expenses', 'reports'].map((tab) => (
+            {['dashboard', 'transactions', 'loans', 'expenses', 'reports', 'investments', 'selisih', 'operasional'].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab as any)}
@@ -383,11 +415,27 @@ export const Finance: React.FC = () => {
                     : 'border-transparent text-gray-600 hover:text-gray-900'
                 }`}
               >
-                {tab}
+                {tab === 'reports' ? 'Bagi Hasil (Sewa)' : tab === 'selisih' ? 'Selisih Bahan' : tab === 'operasional' ? 'Operasional' : tab}
               </button>
             ))}
           </div>
         </div>
+
+        {/* Global Search Kitchen */}
+        {['reports', 'investments', 'selisih', 'operasional'].includes(activeTab) && (
+          <div className="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
+             <div className="relative max-w-md">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input 
+                  type="text"
+                  placeholder="Cari Dapur (Nama/ID)..."
+                  className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500/20 transition-all font-medium"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+             </div>
+          </div>
+        )}
 
         <div className="p-6">
           {activeTab === 'dashboard' && (
@@ -825,7 +873,7 @@ export const Finance: React.FC = () => {
                     }}
                   >
                     <option value="">Pilih Dapur...</option>
-                    {kitchens.map(k => (
+                    {kitchens.filter(k => k.name.toLowerCase().includes(searchQuery.toLowerCase())).map(k => (
                       <option key={k.id} value={k.id}>{k.name}</option>
                     ))}
                   </select>
@@ -951,12 +999,430 @@ export const Finance: React.FC = () => {
                       </div>
                     </div>
                   </div>
+
+                  {/* Projection Section */}
+                  <div className="lg:col-span-2 bg-gradient-to-br from-[#1A4D43] to-[#2BBF9D] rounded-xl p-8 text-white shadow-xl shadow-[#2BBF9D]/20">
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                      <div>
+                         <h4 className="text-xl font-black uppercase tracking-tighter flex items-center gap-2">
+                           <TrendingUp className="w-6 h-6" />
+                           Kalkulasi Proyeksi Payout
+                         </h4>
+                         <p className="text-white/70 text-sm font-medium">Estimasi pendapatan berdasarkan target porsi rutin</p>
+                      </div>
+                      <div className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-lg border border-white/20">
+                         <span className="text-[10px] font-black uppercase tracking-widest block opacity-60">Status BEP Saat Ini</span>
+                         <span className="text-lg font-black">{reportData.bep_status}</span>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
+                       <div className="space-y-2">
+                          <label className="text-[10px] font-black uppercase tracking-widest text-white/60">Target Porsi Harian</label>
+                          <div className="relative">
+                             <input 
+                               type="number" 
+                               defaultValue={reportData.total_portions || 400}
+                               id="proj_portions"
+                               className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-2xl font-black outline-none focus:bg-white/20 transition-all"
+                             />
+                             <span className="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 font-bold uppercase text-[10px]">Porsi</span>
+                          </div>
+                       </div>
+                       
+                       <div className="md:col-span-2 grid grid-cols-2 gap-4">
+                          <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                             <p className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-1">Estimasi Payout Investor / Bulan</p>
+                             <p className="text-2xl font-black">
+                               Rp {((reportData.investor_share / (reportData.total_portions || 1)) * 400 * 30).toLocaleString('id-ID')}
+                             </p>
+                             <p className="text-[10px] text-white/60 mt-2 font-medium">Asumsi 30 hari operasional</p>
+                          </div>
+                          <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                             <p className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-1">Status Nisbah</p>
+                             <p className="text-2xl font-black">
+                               {reportData.bep_status === 'PRE-BEP' ? '75% : 25%' : '25% : 75%'}
+                             </p>
+                             <p className="text-[10px] text-white/60 mt-2 font-medium">
+                               {reportData.bep_status === 'PRE-BEP' ? 'Prioritas Pengembalian Modal' : 'Bagi Hasil Keuntungan'}
+                             </p>
+                          </div>
+                       </div>
+                    </div>
+
+                    <div className="mt-8 pt-6 border-t border-white/10 flex items-center gap-2">
+                       <Clock className="w-5 h-5 text-white/40" />
+                       <p className="text-xs text-white/70 font-medium">
+                          Berdasarkan pola ini, estimasi BEP dicapai dalam 
+                          <span className="text-white font-black mx-1">
+                            {reportData.initial_capital > 0 
+                              ? Math.max(0, Math.ceil((reportData.initial_capital - reportData.accumulated_profit) / ((reportData.investor_share / (reportData.total_portions || 1)) * 400 * 30))).toFixed(0) 
+                              : 0} Bulan
+                          </span> 
+                          mendatang.
+                       </p>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
           )}
-        </div>
-      </div>
+          {activeTab === 'investments' && (
+            <div className="space-y-6">
+              <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div>
+                    <h3 className="text-lg font-bold text-blue-900 flex items-center gap-2">
+                       <PieChart className="w-5 h-5 text-blue-600" />
+                       Summary Investasi & BEP
+                    </h3>
+                    <p className="text-sm text-blue-700">Tracking pengembalian modal investor per dapur</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <span className="px-3 py-1 bg-white border border-blue-200 text-blue-700 rounded-full text-xs font-bold shadow-sm">
+                      Total Unit: {kitchens.length} Dapur
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {kitchens
+                  .filter(k => k.name.toLowerCase().includes(searchQuery.toLowerCase()))
+                  .map((kitchen) => {
+                  const percentage = kitchen.initial_capital > 0 
+                    ? Math.min((kitchen.accumulated_profit / kitchen.initial_capital) * 100, 100)
+                    : 0;
+                  
+                  return (
+                    <div key={kitchen.id} className="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+                      <div className="p-5 border-b border-gray-100 bg-slate-50 flex justify-between items-center">
+                        <div>
+                          <h4 className="font-black text-gray-900 leading-tight uppercase tracking-tight">{kitchen.name}</h4>
+                          <span className={`text-[10px] font-black px-2 py-0.5 rounded ${
+                            kitchen.bep_status === 'POST-BEP' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
+                          }`}>
+                            {kitchen.bep_status}
+                          </span>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-[10px] font-bold text-gray-400 uppercase">Capital</p>
+                          <p className="text-sm font-black text-blue-600">Rp {(kitchen.initial_capital || 0).toLocaleString('id-ID')}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="p-5 space-y-4">
+                        <section>
+                          <div className="flex justify-between items-center mb-2">
+                            <span className="text-xs font-bold text-gray-500 uppercase">BEP Progress</span>
+                            <span className="text-xs font-black text-gray-900">{percentage.toFixed(1)}%</span>
+                          </div>
+                          <div className="w-full bg-gray-100 h-3 rounded-full overflow-hidden">
+                            <div 
+                              className={`h-full rounded-full transition-all duration-1000 ${
+                                kitchen.bep_status === 'POST-BEP' ? 'bg-green-500' : 'bg-blue-600'
+                              }`} 
+                              style={{ width: `${percentage}%` }}
+                            ></div>
+                          </div>
+                          <div className="flex justify-between mt-2">
+                              <p className="text-[10px] text-gray-400 font-medium">Accumulated: Rp {kitchen.accumulated_profit.toLocaleString('id-ID')}</p>
+                              {kitchen.initial_capital > 0 && percentage < 100 && (
+                                <p className="text-[10px] text-orange-600 font-bold">Remaining: Rp {(kitchen.initial_capital - kitchen.accumulated_profit).toLocaleString('id-ID')}</p>
+                              )}
+                          </div>
+                        </section>
+
+                        <section className="pt-4 border-t border-dashed border-gray-100">
+                          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Investor Participants</p>
+                          {kitchen.investors && kitchen.investors.length > 0 ? (
+                            <div className="space-y-2">
+                              {kitchen.investors.map((inv: any) => (
+                                <div key={inv.id} className="flex justify-between items-center p-2 bg-slate-50 rounded-lg">
+                                  <div className="flex flex-col">
+                                    <span className="text-xs font-bold text-gray-800">{inv.name}</span>
+                                    <span className="text-[9px] text-gray-500">{inv.saham_ratio || '75% : 25%'} Ratio</span>
+                                  </div>
+                                  <div className="text-right">
+                                    <span className="text-xs font-black text-blue-600">{inv.share_percentage}%</span>
+                                    <p className="text-[9px] font-medium text-gray-400">Rp {(inv.investment_amount || 0).toLocaleString('id-ID')}</p>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="p-3 bg-emerald-50 border border-emerald-100 rounded-lg">
+                              <p className="text-xs font-black text-emerald-700 flex items-center gap-2">
+                                <CheckCircle className="w-4 h-4" />
+                                100% Kepemilikan MBP/DPP
+                              </p>
+                              <p className="text-[9px] text-emerald-600/70 mt-1">Dapur ini dikelola secara internal tanpa investor eksternal.</p>
+                            </div>
+                          )}
+                        </section>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+          {activeTab === 'selisih' && (
+            <div className="space-y-6">
+              <div className="bg-[#E2F8F3] border border-[#2BBF9D]/20 rounded-xl p-6">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div>
+                    <h3 className="text-lg font-bold text-[#1A4D43] flex items-center gap-2">
+                       <TrendingUp className="w-5 h-5 text-[#2BBF9D]" />
+                       Monitoring Selisih Bahan Baku
+                    </h3>
+                    <p className="text-sm text-[#1A4D43]/70">Tracking margin belanja harian (60:20:20 Split)</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <span className="px-3 py-1 bg-white border border-[#2BBF9D]/10 text-[#2BBF9D] rounded-full text-xs font-black shadow-sm uppercase tracking-wider">
+                      Fixed Charge: Rp 15jt / Unit
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                 {/* Logic Info Card */}
+                 <div className="lg:col-span-1 space-y-6">
+                    <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                       <h4 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-4">Skema Pembagian Bersih</h4>
+                       <div className="space-y-4">
+                          <div className="flex items-start gap-4 p-3 bg-blue-50 rounded-lg border border-blue-100">
+                             <div className="p-2 bg-blue-600 rounded text-white font-black text-xs">60%</div>
+                             <div>
+                                <p className="text-sm font-bold text-blue-900">DPP Wahdah</p>
+                                <p className="text-[10px] text-blue-700">Pusat Management & Pengembangan</p>
+                             </div>
+                          </div>
+                          <div className="flex items-start gap-4 p-3 bg-emerald-50 rounded-lg border border-emerald-100">
+                             <div className="p-2 bg-emerald-600 rounded text-white font-black text-xs">20%</div>
+                             <div>
+                                <p className="text-sm font-bold text-emerald-900">DPD</p>
+                                <p className="text-[10px] text-emerald-700">Wilayah / Daerah Pelaksana</p>
+                             </div>
+                          </div>
+                          <div className="flex items-start gap-4 p-3 bg-purple-50 rounded-lg border border-purple-100">
+                             <div className="p-2 bg-purple-600 rounded text-white font-black text-xs">20%</div>
+                             <div>
+                                <p className="text-sm font-bold text-purple-900">Koperasi</p>
+                                <p className="text-[10px] text-purple-700">Audit & Quality Assurance</p>
+                             </div>
+                          </div>
+                       </div>
+                       <div className="mt-6 pt-6 border-t border-dashed border-gray-100">
+                          <p className="text-[10px] text-gray-400 font-medium leading-relaxed italic">
+                             * Laba bersih dihitung dari TOTAL MARGIN dikurangi fixed cost Rp 15.000.000 untuk honor 4 tenaga utama dapur.
+                          </p>
+                       </div>
+                    </div>
+                 </div>
+
+                 {/* Audit Records List */}
+                 <div className="lg:col-span-2 space-y-4">
+                    {audits.filter(a => kitchens.find(k => k.id === a.kitchen_id)?.name.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 ? (
+                      <div className="bg-white border border-gray-200 rounded-xl p-12 text-center">
+                         <div className="bg-gray-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <Clock className="w-8 h-8 text-gray-300" />
+                         </div>
+                         <h4 className="text-gray-900 font-bold">Belum Ada Data Audit</h4>
+                         <p className="text-gray-500 text-sm mt-1">Data selisih akan tampil setelah Operator Koperasi melakukan audit pasar.</p>
+                      </div>
+                    ) : (
+                      audits
+                        .filter(a => kitchens.find(k => k.id === a.kitchen_id)?.name.toLowerCase().includes(searchQuery.toLowerCase()))
+                        .map((audit) => {
+                        const budget = audit.portions * 10000;
+                        const margin = budget - audit.invoice_amount;
+                        const netMargin = Math.max(0, margin - 15000000);
+                        
+                        return (
+                          <div key={audit.id} className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-md transition-shadow">
+                             <div className="p-4 bg-slate-50 border-b border-gray-100 flex justify-between items-center">
+                                <div>
+                                   <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none">Tanggal Audit</p>
+                                   <p className="font-bold text-gray-800 mt-1">{formatDate(audit.date)}</p>
+                                </div>
+                                <div className="text-right">
+                                   <span className="text-[10px] font-black bg-[#E2F8F3] text-[#2BBF9D] px-2 py-1 rounded uppercase tracking-tighter">
+                                      {audit.portions} Porsi
+                                   </span>
+                                </div>
+                             </div>
+                             
+                             <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                   <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Kalkulasi Margin</p>
+                                   <div className="space-y-2">
+                                      <div className="flex justify-between text-xs font-medium">
+                                         <span className="text-gray-500">Anggaran Bahan (Rp 10k/p)</span>
+                                         <span className="text-gray-900 font-black">Rp {budget.toLocaleString('id-ID')}</span>
+                                      </div>
+                                      <div className="flex justify-between text-xs font-medium">
+                                         <span className="text-gray-500">Realisasi Nota (Audit)</span>
+                                         <span className="text-red-500 font-black">- Rp {audit.invoice_amount.toLocaleString('id-ID')}</span>
+                                      </div>
+                                      <div className="pt-2 border-t border-gray-100 flex justify-between items-end">
+                                         <span className="text-xs font-black text-[#1A4D43] uppercase tracking-tighter">Margin Tabungan</span>
+                                         <span className="text-lg font-black text-[#2BBF9D]">Rp {margin.toLocaleString('id-ID')}</span>
+                                      </div>
+                                   </div>
+                                </div>
+                                
+                                <div className="bg-[#F8FAF9] rounded-xl p-4 border border-[#2BBF9D]/10">
+                                   <p className="text-[10px] font-black text-[#1A4D43] uppercase tracking-widest mb-3 text-center">Distribusi Laba Bersih</p>
+                                   <div className="space-y-2">
+                                      <div className="flex justify-between text-[10px] font-medium text-gray-400">
+                                         <span>Fixed Cost (4 Tenaga)</span>
+                                         <span>- Rp 15.000.000</span>
+                                      </div>
+                                      <div className="flex justify-between text-[11px] font-bold text-blue-600 pt-1">
+                                         <span>DPP Center (60%)</span>
+                                         <span>Rp {(netMargin * 0.6).toLocaleString('id-ID')}</span>
+                                      </div>
+                                      <div className="flex justify-between text-[11px] font-bold text-emerald-600">
+                                         <span>DPD Wilayah (20%)</span>
+                                         <span>Rp {(netMargin * 0.2).toLocaleString('id-ID')}</span>
+                                      </div>
+                                      <div className="flex justify-between text-[11px] font-bold text-purple-600">
+                                         <span>Koperasi (20%)</span>
+                                         <span>Rp {(netMargin * 0.2).toLocaleString('id-ID')}</span>
+                                      </div>
+                                   </div>
+                                </div>
+                             </div>
+                             
+                             {audit.note && (
+                               <div className="px-5 py-3 bg-gray-50 border-t border-gray-100">
+                                  <p className="text-[10px] font-medium text-gray-500 italic flex items-center gap-2">
+                                     <Clock className="w-3 h-3" />
+                                     Catatan: {audit.note}
+                                  </p>
+                               </div>
+                             )}
+                          </div>
+                        );
+                      })
+                    )}
+              </div>
+            </div>
+          </div>
+        )}
+          {activeTab === 'operasional' && (
+            <div className="space-y-6">
+              <div className="bg-orange-50 border border-orange-200 rounded-xl p-6">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div>
+                    <h3 className="text-lg font-bold text-orange-900 flex items-center gap-2">
+                       <Briefcase className="w-5 h-5 text-orange-600" />
+                       Manajemen Biaya Operasional
+                    </h3>
+                    <p className="text-sm text-orange-700">Tracking pengeluaran rutin & distribusi honor staff</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <span className="px-3 py-1 bg-white border border-orange-200 text-orange-700 rounded-full text-xs font-black shadow-sm uppercase tracking-wider">
+                      Fixed Budget: Rp 6jt / Bulan
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                 {/* salary distribution card */}
+                 <div className="lg:col-span-1">
+                    <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+                       <div className="p-5 bg-slate-50 border-b border-gray-100 italic">
+                          <h4 className="text-xs font-black text-gray-500 uppercase tracking-widest">Alokasi Honor Staff (Fixed)</h4>
+                       </div>
+                       <div className="p-6 space-y-6">
+                          <div className="flex justify-between items-center">
+                             <div>
+                                <p className="text-sm font-bold text-gray-900">Kepala Dapur</p>
+                                <p className="text-[10px] text-gray-500 uppercase font-bold tracking-tight">Lead Person</p>
+                             </div>
+                             <p className="text-sm font-black text-blue-600">Rp 2.500.000</p>
+                          </div>
+                          <div className="flex justify-between items-center">
+                             <div>
+                                <p className="text-sm font-bold text-gray-900">Akuntan / Admin</p>
+                                <p className="text-[10px] text-gray-500 uppercase font-bold tracking-tight">Finance Control</p>
+                             </div>
+                             <p className="text-sm font-black text-blue-600">Rp 1.500.000</p>
+                          </div>
+                          <div className="flex justify-between items-center">
+                             <div>
+                                <p className="text-sm font-bold text-gray-900">Staff Operasional</p>
+                                <p className="text-[10px] text-gray-500 uppercase font-bold tracking-tight">General Workers</p>
+                             </div>
+                             <p className="text-sm font-black text-blue-600">Rp 2.000.000</p>
+                          </div>
+                          
+                          <div className="pt-6 border-t border-dashed border-gray-200 flex justify-between items-center">
+                             <p className="text-sm font-black text-gray-900 uppercase">Total Alokasi</p>
+                             <p className="text-xl font-black text-orange-600">Rp 6.000.000</p>
+                          </div>
+                       </div>
+                    </div>
+                 </div>
+
+                 {/* Other OpEx List */}
+                 <div className="lg:col-span-2 space-y-4">
+                    <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
+                       <div className="flex items-center justify-between mb-4">
+                          <h4 className="text-xs font-black text-gray-400 uppercase tracking-widest">Detail Pengeluaran Operasional</h4>
+                          <span className="text-[10px] font-bold text-gray-400">Filter: Category 'Operasional/Honor'</span>
+                       </div>
+                       
+                       <div className="overflow-x-auto">
+                          <table className="w-full text-left">
+                             <thead>
+                                <tr className="text-xs font-black text-gray-400 uppercase border-b border-gray-100">
+                                   <th className="pb-3 px-2">Tanggal</th>
+                                   <th className="pb-3 px-2">Keterangan / Kategori</th>
+                                   <th className="pb-3 px-2 text-right">Jumlah</th>
+                                   <th className="pb-3 px-2 text-center">Status</th>
+                                </tr>
+                             </thead>
+                             <tbody className="divide-y divide-gray-50">
+                                {transactions.filter(t => t.type === 'expense' && (t.category === 'Honor' || t.category === 'Gaji' || t.category === 'Operasional' || t.category === 'Utilities')).length === 0 ? (
+                                   <tr>
+                                      <td colSpan={4} className="py-12 text-center">
+                                         <p className="text-gray-400 text-sm font-medium">Tidak ada transaksi operasional dalam periode ini.</p>
+                                      </td>
+                                   </tr>
+                                ) : (
+                                   transactions.filter(t => t.type === 'expense' && (t.category === 'Honor' || t.category === 'Gaji' || t.category === 'Operasional' || t.category === 'Utilities')).map(t => (
+                                      <tr key={t.id} className="hover:bg-slate-50 transition-colors">
+                                         <td className="py-4 px-2 text-xs font-medium text-gray-600">{formatDate(t.date)}</td>
+                                         <td className="py-4 px-2">
+                                            <p className="text-sm font-bold text-gray-900 capitalize">{t.category}</p>
+                                            <p className="text-[10px] text-gray-400">{t.type === 'expense' ? 'Pengeluaran Rutin' : ''}</p>
+                                         </td>
+                                         <td className="py-4 px-2 text-sm font-black text-red-500 text-right">
+                                            Rp {t.amount.toLocaleString('id-ID')}
+                                         </td>
+                                         <td className="py-4 px-2 text-center">
+                                            <span className={`text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-tighter ${
+                                              t.status === 'approved' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
+                                            }`}>
+                                               {t.status}
+                                            </span>
+                                         </td>
+                                      </tr>
+                                   ))
+                                )}
+                             </tbody>
+                          </table>
+                       </div>
+                    </div>
+                  </div>
+               </div>
+            </div>
+          )}
 
       {/* Transaction Modal */}
       {isTransModalOpen && (
@@ -1263,6 +1729,17 @@ export const Finance: React.FC = () => {
                 />
               </div>
 
+              <div>
+                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Bukti Transfer (URL)</label>
+                <input 
+                  type="url"
+                  placeholder="Link Drive/Foto bukti transfer BGN"
+                  value={bgnForm.evidence_url}
+                  onChange={e => setBgnForm({...bgnForm, evidence_url: e.target.value})}
+                  className="w-full border border-gray-100 rounded-xl px-4 py-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-[#2BBF9D] focus:border-transparent transition-all outline-none"
+                />
+              </div>
+
               <div className="flex gap-4 pt-4">
                 <button 
                   type="button"
@@ -1283,5 +1760,7 @@ export const Finance: React.FC = () => {
         </div>
       )}
     </div>
+  </div>
+</div>
   );
 };

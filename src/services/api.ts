@@ -4,6 +4,9 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
 
 export const api = {
     get: async (endpoint: string, params?: Record<string, any>) => {
+        const savedProfile = localStorage.getItem('mbg_profile');
+        const profile = savedProfile ? JSON.parse(savedProfile) : null;
+        
         let url = `${API_BASE_URL}${endpoint}`;
         if (params) {
             const query = new URLSearchParams();
@@ -12,14 +15,26 @@ export const api = {
             });
             url += `?${query.toString()}`;
         }
-        const response = await fetch(url);
+        const response = await fetch(url, {
+            headers: {
+                'X-User-Role': profile?.role || '',
+                'X-Kitchen-ID': profile?.kitchen_id ? String(profile.kitchen_id) : ''
+            }
+        });
         if (!response.ok) throw new Error('API request failed');
         return response.json();
     },
     post: async (endpoint: string, data: any) => {
+        const savedProfile = localStorage.getItem('mbg_profile');
+        const profile = savedProfile ? JSON.parse(savedProfile) : null;
+
         const response = await fetch(`${API_BASE_URL}${endpoint}`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'X-User-Role': profile?.role || '',
+                'X-Kitchen-ID': profile?.kitchen_id ? String(profile.kitchen_id) : ''
+            },
             body: JSON.stringify(data),
         });
         if (!response.ok) {
@@ -29,9 +44,16 @@ export const api = {
         return response.json();
     },
     put: async (endpoint: string, data: any) => {
+        const savedProfile = localStorage.getItem('mbg_profile');
+        const profile = savedProfile ? JSON.parse(savedProfile) : null;
+
         const response = await fetch(`${API_BASE_URL}${endpoint}`, {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'X-User-Role': profile?.role || '',
+                'X-Kitchen-ID': profile?.kitchen_id ? String(profile.kitchen_id) : ''
+            },
             body: JSON.stringify(data),
         });
         if (!response.ok) {
@@ -41,8 +63,15 @@ export const api = {
         return response.json();
     },
     delete: async (endpoint: string) => {
+        const savedProfile = localStorage.getItem('mbg_profile');
+        const profile = savedProfile ? JSON.parse(savedProfile) : null;
+
         const response = await fetch(`${API_BASE_URL}${endpoint}`, {
             method: 'DELETE',
+            headers: {
+                'X-User-Role': profile?.role || '',
+                'X-Kitchen-ID': profile?.kitchen_id ? String(profile.kitchen_id) : ''
+            }
         });
         if (!response.ok) throw new Error('API request failed');
         return response.json();
@@ -375,4 +404,5 @@ export interface FinancialRecord {
   rental_income: number;
   selisih_bahan_baku: number;
   status: string;
+  evidence_url?: string;
 }

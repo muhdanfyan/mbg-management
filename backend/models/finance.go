@@ -8,6 +8,7 @@ import (
 
 type Transaction struct {
 	ID        uint           `gorm:"primaryKey" json:"id"`
+	KitchenID *uint          `json:"kitchen_id"`
 	Date      string         `json:"date"`
 	Type      string         `json:"type"` // income, expense
 	Category  string         `json:"category"`
@@ -20,6 +21,7 @@ type Transaction struct {
 
 type Loan struct {
 	ID               uint           `gorm:"primaryKey" json:"id"`
+	KitchenID        *uint          `json:"kitchen_id"`
 	Number           string         `gorm:"uniqueIndex;type:varchar(100)" json:"number"`
 	Lender           string         `json:"lender"`
 	Amount           float64        `json:"amount"`
@@ -86,6 +88,19 @@ type Remittance struct {
 	EvidenceURL   string         `json:"evidence_url"`
 	Notes         string         `json:"notes"`
 	Status        string         `json:"status"` // COMPLETED
+	CreatedAt     time.Time      `json:"created_at"`
+	UpdatedAt     time.Time      `json:"updated_at"`
+	DeletedAt     gorm.DeletedAt `gorm:"index" json:"-"`
+}
+
+type AuditSpending struct {
+	ID            uint           `gorm:"primaryKey" json:"id"`
+	KitchenID     uint           `json:"kitchen_id"`
+	Date          string         `json:"date"`
+	InvoiceAmount float64        `json:"invoice_amount"` // Harga Nota
+	MarketAmount  float64        `json:"market_amount"`  // Harga Real Pasar
+	Portions      int            `json:"portions"`
+	Note          string         `json:"note"`
 	CreatedAt     time.Time      `json:"created_at"`
 	UpdatedAt     time.Time      `json:"updated_at"`
 	DeletedAt     gorm.DeletedAt `gorm:"index" json:"-"`

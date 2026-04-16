@@ -53,7 +53,7 @@ func initDB() {
 	_ = db.AutoMigrate(&models.Transaction{}, &models.Loan{}, &models.Equipment{}, &models.PurchaseOrder{}, &models.FinancialRecord{})
 	
 	// New Financial/Sharing Modules (Critical for current task)
-	err = db.AutoMigrate(&models.RentalRecord{}, &models.ProfitDistribution{}, &models.PayoutDetail{}, &models.Remittance{})
+	err = db.AutoMigrate(&models.RentalRecord{}, &models.ProfitDistribution{}, &models.PayoutDetail{}, &models.Remittance{}, &models.AuditSpending{})
 	if err != nil {
 		fmt.Printf("Failed to auto-migrate: %v\n", err)
 		// We might still want to continue if some tables exist, but usually failure here is bad
@@ -100,21 +100,29 @@ func initDB() {
 		})
 	}
 
-	// Seed PIC Dapur Account
+	// Seed PIC Dapur Account (Assigned to Panakkukang)
 	hashedDapur, _ := bcrypt.GenerateFromPassword([]byte("mbg12345"), bcrypt.DefaultCost)
+	kitchenID := uint(1)
 	dapurUser := models.User{
 		ID:         "2",
-		Email:      "dapur@mbg.com",
+		Email:      "pic.panakkukang@mbg.com",
 		Password:   string(hashedDapur),
-		FullName:   "Demo PIC Dapur",
+		FullName:   "PIC Dapur Panakkukang",
 		Role:       "PIC Dapur",
 		Department: "Operasional",
 		Position:   "Kitchen Lead",
+		KitchenID:  &kitchenID,
 	}
 	var countDapur int64
-	db.Model(&models.User{}).Where("email = ?", "dapur@mbg.com").Count(&countDapur)
+	db.Model(&models.User{}).Where("email = ?", "pic.panakkukang@mbg.com").Count(&countDapur)
 	if countDapur == 0 {
 		db.Create(&dapurUser)
+	} else {
+		// Update existing user to ensure kitchen_id is assigned
+		db.Model(&models.User{}).Where("email = ?", "pic.panakkukang@mbg.com").Updates(models.User{
+			KitchenID: &kitchenID,
+			FullName: "PIC Dapur Panakkukang",
+		})
 	}
 
 	// Seed Investor Account
@@ -179,6 +187,26 @@ func RequireRole(allowedRoles ...string) gin.HandlerFunc {
 	}
 }
 
+// ScopedDB provides a GORM DB instance pre-filtered by kitchen_id if the user is restricted
+func ScopedDB(c *gin.Context) *gorm.DB {
+	role := c.GetHeader("X-User-Role")
+	kitchenIDStr := c.GetHeader("X-Kitchen-ID")
+
+	// Super Admin and Manager see everything
+	if role == "Super Admin" || role == "Manager" {
+		return db
+	}
+
+	// For restricted roles, enforce kitchen isolation
+	if kitchenIDStr != "" && kitchenIDStr != "0" {
+		return db.Where("kitchen_id = ?", kitchenIDStr)
+	}
+
+	// Special case for finance records which uses 'dapur_id'
+	// This will be handled specifically in handlers or by creating a more generic scope
+	return db
+}
+
 func main() {
 	initDB()
 
@@ -188,7 +216,7 @@ func main() {
 	r.Use(func(c *gin.Context) {
 		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, X-Kitchen-ID, X-User-Role")
 		if c.Request.Method == "OPTIONS" {
 			c.AbortWithStatus(204)
 			return
@@ -206,7 +234,16 @@ func main() {
 		// GET endpoints (Read)
 		api.GET("/kitchens", func(c *gin.Context) {
 			kitchens := []models.Dapur{}
-			db.Preload("Routes").
+			query := ScopedDB(c)
+			
+			// If not superadmin/manager, we need to filter Kitchen by ID explicitly since ScopedDB uses 'kitchen_id' field which doesn't exist on Dapur (it uses 'ID')
+			role := c.GetHeader("X-User-Role")
+			kitchenID := c.GetHeader("X-Kitchen-ID")
+			if (role != "Super Admin" && role != "Manager") && kitchenID != "" {
+				query = db.Where("id = ?", kitchenID)
+			}
+
+			query.Preload("Routes").
 				Preload("Investors").
 				Preload("SppgDetail.Infrastructure").
 				Preload("SppgDetail.Stakeholder.Pj").
@@ -218,15 +255,8 @@ func main() {
 		})
 
 		api.GET("/contracts", func(c *gin.Context) {
-			kitchenID := c.Query("kitchen_id")
 			contracts := []models.Contract{}
-			q := db.Order("created_at desc")
-			if kitchenID != "" {
-				// We might need to map Contract to Kitchen via a field or SPPG_ID
-				// For now, filtering by kitchen_id if the field exists
-				q = q.Where("kitchen_id = ?", kitchenID)
-			}
-			q.Find(&contracts)
+			ScopedDB(c).Order("created_at desc").Find(&contracts)
 			c.JSON(http.StatusOK, contracts)
 		})
 
@@ -237,13 +267,17 @@ func main() {
 		})
 
 		api.GET("/financial-records", func(c *gin.Context) {
-			kitchenID := c.Query("kitchen_id")
 			records := []models.FinancialRecord{}
-			q := db.Preload("Dapur").Order("period desc")
-			if kitchenID != "" {
-				q = q.Where("dapur_id = ?", kitchenID)
+			query := ScopedDB(c).Preload("Dapur").Order("period desc")
+			
+			// Adjusting for 'dapur_id' column in FinancialRecord
+			role := c.GetHeader("X-User-Role")
+			kitchenID := c.GetHeader("X-Kitchen-ID")
+			if (role != "Super Admin" && role != "Manager") && kitchenID != "" {
+				query = db.Where("dapur_id = ?", kitchenID).Preload("Dapur").Order("period desc")
 			}
-			q.Find(&records)
+
+			query.Find(&records)
 			c.JSON(http.StatusOK, records)
 		})
 
@@ -261,35 +295,31 @@ func main() {
 
 		api.GET("/transactions", func(c *gin.Context) {
 			var t []models.Transaction
-			db.Find(&t)
+			ScopedDB(c).Find(&t)
 			c.JSON(http.StatusOK, t)
+		})
+
+		api.GET("/audit-spending", func(c *gin.Context) {
+			var a []models.AuditSpending
+			ScopedDB(c).Order("date desc").Find(&a)
+			c.JSON(http.StatusOK, a)
 		})
 
 		api.GET("/loans", func(c *gin.Context) {
 			var l []models.Loan
-			db.Find(&l)
+			ScopedDB(c).Find(&l)
 			c.JSON(http.StatusOK, l)
 		})
 
 		api.GET("/equipment", func(c *gin.Context) {
-			kitchenID := c.Query("kitchen_id")
 			items := []models.Equipment{}
-			q := db.Order("created_at desc")
-			if kitchenID != "" {
-				q = q.Where("kitchen_id = ?", kitchenID)
-			}
-			q.Find(&items)
+			ScopedDB(c).Order("created_at desc").Find(&items)
 			c.JSON(http.StatusOK, items)
 		})
 
 		api.GET("/purchase-orders", func(c *gin.Context) {
-			kitchenID := c.Query("kitchen_id")
 			orders := []models.PurchaseOrder{}
-			q := db.Order("date desc")
-			if kitchenID != "" {
-				q = q.Where("kitchen_id = ?", kitchenID)
-			}
-			q.Find(&orders)
+			ScopedDB(c).Order("date desc").Find(&orders)
 			c.JSON(http.StatusOK, orders)
 		})
 
@@ -711,7 +741,30 @@ func main() {
 			c.JSON(http.StatusOK, fr)
 		})
 
-		// 2. Administrator: Approve Financial Record & Update BEP
+		// 2. Operator Koperasi: Submit Audit Spending (Market Audit)
+		api.POST("/audit-spending", RequireRole("Operator Koperasi", "Super Admin"), func(c *gin.Context) {
+			var audit models.AuditSpending
+			if err := c.ShouldBindJSON(&audit); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				return
+			}
+			if err := db.Create(&audit).Error; err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
+
+			// Update the latest FinancialRecord margin if exists
+			var fr models.FinancialRecord
+			if err := db.Where("dapur_id = ? AND status = ?", audit.KitchenID, "PENDING").Order("created_at desc").First(&fr).Error; err == nil {
+				budget := float64(audit.Portions) * 10000
+				realMargin := budget - audit.InvoiceAmount
+				db.Model(&fr).Update("selisih_bahan_baku", realMargin)
+			}
+
+			c.JSON(http.StatusOK, audit)
+		})
+
+		// 3. Administrator: Approve Financial Record & Update BEP
 		api.PUT("/financial-records/:id/approve", RequireRole("Super Admin"), func(c *gin.Context) {
 			id := c.Param("id")
 			var fr models.FinancialRecord
@@ -744,7 +797,6 @@ func main() {
 			var d models.Dapur
 			db.First(&d, fr.DapurID)
 			if d.InitialCapital > 0 && d.AccumulatedProfit >= d.InitialCapital && d.BEPStatus == "PRE-BEP" {
-				// Logic flip: 75:25 -> 25:75, 60:40 -> 40:60
 				newInvShare := d.DPPShare
 				newDPPShare := d.InvestorShare
 				db.Model(&d).Updates(map[string]interface{}{
@@ -753,60 +805,9 @@ func main() {
 					"dpp_share":      newDPPShare,
 				})
 			}
-
 			c.JSON(http.StatusOK, gin.H{"message": "Approved and BEP updated", "record": fr})
 		})
-
-		// 3. Operator Koperasi: Audit Daily Spending
-		api.POST("/audit-spending", RequireRole("Operator Koperasi", "Super Admin"), func(c *gin.Context) {
-			var input struct {
-				DapurID   uint    `json:"dapur_id" binding:"required"`
-				Spending  float64 `json:"spending" binding:"required"`
-				Portions  int64   `json:"portions" binding:"required"`
-				Note      string  `json:"note"`
-			}
-			if err := c.ShouldBindJSON(&input); err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-				return
-			}
-
-			// Validation: Hard cap of Rp 10,000 / portion
-			portionCost := input.Spending / float64(input.Portions)
-			if portionCost > 10000 {
-				c.JSON(http.StatusBadRequest, gin.H{
-					"error":        "Spending exceeds Rp 10,000 per portion cap",
-					"portion_cost": portionCost,
-				})
-				return
-			}
-
-			// 1. Save as a transaction for ledger
-			transaction := models.Transaction{
-				Date:     time.Now().Format("2006-01-02"),
-				Type:     "expense",
-				Category: "Audit Belanja Bahan",
-				Amount:   input.Spending,
-				Status:   "Audited",
-			}
-			db.Create(&transaction)
-
-			// 2. IMPORTANT: Update the FinancialRecord for Profit Sharing
-			// We find the latest PENDING record for this kitchen to apply the margin
-			var fr models.FinancialRecord
-			if err := db.Where("dapur_id = ? AND status = ?", input.DapurID, "PENDING").Order("created_at desc").First(&fr).Error; err == nil {
-				// Budget is Portions * 10,000. Margin is Budget - Spending.
-				// We update the SelisihBahanBaku to the REAL margin.
-				budget := float64(input.Portions) * 10000
-				realMargin := budget - input.Spending
-				db.Model(&fr).Update("selisih_bahan_baku", realMargin)
-			}
-
-			c.JSON(http.StatusOK, gin.H{
-				"message":      "Audit successful and margin updated",
-				"portion_cost": portionCost,
-				"transaction":  transaction,
-			})
-		})
+		// --- SPPG & Infrastructure ---
 
 		// 4. Admin: Trigger SPPG Sync from YWMP JSON data
 		api.POST("/sync-sppg", RequireRole("Super Admin"), func(c *gin.Context) {
@@ -890,7 +891,7 @@ func main() {
 		// Investors Management
 		api.GET("/investors", func(c *gin.Context) {
 			inv := []models.InvestorParticipant{}
-			db.Preload("Kitchen").Find(&inv)
+			ScopedDB(c).Preload("Kitchen").Find(&inv)
 			c.JSON(http.StatusOK, inv)
 		})
 		api.POST("/investors", func(c *gin.Context) {
@@ -910,13 +911,8 @@ func main() {
 
 		// Rental Records
 		api.GET("/rental-records", func(c *gin.Context) {
-			kitchenID := c.Query("kitchen_id")
 			records := []models.RentalRecord{}
-			q := db.Order("date desc")
-			if kitchenID != "" {
-				q = q.Where("kitchen_id = ?", kitchenID)
-			}
-			q.Find(&records)
+			ScopedDB(c).Order("date desc").Find(&records)
 			c.JSON(http.StatusOK, records)
 		})
 
@@ -1004,13 +1000,8 @@ func main() {
 		})
 
 		api.GET("/payouts", func(c *gin.Context) {
-			kitchenID := c.Query("kitchen_id")
 			payouts := []models.ProfitDistribution{}
-			q := db.Preload("Details.Remittance").Order("created_at desc")
-			if kitchenID != "" {
-				q = q.Where("kitchen_id = ?", kitchenID)
-			}
-			q.Find(&payouts)
+			ScopedDB(c).Preload("Details.Remittance").Order("created_at desc").Find(&payouts)
 			c.JSON(http.StatusOK, payouts)
 		})
 
@@ -1254,7 +1245,9 @@ func SyncSppgData(db *gorm.DB) error {
 }
 
 func getDashboardSummary(c *gin.Context) {
-	kitchenID := c.Query("kitchen_id")
+	kitchenID := c.GetHeader("X-Kitchen-ID")
+	role := c.GetHeader("X-User-Role")
+	
 	var summary struct {
 		TotalIncome          float64 `json:"total_income"`
 		TotalExpense         float64 `json:"total_expense"`
@@ -1268,12 +1261,7 @@ func getDashboardSummary(c *gin.Context) {
 
 	// Calculate from transactions for better accuracy
 	var transactions []models.Transaction
-	q := db.Model(&models.Transaction{})
-	if kitchenID != "" {
-		// Note: we might need kitchen_id in Transaction model too, but for summary, 
-		// if scoped, we'll filter related records. Assuming Transaction has kitchen_id or similar.
-		q = q.Where("kitchen_id = ?", kitchenID)
-	}
+	q := ScopedDB(c).Model(&models.Transaction{})
 	q.Find(&transactions)
 
 	for _, t := range transactions {
@@ -1285,28 +1273,29 @@ func getDashboardSummary(c *gin.Context) {
 	}
 	summary.CashFlow = summary.TotalIncome - summary.TotalExpense
 
-	// Calculate national rent and payouts
+	// Calculate national/local rent and payouts
 	frQ := db.Model(&models.FinancialRecord{})
 	poQ := db.Model(&models.PayoutDetail{})
-	if kitchenID != "" {
+	
+	if (role != "Super Admin" && role != "Manager") && kitchenID != "" {
 		frQ = frQ.Where("dapur_id = ?", kitchenID)
 		poQ = poQ.Joins("JOIN profit_distributions ON profit_distributions.id = payout_details.distribution_id").Where("profit_distributions.kitchen_id = ?", kitchenID)
 	}
+	
 	frQ.Select("SUM(rental_income)").Scan(&summary.TotalSewaNasional)
 	poQ.Where("payout_details.status = ?", "PAID").Select("SUM(payout_details.amount)").Scan(&summary.TotalPayout)
 
-	if kitchenID != "" {
+	if (role != "Super Admin" && role != "Manager") && kitchenID != "" {
 		summary.TotalDapur = 1
 	} else {
 		db.Model(&models.Dapur{}).Count(&summary.TotalDapur)
 	}
+	
+	// Employee scoping if needed, for now global
 	db.Model(&models.Employee{}).Count(&summary.TotalEmployees)
 
 	var contracts []models.Contract
-	cQ := db.Model(&models.Contract{})
-	if kitchenID != "" {
-		cQ = cQ.Where("kitchen_id = ?", kitchenID)
-	}
+	cQ := ScopedDB(c).Model(&models.Contract{})
 	cQ.Find(&contracts)
 	if len(contracts) > 0 {
 		var totalProgress int

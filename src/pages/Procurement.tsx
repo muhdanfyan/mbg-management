@@ -19,7 +19,8 @@ export const Procurement: React.FC = () => {
 
   const [auditForm, setAuditForm] = useState({
     date: new Date().toISOString().split('T')[0],
-    total_cost: 0,
+    invoice_amount: 0, // Harga Nota
+    market_amount: 0,  // Harga Real Pasar
     portions: 0,
     items: '',
     kitchen_id: profile?.kitchen_id || null
@@ -48,9 +49,11 @@ export const Procurement: React.FC = () => {
     e.preventDefault();
     try {
       await api.post('/audit-spending', {
-        dapur_id: Number(auditForm.kitchen_id || profile?.kitchen_id),
-        spending: auditForm.total_cost,
+        kitchen_id: Number(auditForm.kitchen_id || profile?.kitchen_id),
+        invoice_amount: auditForm.invoice_amount,
+        market_amount: auditForm.market_amount,
         portions: auditForm.portions,
+        date: auditForm.date,
         note: auditForm.items
       });
 
@@ -58,10 +61,10 @@ export const Procurement: React.FC = () => {
       await api.post('/purchase-orders', {
         number: `AUDIT-${Date.now()}`,
         supplier: 'Audit Belanja Harian',
-        total_amount: auditForm.total_cost,
+        total_amount: auditForm.invoice_amount,
         date: auditForm.date,
         status: 'delivered',
-        notes: `Porsi: ${auditForm.portions}, Item: ${auditForm.items}`
+        notes: `Porsi: ${auditForm.portions}, Item: ${auditForm.items} | Selisih Audit: Rp ${auditForm.invoice_amount - auditForm.market_amount}`
       });
 
       setIsAuditModalOpen(false);
@@ -165,7 +168,8 @@ export const Procurement: React.FC = () => {
               onClick={() => {
                 setAuditForm({
                   date: new Date().toISOString().split('T')[0],
-                  total_cost: 0,
+                  invoice_amount: 0,
+                  market_amount: 0,
                   portions: 0,
                   items: '',
                   kitchen_id: profile?.kitchen_id || null
@@ -543,36 +547,55 @@ export const Procurement: React.FC = () => {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Total Biaya Belanja (IDR)</label>
-                <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-gray-400">Rp</span>
-                  <input 
-                    type="number" 
-                    required
-                    placeholder="Total nota hari ini"
-                    value={auditForm.total_cost || ''}
-                    onChange={e => setAuditForm({...auditForm, total_cost: Number(e.target.value)})}
-                    className="w-full border border-gray-100 rounded-xl pl-12 pr-4 py-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-[#2BBF9D] focus:border-transparent transition-all outline-none font-bold"
-                  />
+              <div className="grid grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Total Nota / Kwitansi</label>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-gray-400">Rp</span>
+                    <input 
+                      type="number" 
+                      required
+                      placeholder="Harga Nota"
+                      value={auditForm.invoice_amount || ''}
+                      onChange={e => setAuditForm({...auditForm, invoice_amount: Number(e.target.value)})}
+                      className="w-full border border-gray-100 rounded-xl pl-12 pr-4 py-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-[#2BBF9D] focus:border-transparent transition-all outline-none font-bold"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Harga Real Pasar</label>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-gray-400">Rp</span>
+                    <input 
+                      type="number" 
+                      required
+                      placeholder="Harga Pasar"
+                      value={auditForm.market_amount || ''}
+                      onChange={e => setAuditForm({...auditForm, market_amount: Number(e.target.value)})}
+                      className="w-full border border-gray-100 rounded-xl pl-12 pr-4 py-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-orange-400 focus:border-transparent transition-all outline-none font-bold text-orange-700"
+                    />
+                  </div>
                 </div>
               </div>
 
-              {auditForm.portions > 0 && auditForm.total_cost > 0 && (
-                <div className={`p-4 rounded-xl border ${
-                  auditForm.total_cost / auditForm.portions > 10000 
-                  ? 'bg-red-50 border-red-100 text-red-700' 
-                  : 'bg-emerald-50 border-emerald-100 text-emerald-700'
-                }`}>
-                  <div className="flex items-center justify-between font-bold">
-                    <span>Estimasi Biaya per Porsi:</span>
-                    <span className="text-lg">Rp {(auditForm.total_cost / auditForm.portions).toLocaleString()}</span>
-                  </div>
-                  {auditForm.total_cost / auditForm.portions > 10000 && (
-                    <p className="text-[10px] mt-2 font-medium flex items-center gap-1">
-                      <AlertCircle className="w-3 h-3" /> PERINGATAN: Melebihi target Rp 10.000 per porsi!
+              {(auditForm.invoice_amount > 0 || auditForm.market_amount > 0) && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-3 bg-gray-50 rounded-xl border border-gray-100">
+                    <p className="text-[9px] font-black text-gray-400 uppercase mb-1">Selisih Audit</p>
+                    <p className={`text-sm font-bold ${auditForm.invoice_amount - auditForm.market_amount > 0 ? 'text-red-600' : 'text-emerald-600'}`}>
+                      Rp {(auditForm.invoice_amount - auditForm.market_amount).toLocaleString()}
                     </p>
-                  )}
+                  </div>
+                  <div className={`p-3 rounded-xl border ${
+                    auditForm.invoice_amount / (auditForm.portions || 1) > 10000 
+                    ? 'bg-red-50 border-red-100 text-red-700' 
+                    : 'bg-emerald-50 border-emerald-100 text-emerald-700'
+                  }`}>
+                    <p className="text-[9px] font-black uppercase mb-1">Biaya / Porsi</p>
+                    <p className="text-sm font-bold">
+                      Rp {(auditForm.invoice_amount / (auditForm.portions || 1)).toLocaleString()}
+                    </p>
+                  </div>
                 </div>
               )}
 
