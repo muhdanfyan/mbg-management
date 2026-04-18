@@ -95,8 +95,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {
     return (
       <div key={item.id} className="w-full">
         <button
-          onClick={() => {
-            if (hasChildren && !collapsed) {
+          onClick={(e) => {
+            if (hasChildren) {
+              e.preventDefault();
               setOpenMenus(prev => ({ ...prev, [item.id]: !prev[item.id] }));
             } else if (item.path) {
               navigate(item.path);

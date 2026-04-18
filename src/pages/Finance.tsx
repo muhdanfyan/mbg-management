@@ -903,12 +903,7 @@ export const Finance: React.FC = () => {
                   </button>
                 </div>
                 <div className="mt-4 p-4 bg-[#F0F7F7] border border-[#1E8289]/10 rounded-lg">
-                  <p className="text-sm text-[#164E4D] leading-relaxed">
-                    <strong>💡 Info Skema Keuangan:</strong> Perhitungan di bawah ini didasarkan pada alur kerja MBG. 
-                    <strong> Modal Rp15.000/porsi</strong> (Rp5rb Operasional, Rp10rb Bahan Baku). 
-                    Selisih bersih bahan baku setelah dikurangi biaya tetap <strong>Rp15jt (Honor 4 Tenaga Utama)</strong> 
-                    dibagi dengan rasio <strong>60% DPP : 20% DPD : 20% Koperasi</strong>.
-                  </p>
+                  <p className="text-xs text-blue-700 leading-relaxed"><span className="mr-1">💡</span><strong>Info Skema Keuangan:</strong> Perhitungan di bawah ini didasarkan pada alur kerja MBG. <strong>Modal Rp15.000/porsi</strong> (Rp5rb Operasional, Rp10rb Bahan Baku). Selisih bersih bahan baku setelah dikurangi biaya tetap <strong>Mandat Muktamar (Audit Rp 6jt/hari & Honor Rp 6jt/bulan)</strong> dibagi dengan rasio <strong>60% DPP : 20% DPD : 20% Koperasi</strong>.</p>
                 </div>
               </div>
 
