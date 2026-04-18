@@ -7,8 +7,8 @@ export const getGoogleImageUrl = (url: string | undefined): string => {
 
   // 0. Handle local uploads
   if (url.includes('/uploads/')) {
-    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    const host = isLocal ? 'http://localhost:8080' : 'https://api.mbgone.site';
+    const apiHub = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+    const host = apiHub.replace('/api', '');
     
     // If it's already a full URL, strip the host part or just ensure it points to the right one
     if (url.startsWith('http')) {
