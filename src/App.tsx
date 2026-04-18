@@ -37,7 +37,7 @@ const AppContent: React.FC = () => {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
+          <p className="text-gray-600">Memuat...</p>
         </div>
       </div>
     );
@@ -54,20 +54,20 @@ const AppContent: React.FC = () => {
 
   const getBreadcrumbs = (): string[] => {
     const breadcrumbMap: Record<PageType, string[]> = {
-      dashboard: ['Dashboard'],
-      locations: ['Dashboard', 'Peta Lokasi & Distribusi'],
-      construction: ['Dashboard', 'Pengawasan Pembangunan'],
-      procurement: ['Dashboard', 'Procurement Management'],
-      hr: ['Dashboard', 'Manajemen SDM'],
-      finance: ['Dashboard', 'Financial Management'],
-      users: ['Dashboard', 'User Management'],
-      workflow: ['Dashboard', 'Alur Kerja Sistem'],
-      investors: ['Dashboard', 'Monitoring Investor'],
-      'sppg-gallery': ['Dashboard', 'Galeri Foto SPPG'],
-      'system-guide': ['Dashboard', 'Panduan Sistem'],
-      'bagi-hasil': ['Dashboard', 'Bagi Hasil & Manajemen Sewa'],
+      dashboard: ['Dasbor'],
+      locations: ['Dasbor', 'Peta Lokasi & Distribusi'],
+      construction: ['Dasbor', 'Pengawasan Pembangunan'],
+      procurement: ['Dasbor', 'Manajemen Pengadaan'],
+      hr: ['Dasbor', 'Manajemen SDM'],
+      finance: ['Dasbor', 'Manajemen Keuangan'],
+      users: ['Dasbor', 'Manajemen Pengguna'],
+      workflow: ['Dasbor', 'Alur Kerja Sistem'],
+      investors: ['Dasbor', 'Monitoring Investor'],
+      'sppg-gallery': ['Dasbor', 'Galeri Foto SPPG'],
+      'system-guide': ['Dasbor', 'Panduan Sistem'],
+      'bagi-hasil': ['Dasbor', 'Bagi Hasil & Manajemen Sewa'],
     };
-    return breadcrumbMap[currentPage] || ['Dashboard'];
+    return breadcrumbMap[currentPage] || ['Dasbor'];
   };
 
   return (
@@ -79,7 +79,7 @@ const AppContent: React.FC = () => {
         <Route path="/dashboard" element={<Navigate to="/" replace />} />
         
         {/* Protected Routes based on Roles */}
-        {(user.role === 'Super Admin' || user.role === 'Manager' || user.role === 'PIC Dapur' || user.role === 'Investor') && (
+        {(user.role === 'Super Admin' || user.role === 'Manager' || user.role === 'PIC Dapur' || user.role === 'Investor' || user.role === 'Finance') && (
           <>
             <Route path="/locations" element={<Locations />} />
             <Route path="/construction" element={user.role === 'Investor' ? <Navigate to="/" replace /> : <Construction />} />
@@ -99,9 +99,9 @@ const AppContent: React.FC = () => {
           <Route path="/finance" element={<Finance />} />
         )}
 
-        {user.role === 'Super Admin' && (
+        {(user.role === 'Super Admin' || user.role === 'Finance' || user.role === 'Operator Koperasi') && (
           <>
-            <Route path="/users" element={<Users />} />
+            <Route path="/users" element={user.role === 'Super Admin' ? <Users /> : <Navigate to="/" replace />} />
             <Route path="/bagi-hasil" element={<BagiHasil />} />
           </>
         )}

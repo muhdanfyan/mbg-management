@@ -85,6 +85,23 @@ export const api = {
     updateRemittance: (detailId: number, data: any) => api.put(`/payout-details/${detailId}/remit`, data),
     postFinancialRecord: (data: any) => api.post('/financial-records', data),
     getKitchenGrowth: (id: number) => api.get(`/dapur/${id}/growth`),
+    upload: async (file: File) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        const savedProfile = localStorage.getItem('mbg_profile');
+        const profile = savedProfile ? JSON.parse(savedProfile) : null;
+
+        const response = await fetch(`${API_BASE_URL}/upload`, {
+            method: 'POST',
+            headers: {
+                'X-User-Role': profile?.role || '',
+                'X-Kitchen-ID': profile?.kitchen_id ? String(profile.kitchen_id) : ''
+            },
+            body: formData,
+        });
+        if (!response.ok) throw new Error('Upload failed');
+        return response.json();
+    }
 };
 
 export type UserRole = 'Super Admin' | 'Manager' | 'Finance' | 'HRD' | 'Procurement' | 'Staff' | 'PIC Dapur' | 'Operator Koperasi' | 'Investor';

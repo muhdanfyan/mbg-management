@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { DollarSign, TrendingUp, TrendingDown, CreditCard, PieChart, ArrowUpRight, ArrowDownRight, CheckCircle, Clock, XCircle } from 'lucide-react';
+import { DollarSign, TrendingUp, TrendingDown, CreditCard, PieChart, ArrowUpRight, ArrowDownRight, CheckCircle, Clock, XCircle, Search, Filter, Briefcase } from 'lucide-react';
 
 import { api, Transaction, Loan, FinancialSummary, ProfitDistribution } from '../services/api';
 import { Pagination } from '../components/UI/Pagination';
 import { useAuth } from '../contexts/AuthContext';
+import { formatDateID, formatCurrencyID, formatPeriodID, formatNumberID } from '../utils/formatters';
 
 export const Finance: React.FC = () => {
   const { profile } = useAuth();
@@ -34,11 +35,7 @@ export const Finance: React.FC = () => {
   const [loanItemsPerPage, setLoanItemsPerPage] = useState(10);
 
   const formatDate = (dateStr: string) => {
-    if (!dateStr) return '-';
-    // Handle YYYY-MM-DD
-    const date = new Date(dateStr);
-    if (isNaN(date.getTime())) return dateStr;
-    return date.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+    return formatDateID(dateStr);
   };
   
   const [transForm, setTransForm] = useState({
@@ -277,13 +274,25 @@ export const Finance: React.FC = () => {
   const getStatusBadge = (status: string) => {
     const styles = {
       pending: 'bg-orange-100 text-orange-700',
-      approved: 'bg-green-100 text-green-700',
+      approved: 'bg-[#1E8289]/10 text-[#1E8289]',
       rejected: 'bg-red-100 text-red-700',
-      waiting_approval: 'bg-purple-100 text-purple-700',
-      active: 'bg-blue-100 text-blue-700',
+      waiting_approval: 'bg-[#DE9F22]/10 text-[#DE9F22]',
+      active: 'bg-[#1E8289]/10 text-[#1E8289]',
       closed: 'bg-gray-100 text-gray-700'
     };
-    return styles[status as keyof typeof styles] || styles.pending;
+    const labels = {
+      pending: 'Menunggu',
+      approved: 'Disetujui',
+      rejected: 'Ditolak',
+      waiting_approval: 'Menunggu Persetujuan',
+      active: 'Aktif',
+      closed: 'Selesai'
+    };
+    return (
+      <span className={`px-2 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${styles[status as keyof typeof styles] || styles.pending}`}>
+        {labels[status as keyof typeof labels] || status}
+      </span>
+    );
   };
 
   const getStatusIcon = (status: string) => {
@@ -311,7 +320,7 @@ export const Finance: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1E8289]"></div>
       </div>
     );
   }
@@ -320,8 +329,8 @@ export const Finance: React.FC = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Financial Management</h1>
-          <p className="text-gray-600 mt-1">Monitor cash flow, expenses, and funding</p>
+          <h1 className="text-2xl font-bold text-gray-900">Manajemen Keuangan</h1>
+          <p className="text-gray-600 mt-1">Pantau arus kas, pengeluaran, dan pendanaan</p>
         </div>
         <div className="flex gap-3">
           <button 
@@ -340,10 +349,10 @@ export const Finance: React.FC = () => {
               });
               setIsLoanModalOpen(true);
             }}
-            className="bg-white border border-blue-600 text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-50 transition-colors flex items-center gap-2"
+            className="bg-white border border-[#1E8289] text-[#1E8289] px-4 py-2 rounded-lg hover:bg-[#F0F7F7] transition-colors flex items-center gap-2"
           >
             <CreditCard className="w-5 h-5" />
-            New Loan
+            Pinjaman Baru
           </button>
           <button 
             onClick={() => {
@@ -357,10 +366,10 @@ export const Finance: React.FC = () => {
               });
               setIsTransModalOpen(true);
             }}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+            className="bg-[#1E8289] text-white px-4 py-2 rounded-lg hover:bg-[#164E4D] transition-colors flex items-center gap-2"
           >
             <DollarSign className="w-5 h-5" />
-            New Transaction
+            Transaksi Baru
           </button>
           {(profile?.role === 'Super Admin' || profile?.role === 'PIC Dapur') && (
             <button 
@@ -375,7 +384,7 @@ export const Finance: React.FC = () => {
                 });
                 setIsBGNModalOpen(true);
               }}
-              className="bg-[#1A4D43] text-white px-4 py-2 rounded-lg hover:bg-[#1A4D43]/90 transition-colors flex items-center gap-2 shadow-sm"
+              className="bg-[#164E4D] text-white px-4 py-2 rounded-lg hover:bg-[#164E4D]/90 transition-colors flex items-center gap-2 shadow-sm"
             >
               <CheckCircle className="w-5 h-5" />
               Lapor Dana BGN
@@ -393,7 +402,7 @@ export const Finance: React.FC = () => {
                 });
                 setIsTransModalOpen(true);
               }}
-              className="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors flex items-center gap-2 shadow-sm"
+              className="bg-[#1E8289] text-white px-4 py-2 rounded-lg hover:bg-[#164E4D] transition-colors flex items-center gap-2 shadow-sm"
             >
               <TrendingUp className="w-5 h-5" />
               Lapor Sewa Harian
@@ -404,18 +413,27 @@ export const Finance: React.FC = () => {
 
       <div className="bg-white rounded-xl border border-gray-200">
         <div className="border-b border-gray-200">
-          <div className="flex gap-4 px-6">
+          <div className="flex gap-4 px-6 overflow-x-auto no-scrollbar whitespace-nowrap">
             {['dashboard', 'transactions', 'loans', 'expenses', 'reports', 'investments', 'selisih', 'operasional'].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab as any)}
-                className={`py-4 px-2 border-b-2 font-medium transition-colors capitalize ${
+                className={`py-4 px-2 border-b-2 font-medium transition-colors ${
                   activeTab === tab
-                    ? 'border-blue-600 text-blue-600'
+                    ? 'border-[#1E8289] text-[#1E8289]'
                     : 'border-transparent text-gray-600 hover:text-gray-900'
                 }`}
               >
-                {tab === 'reports' ? 'Bagi Hasil (Sewa)' : tab === 'selisih' ? 'Selisih Bahan' : tab === 'operasional' ? 'Operasional' : tab}
+                {
+                  tab === 'dashboard' ? 'Dasbor' :
+                  tab === 'transactions' ? 'Transaksi' :
+                  tab === 'loans' ? 'Pinjaman' :
+                  tab === 'expenses' ? 'Pengeluaran' :
+                  tab === 'reports' ? 'Sewa Dapur' :
+                  tab === 'investments' ? 'Investasi' :
+                  tab === 'selisih' ? 'Selisih' :
+                  tab === 'operasional' ? 'Operasional' : tab
+                }
               </button>
             ))}
           </div>
@@ -441,18 +459,18 @@ export const Finance: React.FC = () => {
           {activeTab === 'dashboard' && (
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-xl p-6">
+                <div className="bg-gradient-to-br from-[#F0F7F7] to-[#1E8289]/10 border border-[#1E8289]/20 rounded-xl p-6">
                   <div className="flex items-center justify-between mb-3">
-                    <div className="bg-green-600 p-3 rounded-lg">
+                    <div className="bg-[#1E8289] p-3 rounded-lg">
                       <TrendingUp className="w-6 h-6 text-white" />
                     </div>
-                    <ArrowUpRight className="w-5 h-5 text-green-600" />
+                    <ArrowUpRight className="w-5 h-5 text-[#1E8289]" />
                   </div>
-                  <p className="text-sm text-green-700 font-medium mb-1">Total Income</p>
-                  <p className="text-2xl font-bold text-green-900">
-                    Rp {(totalIncome / 1000000000).toFixed(1)}B
+                  <p className="text-sm text-[#1E8289] font-medium mb-1">Total Pemasukan</p>
+                  <p className="text-2xl font-bold text-[#164E4D]">
+                    Rp {(totalIncome / 1000000000).toFixed(1)}M
                   </p>
-                  <p className="text-xs text-green-600 mt-2">+15% from last month</p>
+                  <p className="text-xs text-[#1E8289] mt-2">+15% dari bulan lalu</p>
                 </div>
 
                 <div className="bg-gradient-to-br from-red-50 to-red-100 border border-red-200 rounded-xl p-6">
@@ -462,25 +480,25 @@ export const Finance: React.FC = () => {
                     </div>
                     <ArrowDownRight className="w-5 h-5 text-red-600" />
                   </div>
-                  <p className="text-sm text-red-700 font-medium mb-1">Total Expenses</p>
+                  <p className="text-sm text-red-700 font-medium mb-1">Total Pengeluaran</p>
                   <p className="text-2xl font-bold text-red-900">
-                    Rp {(totalExpense / 1000000000).toFixed(1)}B
+                    Rp {(totalExpense / 1000000000).toFixed(1)}M
                   </p>
-                  <p className="text-xs text-red-600 mt-2">+8% from last month</p>
+                  <p className="text-xs text-red-600 mt-2">+8% dari bulan lalu</p>
                 </div>
 
-                <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-xl p-6">
+                <div className="bg-gradient-to-br from-[#F0F7F7] to-[#1E8289]/10 border border-[#1E8289]/20 rounded-xl p-6">
                   <div className="flex items-center justify-between mb-3">
-                    <div className="bg-blue-600 p-3 rounded-lg">
+                    <div className="bg-[#1E8289] p-3 rounded-lg">
                       <DollarSign className="w-6 h-6 text-white" />
                     </div>
-                    <ArrowUpRight className="w-5 h-5 text-blue-600" />
+                    <ArrowUpRight className="w-5 h-5 text-[#1E8289]" />
                   </div>
-                  <p className="text-sm text-blue-700 font-medium mb-1">Net Cash Flow</p>
-                  <p className="text-2xl font-bold text-blue-900">
-                    Rp {(cashFlow / 1000000000).toFixed(1)}B
+                  <p className="text-sm text-[#1E8289] font-medium mb-1">Arus Kas Bersih</p>
+                  <p className="text-2xl font-bold text-[#164E4D]">
+                    Rp {(cashFlow / 1000000000).toFixed(1)}M
                   </p>
-                  <p className="text-xs text-blue-600 mt-2">Positive flow</p>
+                  <p className="text-xs text-[#1E8289] mt-2">Aliran positif</p>
                 </div>
               </div>
 
@@ -488,26 +506,26 @@ export const Finance: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                  <div className="glass-card p-6">
                     <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Total Bagi Hasil</p>
-                    <p className="text-xl font-black text-[#1A4D43]">
+                    <p className="text-xl font-black text-[#164E4D]">
                        Rp {(Array.isArray(distributions) ? distributions : []).reduce((sum, d) => sum + (d.total_pool || 0), 0).toLocaleString('id-ID')}
                     </p>
-                    <div className="mt-2 w-full bg-[#1A4D43]/5 h-1 rounded-full overflow-hidden">
-                       <div className="bg-[#2BBF9D] h-full rounded-full" style={{width: '100%'}}></div>
+                    <div className="mt-2 w-full bg-[#164E4D]/5 h-1 rounded-full overflow-hidden">
+                       <div className="bg-[#1E8289] h-full rounded-full" style={{width: '100%'}}></div>
                     </div>
                  </div>
                  <div className="glass-card p-6">
                     <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Porsi Investor</p>
-                    <p className="text-xl font-black text-[#2BBF9D]">
+                    <p className="text-xl font-black text-[#1E8289]">
                        Rp {(Array.isArray(distributions) ? distributions : []).reduce((sum, d) => sum + (d.investor_split || 0), 0).toLocaleString('id-ID')}
                     </p>
                  </div>
                  <div className="glass-card p-6">
                     <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Porsi DPP/YWMP</p>
-                    <p className="text-xl font-black text-blue-600">
+                    <p className="text-xl font-black text-[#1E8289]">
                        Rp {(Array.isArray(distributions) ? distributions : []).reduce((sum, d) => sum + (d.dpp_split || 0) + (d.ywmp_split || 0), 0).toLocaleString('id-ID')}
                     </p>
                  </div>
-                 <div className="glass-card p-6 bg-gradient-to-br from-[#1A4D43] to-[#2BBF9D] border-none shadow-lg shadow-[#2BBF9D]/20">
+                 <div className="glass-card p-6 bg-gradient-to-br from-[#164E4D] to-[#1E8289] border-none shadow-lg shadow-[#1E8289]/20">
                     <p className="text-[10px] font-black text-white/60 uppercase tracking-widest mb-1">Remitansi Selesai</p>
                     <p className="text-xl font-black text-white">
                        {(Array.isArray(distributions) ? distributions : []).flatMap(d => d.details || []).filter(dt => dt.status === 'PAID').length} Transaksi
@@ -517,24 +535,24 @@ export const Finance: React.FC = () => {
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="bg-white border border-gray-200 rounded-xl p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Income vs Expense</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Pemasukan vs Pengeluaran</h3>
                   <div className="space-y-4">
                     <div>
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm text-gray-600">Income</span>
-                        <span className="text-sm font-semibold text-green-600">
-                          Rp {(totalIncome / 1000000000).toFixed(1)}B
+                        <span className="text-sm text-gray-600">Pemasukan</span>
+                        <span className="text-sm font-semibold text-[#1E8289]">
+                          Rp {(totalIncome / 1000000000).toFixed(1)}M
                         </span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-3">
-                        <div className="bg-green-600 h-3 rounded-full" style={{ width: '65%' }}></div>
+                        <div className="bg-[#1E8289] h-3 rounded-full" style={{ width: '65%' }}></div>
                       </div>
                     </div>
                     <div>
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm text-gray-600">Expense</span>
+                        <span className="text-sm text-gray-600">Pengeluaran</span>
                         <span className="text-sm font-semibold text-red-600">
-                          Rp {(totalExpense / 1000000000).toFixed(1)}B
+                          Rp {(totalExpense / 1000000000).toFixed(1)}M
                         </span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-3">
@@ -543,20 +561,20 @@ export const Finance: React.FC = () => {
                     </div>
                     <div>
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm text-gray-600">Savings</span>
-                        <span className="text-sm font-semibold text-blue-600">
-                          Rp {(cashFlow / 1000000000).toFixed(1)}B
+                        <span className="text-sm text-gray-600">Tabungan</span>
+                        <span className="text-sm font-semibold text-[#1E8289]">
+                          Rp {(cashFlow / 1000000000).toFixed(1)}M
                         </span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-3">
-                        <div className="bg-blue-600 h-3 rounded-full" style={{ width: '20%' }}></div>
+                        <div className="bg-[#1E8289] h-3 rounded-full" style={{ width: '20%' }}></div>
                       </div>
                     </div>
                   </div>
                 </div>
 
                 <div className="bg-white border border-gray-200 rounded-xl p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Loan Repayment Progress</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Progres Pelunasan Pinjaman</h3>
                   <div className="space-y-4">
                     {loans.map((loan: Loan) => {
                       const percentage = loan.amount > 0 ? ((loan.amount - loan.remaining_balance) / loan.amount) * 100 : 0;
@@ -564,17 +582,17 @@ export const Finance: React.FC = () => {
                         <div key={loan.id}>
                           <div className="flex items-center justify-between mb-2">
                             <span className="text-sm text-gray-900 font-medium">{loan.lender}</span>
-                            <span className="text-xs text-gray-600">{percentage.toFixed(0)}% paid</span>
+                            <span className="text-xs text-gray-600">{percentage.toFixed(0)}% terbayar</span>
                           </div>
                           <div className="w-full bg-gray-200 rounded-full h-3 mb-1">
                             <div
-                              className="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full"
+                              className="bg-gradient-to-r from-[#DE9F22] to-[#B8861B] h-3 rounded-full"
                               style={{ width: `${percentage}%` }}
                             ></div>
                           </div>
                           <div className="flex items-center justify-between text-xs text-gray-600">
-                            <span>Remaining: Rp {(loan.remaining_balance / 1000000000).toFixed(1)}B</span>
-                            <span>Monthly: Rp {(loan.monthly_payment / 1000000).toFixed(0)}M</span>
+                            <span>Sisa: Rp {(loan.remaining_balance / 1000000000).toFixed(1)}M</span>
+                            <span>Bulanan: Rp {(loan.monthly_payment / 1000000).toFixed(0)}Jt</span>
                           </div>
                         </div>
                       );
@@ -598,11 +616,11 @@ export const Finance: React.FC = () => {
                       <div className="flex items-center gap-4">
                         <div className={`p-3 rounded-lg ${
                           transaction.type === 'income'
-                            ? 'bg-green-100'
+                            ? 'bg-[#1E8289]/10'
                             : 'bg-red-100'
                         }`}>
                           {transaction.type === 'income' ? (
-                            <TrendingUp className="w-6 h-6 text-green-600" />
+                            <TrendingUp className="w-6 h-6 text-[#1E8289]" />
                           ) : (
                             <TrendingDown className="w-6 h-6 text-red-600" />
                           )}
@@ -615,7 +633,7 @@ export const Finance: React.FC = () => {
                       <div className="flex items-center gap-6">
                         <div className="text-right">
                           <p className={`text-lg font-bold ${
-                            transaction.type === 'income' ? 'text-green-600' : 'text-red-600'
+                            transaction.type === 'income' ? 'text-[#1E8289]' : 'text-red-600'
                           }`}>
                             {transaction.type === 'income' ? '+' : '-'}Rp {(transaction.amount / 1000000).toFixed(0)}M
                           </p>
@@ -627,7 +645,7 @@ export const Finance: React.FC = () => {
                         <div className="flex gap-2">
                           <button 
                             onClick={() => openEditTrans(transaction)}
-                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                            className="p-2 text-[#1E8289] hover:bg-[#F0F7F7] rounded-lg transition-colors"
                           >
                             <ArrowUpRight className="w-5 h-5" />
                           </button>
@@ -668,7 +686,7 @@ export const Finance: React.FC = () => {
                       <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button 
                           onClick={() => openEditLoan(loan)}
-                          className="p-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100"
+                          className="p-1.5 bg-[#1E8289]/10 text-[#1E8289] rounded-lg hover:bg-[#1E8289]/20"
                         >
                           <ArrowUpRight className="w-4 h-4" />
                         </button>
@@ -691,7 +709,7 @@ export const Finance: React.FC = () => {
 
                       <div className="space-y-3 mb-4">
                         <div className="flex items-center justify-between">
-                          <span className="text-sm text-gray-600">Loan Amount</span>
+                          <span className="text-sm text-gray-600">Jumlah Pinjaman</span>
                           <span className="font-semibold text-gray-900">
                             Rp {(loan.amount / 1000000000).toFixed(1)}B
                           </span>
@@ -701,13 +719,13 @@ export const Finance: React.FC = () => {
                           <span className="font-semibold text-gray-900">{loan.margin_rate}%</span>
                         </div>
                         <div className="flex items-center justify-between">
-                          <span className="text-sm text-gray-600">Monthly Payment</span>
-                          <span className="font-semibold text-blue-600">
+                          <span className="text-sm text-gray-600">Cicilan Bulanan</span>
+                          <span className="font-semibold text-[#1E8289]">
                             Rp {(loan.monthly_payment / 1000000).toFixed(0)}M
                           </span>
                         </div>
                         <div className="flex items-center justify-between">
-                          <span className="text-sm text-gray-600">Remaining Balance</span>
+                          <span className="text-sm text-gray-600">Sisa Saldo</span>
                           <span className="font-semibold text-red-600">
                             Rp {(loan.remaining_balance / 1000000000).toFixed(1)}B
                           </span>
@@ -716,12 +734,12 @@ export const Finance: React.FC = () => {
 
                       <div className="mb-4">
                         <div className="flex items-center justify-between mb-2">
-                          <span className="text-sm text-gray-600">Repayment Progress</span>
+                          <span className="text-sm text-gray-600">Progres Pelunasan</span>
                           <span className="text-sm font-semibold text-gray-900">{percentage.toFixed(1)}%</span>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-3">
                           <div
-                            className="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full"
+                            className="bg-gradient-to-r from-[#DE9F22] to-[#B8861B] h-3 rounded-full"
                             style={{ width: `${percentage}%` }}
                           ></div>
                         </div>
@@ -767,10 +785,10 @@ export const Finance: React.FC = () => {
                         <div className="w-full bg-gray-200 rounded-full h-3">
                           <div
                             className={`h-3 rounded-full ${
-                              cat.color === 'blue' ? 'bg-blue-600' :
-                              cat.color === 'green' ? 'bg-green-600' :
-                              cat.color === 'orange' ? 'bg-orange-600' :
-                              'bg-purple-600'
+                              cat.color === 'blue' ? 'bg-[#1E8289]' :
+                              cat.color === 'green' ? 'bg-[#1E8289]' :
+                              cat.color === 'orange' ? 'bg-[#DE9F22]' :
+                              'bg-[#164E4D]'
                             }`}
                             style={{ width: `${cat.percentage}%` }}
                           ></div>
@@ -781,7 +799,7 @@ export const Finance: React.FC = () => {
                 </div>
 
                 <div className="bg-gradient-to-br from-blue-50 to-green-50 border border-blue-200 rounded-xl p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-6">Budget vs Actual</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-6">Anggaran vs Realisasi</h3>
                   <div className="space-y-4">
                     {expenseCategories.map((cat) => {
                       const budget = cat.amount * 1.2;
@@ -795,12 +813,12 @@ export const Finance: React.FC = () => {
                             <span className={`text-xs font-medium ${
                               isOverBudget ? 'text-red-600' : 'text-green-600'
                             }`}>
-                              {percentage.toFixed(0)}% of budget
+                              {percentage.toFixed(0)}% dari anggaran
                             </span>
                           </div>
                           <div className="flex items-center justify-between text-xs text-gray-600 mb-2">
-                            <span>Budget: Rp {(budget / 1000000).toFixed(0)}M</span>
-                            <span>Actual: Rp {(cat.amount / 1000000).toFixed(0)}M</span>
+                            <span>Anggaran: {formatCurrencyID(budget)}</span>
+                            <span>Realisasi: {formatCurrencyID(cat.amount)}</span>
                           </div>
                           <div className="w-full bg-gray-200 rounded-full h-2">
                             <div
@@ -818,7 +836,7 @@ export const Finance: React.FC = () => {
               </div>
 
               <div className="bg-white border border-gray-200 rounded-xl p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Pending Approvals</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Persetujuan Tertunda</h3>
                 <div className="space-y-3">
                   {transactions.filter((t: Transaction) => t.status === 'pending').map((transaction: Transaction) => (
                     <div key={transaction.id} className="bg-orange-50 border border-orange-200 rounded-lg p-4">
@@ -832,24 +850,24 @@ export const Finance: React.FC = () => {
                         </p>
                       </div>
                       <div className="flex gap-2">
-                        <button 
-                          onClick={() => {
-                            api.put(`/transactions/${transaction.id}`, { ...transaction, status: 'approved' })
-                              .then(() => fetchData());
-                          }}
-                          className="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
-                        >
-                          Approve
-                        </button>
-                        <button 
-                          onClick={() => {
-                            api.put(`/transactions/${transaction.id}`, { ...transaction, status: 'rejected' })
-                              .then(() => fetchData());
-                          }}
-                          className="flex-1 bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
-                        >
-                          Reject
-                        </button>
+                          <button 
+                            onClick={() => {
+                              api.put(`/transactions/${transaction.id}`, { ...transaction, status: 'approved' })
+                                .then(() => fetchData());
+                            }}
+                            className="flex-1 bg-[#1E8289] text-white py-2 rounded-lg hover:bg-[#164E4D] transition-colors text-sm font-medium"
+                          >
+                            Setujui
+                          </button>
+                          <button 
+                            onClick={() => {
+                              api.put(`/transactions/${transaction.id}`, { ...transaction, status: 'rejected' })
+                                .then(() => fetchData());
+                            }}
+                            className="flex-1 bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
+                          >
+                            Tolak
+                          </button>
                       </div>
                     </div>
                   ))}
@@ -879,13 +897,13 @@ export const Finance: React.FC = () => {
                   </select>
                   <button 
                     onClick={() => selectedKitchenId && fetchReport(selectedKitchenId)}
-                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    className="px-6 py-2 bg-[#1E8289] text-white rounded-lg hover:bg-[#164E4D] transition-colors"
                   >
                     Refresh Laporan
                   </button>
                 </div>
-                <div className="mt-4 p-4 bg-blue-50 border border-blue-100 rounded-lg">
-                  <p className="text-sm text-blue-800 leading-relaxed">
+                <div className="mt-4 p-4 bg-[#F0F7F7] border border-[#1E8289]/10 rounded-lg">
+                  <p className="text-sm text-[#164E4D] leading-relaxed">
                     <strong>💡 Info Skema Keuangan:</strong> Perhitungan di bawah ini didasarkan pada alur kerja MBG. 
                     <strong> Modal Rp15.000/porsi</strong> (Rp5rb Operasional, Rp10rb Bahan Baku). 
                     Selisih bersih bahan baku setelah dikurangi biaya tetap <strong>Rp15jt (Honor 4 Tenaga Utama)</strong> 
@@ -913,7 +931,7 @@ export const Finance: React.FC = () => {
                       </div>
                       <div className="pt-4 border-t border-gray-100 flex justify-between items-center">
                         <span className="font-bold text-gray-900">Total Sisa Bersih (Net)</span>
-                        <span className="text-xl font-black text-blue-600">Rp {reportData.sisa_bersih.toLocaleString()}</span>
+                        <span className="text-xl font-black text-[#1E8289]">Rp {reportData.sisa_bersih.toLocaleString()}</span>
                       </div>
                     </div>
                   </div>
@@ -921,7 +939,7 @@ export const Finance: React.FC = () => {
                   {/* Distribution Breakdown */}
                   <div className="bg-white border border-gray-200 rounded-xl p-6">
                     <h4 className="font-bold text-gray-900 mb-6 flex items-center gap-2">
-                       <PieChart className="w-5 h-5 text-blue-600" />
+                       <PieChart className="w-5 h-5 text-[#1E8289]" />
                        Rincian Pembagian (Split)
                     </h4>
                     <div className="space-y-6">
@@ -1073,7 +1091,7 @@ export const Finance: React.FC = () => {
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div>
                     <h3 className="text-lg font-bold text-blue-900 flex items-center gap-2">
-                       <PieChart className="w-5 h-5 text-blue-600" />
+                       <PieChart className="w-5 h-5 text-[#1E8289]" />
                        Summary Investasi & BEP
                     </h3>
                     <p className="text-sm text-blue-700">Tracking pengembalian modal investor per dapur</p>
@@ -1100,14 +1118,14 @@ export const Finance: React.FC = () => {
                         <div>
                           <h4 className="font-black text-gray-900 leading-tight uppercase tracking-tight">{kitchen.name}</h4>
                           <span className={`text-[10px] font-black px-2 py-0.5 rounded ${
-                            kitchen.bep_status === 'POST-BEP' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
+                            kitchen.bep_status === 'POST-BEP' ? 'bg-[#1E8289]/10 text-[#1E8289]' : 'bg-[#DE9F22]/10 text-[#DE9F22]'
                           }`}>
                             {kitchen.bep_status}
                           </span>
                         </div>
                         <div className="text-right">
                           <p className="text-[10px] font-bold text-gray-400 uppercase">Capital</p>
-                          <p className="text-sm font-black text-blue-600">Rp {(kitchen.initial_capital || 0).toLocaleString('id-ID')}</p>
+                          <p className="text-sm font-black text-[#1E8289]">{formatCurrencyID(kitchen.initial_capital || 0)}</p>
                         </div>
                       </div>
                       
@@ -1126,9 +1144,9 @@ export const Finance: React.FC = () => {
                             ></div>
                           </div>
                           <div className="flex justify-between mt-2">
-                              <p className="text-[10px] text-gray-400 font-medium">Accumulated: Rp {kitchen.accumulated_profit.toLocaleString('id-ID')}</p>
+                              <p className="text-[10px] text-gray-400 font-medium">Akumulasi: {formatCurrencyID(kitchen.accumulated_profit)}</p>
                               {kitchen.initial_capital > 0 && percentage < 100 && (
-                                <p className="text-[10px] text-orange-600 font-bold">Remaining: Rp {(kitchen.initial_capital - kitchen.accumulated_profit).toLocaleString('id-ID')}</p>
+                                <p className="text-[10px] text-orange-600 font-bold">Sisa BEP: {formatCurrencyID(kitchen.initial_capital - kitchen.accumulated_profit)}</p>
                               )}
                           </div>
                         </section>
@@ -1144,19 +1162,19 @@ export const Finance: React.FC = () => {
                                     <span className="text-[9px] text-gray-500">{inv.saham_ratio || '75% : 25%'} Ratio</span>
                                   </div>
                                   <div className="text-right">
-                                    <span className="text-xs font-black text-blue-600">{inv.share_percentage}%</span>
-                                    <p className="text-[9px] font-medium text-gray-400">Rp {(inv.investment_amount || 0).toLocaleString('id-ID')}</p>
+                                    <span className="text-xs font-black text-[#1E8289]">{inv.share_percentage}%</span>
+                                    <p className="text-[9px] font-medium text-gray-400">{formatCurrencyID(inv.investment_amount || 0)}</p>
                                   </div>
                                 </div>
                               ))}
                             </div>
                           ) : (
-                            <div className="p-3 bg-emerald-50 border border-emerald-100 rounded-lg">
-                              <p className="text-xs font-black text-emerald-700 flex items-center gap-2">
+                            <div className="p-3 bg-[#1E8289]/10 border border-[#1E8289]/20 rounded-lg">
+                              <p className="text-xs font-black text-[#1E8289] flex items-center gap-2">
                                 <CheckCircle className="w-4 h-4" />
                                 100% Kepemilikan MBP/DPP
                               </p>
-                              <p className="text-[9px] text-emerald-600/70 mt-1">Dapur ini dikelola secara internal tanpa investor eksternal.</p>
+                              <p className="text-[9px] text-[#1E8289]/70 mt-1">Dapur ini dikelola secara internal tanpa investor eksternal.</p>
                             </div>
                           )}
                         </section>
@@ -1180,7 +1198,7 @@ export const Finance: React.FC = () => {
                   </div>
                   <div className="flex gap-2">
                     <span className="px-3 py-1 bg-white border border-[#2BBF9D]/10 text-[#2BBF9D] rounded-full text-xs font-black shadow-sm uppercase tracking-wider">
-                      Fixed Charge: Rp 15jt / Unit
+                      Biaya Tetap: Rp 6 Juta / Hari (Bahan)
                     </span>
                   </div>
                 </div>
@@ -1193,7 +1211,7 @@ export const Finance: React.FC = () => {
                        <h4 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-4">Skema Pembagian Bersih</h4>
                        <div className="space-y-4">
                           <div className="flex items-start gap-4 p-3 bg-blue-50 rounded-lg border border-blue-100">
-                             <div className="p-2 bg-blue-600 rounded text-white font-black text-xs">60%</div>
+                             <div className="p-2 bg-[#1E8289] rounded text-white font-black text-xs">60%</div>
                              <div>
                                 <p className="text-sm font-bold text-blue-900">DPP Wahdah</p>
                                 <p className="text-[10px] text-blue-700">Pusat Management & Pengembangan</p>
@@ -1216,7 +1234,7 @@ export const Finance: React.FC = () => {
                        </div>
                        <div className="mt-6 pt-6 border-t border-dashed border-gray-100">
                           <p className="text-[10px] text-gray-400 font-medium leading-relaxed italic">
-                             * Laba bersih dihitung dari TOTAL MARGIN dikurangi fixed cost Rp 15.000.000 untuk honor 4 tenaga utama dapur.
+                             * Laba bersih dihitung dari TOTAL MARGIN dikurangi Biaya Tetap (Bahan Baku) Rp 6.000.000 / hari.
                           </p>
                        </div>
                     </div>
@@ -1238,7 +1256,7 @@ export const Finance: React.FC = () => {
                         .map((audit) => {
                         const budget = audit.portions * 10000;
                         const margin = budget - audit.invoice_amount;
-                        const netMargin = Math.max(0, margin - 15000000);
+                        const netMargin = Math.max(0, margin - 6000000);
                         
                         return (
                           <div key={audit.id} className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-md transition-shadow">
@@ -1260,15 +1278,15 @@ export const Finance: React.FC = () => {
                                    <div className="space-y-2">
                                       <div className="flex justify-between text-xs font-medium">
                                          <span className="text-gray-500">Anggaran Bahan (Rp 10k/p)</span>
-                                         <span className="text-gray-900 font-black">Rp {budget.toLocaleString('id-ID')}</span>
+                                         <span className="text-gray-900 font-black">{formatCurrencyID(budget)}</span>
                                       </div>
                                       <div className="flex justify-between text-xs font-medium">
                                          <span className="text-gray-500">Realisasi Nota (Audit)</span>
-                                         <span className="text-red-500 font-black">- Rp {audit.invoice_amount.toLocaleString('id-ID')}</span>
+                                         <span className="text-red-500 font-black">- {formatCurrencyID(audit.invoice_amount)}</span>
                                       </div>
                                       <div className="pt-2 border-t border-gray-100 flex justify-between items-end">
                                          <span className="text-xs font-black text-[#1A4D43] uppercase tracking-tighter">Margin Tabungan</span>
-                                         <span className="text-lg font-black text-[#2BBF9D]">Rp {margin.toLocaleString('id-ID')}</span>
+                                         <span className="text-lg font-black text-[#2BBF9D]">{formatCurrencyID(margin)}</span>
                                       </div>
                                    </div>
                                 </div>
@@ -1277,11 +1295,11 @@ export const Finance: React.FC = () => {
                                    <p className="text-[10px] font-black text-[#1A4D43] uppercase tracking-widest mb-3 text-center">Distribusi Laba Bersih</p>
                                    <div className="space-y-2">
                                       <div className="flex justify-between text-[10px] font-medium text-gray-400">
-                                         <span>Fixed Cost (4 Tenaga)</span>
-                                         <span>- Rp 15.000.000</span>
+                                         <span>Fixed Cost (Biaya Tetap)</span>
+                                         <span>- Rp 6.000.000</span>
                                       </div>
                                       <div className="flex justify-between text-[11px] font-bold text-blue-600 pt-1">
-                                         <span>DPP Center (60%)</span>
+                                         <span>DPP Pusat (60%)</span>
                                          <span>Rp {(netMargin * 0.6).toLocaleString('id-ID')}</span>
                                       </div>
                                       <div className="flex justify-between text-[11px] font-bold text-emerald-600">
@@ -1325,7 +1343,7 @@ export const Finance: React.FC = () => {
                   </div>
                   <div className="flex gap-2">
                     <span className="px-3 py-1 bg-white border border-orange-200 text-orange-700 rounded-full text-xs font-black shadow-sm uppercase tracking-wider">
-                      Fixed Budget: Rp 6jt / Bulan
+                      Anggaran Tetap: Rp 6jt / Bulan
                     </span>
                   </div>
                 </div>
@@ -1336,7 +1354,7 @@ export const Finance: React.FC = () => {
                  <div className="lg:col-span-1">
                     <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
                        <div className="p-5 bg-slate-50 border-b border-gray-100 italic">
-                          <h4 className="text-xs font-black text-gray-500 uppercase tracking-widest">Alokasi Honor Staff (Fixed)</h4>
+                          <h4 className="text-xs font-black text-gray-500 uppercase tracking-widest">Alokasi Honor Staf (Tetap)</h4>
                        </div>
                        <div className="p-6 space-y-6">
                           <div className="flex justify-between items-center">
@@ -1344,21 +1362,21 @@ export const Finance: React.FC = () => {
                                 <p className="text-sm font-bold text-gray-900">Kepala Dapur</p>
                                 <p className="text-[10px] text-gray-500 uppercase font-bold tracking-tight">Lead Person</p>
                              </div>
-                             <p className="text-sm font-black text-blue-600">Rp 2.500.000</p>
+                             <p className="text-sm font-black text-[#1E8289]">Rp 2.500.000</p>
                           </div>
                           <div className="flex justify-between items-center">
                              <div>
                                 <p className="text-sm font-bold text-gray-900">Akuntan / Admin</p>
                                 <p className="text-[10px] text-gray-500 uppercase font-bold tracking-tight">Finance Control</p>
                              </div>
-                             <p className="text-sm font-black text-blue-600">Rp 1.500.000</p>
+                             <p className="text-sm font-black text-[#1E8289]">Rp 1.500.000</p>
                           </div>
                           <div className="flex justify-between items-center">
                              <div>
                                 <p className="text-sm font-bold text-gray-900">Staff Operasional</p>
                                 <p className="text-[10px] text-gray-500 uppercase font-bold tracking-tight">General Workers</p>
                              </div>
-                             <p className="text-sm font-black text-blue-600">Rp 2.000.000</p>
+                             <p className="text-sm font-black text-[#1E8289]">Rp 2.000.000</p>
                           </div>
                           
                           <div className="pt-6 border-t border-dashed border-gray-200 flex justify-between items-center">
@@ -1403,11 +1421,11 @@ export const Finance: React.FC = () => {
                                             <p className="text-[10px] text-gray-400">{t.type === 'expense' ? 'Pengeluaran Rutin' : ''}</p>
                                          </td>
                                          <td className="py-4 px-2 text-sm font-black text-red-500 text-right">
-                                            Rp {t.amount.toLocaleString('id-ID')}
+                                            {formatCurrencyID(t.amount)}
                                          </td>
                                          <td className="py-4 px-2 text-center">
                                             <span className={`text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-tighter ${
-                                              t.status === 'approved' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
+                                              t.status === 'approved' ? 'bg-[#1E8289]/10 text-[#1E8289]' : 'bg-[#DE9F22]/10 text-[#DE9F22]'
                                             }`}>
                                                {t.status}
                                             </span>
@@ -1428,10 +1446,10 @@ export const Finance: React.FC = () => {
       {isTransModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-xl max-w-md w-full p-6">
-            <h2 className="text-xl font-bold mb-4">{editingTrans ? 'Edit Transaction' : 'New Transaction'}</h2>
+            <h2 className="text-xl font-bold mb-4">{editingTrans ? 'Edit Transaksi' : 'Transaksi Baru'}</h2>
             <form onSubmit={handleTransSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Tanggal</label>
                 <input 
                   type="date" 
                   required
@@ -1459,9 +1477,9 @@ export const Finance: React.FC = () => {
                     onChange={e => setTransForm({...transForm, status: e.target.value})}
                     className="w-full border border-gray-300 rounded-lg px-3 py-2"
                   >
-                    <option value="pending">Pending</option>
-                    <option value="approved">Approved</option>
-                    <option value="rejected">Rejected</option>
+                    <option value="pending">Menunggu</option>
+                    <option value="approved">Disetujui</option>
+                    <option value="rejected">Ditolak</option>
                   </select>
                 </div>
               </div>
@@ -1492,13 +1510,13 @@ export const Finance: React.FC = () => {
                   onClick={() => setIsTransModalOpen(false)}
                   className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium"
                 >
-                  Cancel
+                  Batal
                 </button>
                 <button 
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
+                  className="flex-1 px-4 py-2 bg-[#1E8289] text-white rounded-lg hover:bg-[#164E4D] font-medium"
                 >
-                  Save Transaction
+                  Simpan Transaksi
                 </button>
               </div>
             </form>
@@ -1548,7 +1566,7 @@ export const Finance: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Remaining Balance</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Sisa Saldo</label>
                   <input 
                     type="number" 
                     required
@@ -1571,7 +1589,7 @@ export const Finance: React.FC = () => {
                   />
                 </div>
                 <div className="col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Monthly Payment</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Cicilan Bulanan</label>
                   <input 
                     type="number" 
                     required
@@ -1610,7 +1628,7 @@ export const Finance: React.FC = () => {
                   onChange={e => setLoanForm({...loanForm, status: e.target.value})}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2"
                 >
-                  <option value="active">Active</option>
+                  <option value="active">Aktif</option>
                   <option value="closed">Closed</option>
                 </select>
               </div>
@@ -1624,7 +1642,7 @@ export const Finance: React.FC = () => {
                 </button>
                 <button 
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
+                  className="flex-1 px-4 py-2 bg-[#1E8289] text-white rounded-lg hover:bg-[#164E4D] font-medium"
                 >
                   Save Loan
                 </button>

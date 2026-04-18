@@ -19,6 +19,8 @@ import {
 import { api, Kitchen, RentalRecord, ProfitDistribution, PayoutDetail } from '../services/api';
 import { Pagination } from '../components/UI/Pagination';
 import { useAuth } from '../contexts/AuthContext';
+import { getGoogleImageUrl } from '../utils/mediaUtils';
+import { formatDateID, formatCurrencyID, formatPeriodID, formatNumberID } from '../utils/formatters';
 
 const BEPChart: React.FC<{ kitchenId: number, initialCapital: number }> = ({ kitchenId, initialCapital }) => {
     const [data, setData] = useState<any[]>([]);
@@ -74,7 +76,7 @@ const BEPChart: React.FC<{ kitchenId: number, initialCapital: number }> = ({ kit
                 {/* Profit Line */}
                 <polyline
                     fill="none"
-                    stroke="#2BBF9D"
+                    stroke="#1E8289"
                     strokeWidth="3"
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -84,8 +86,8 @@ const BEPChart: React.FC<{ kitchenId: number, initialCapital: number }> = ({ kit
 
                 <defs>
                     <linearGradient id="gradient" x1="0" x2="0" y1="0" y2="1">
-                        <stop offset="0%" stopColor="#2BBF9D" />
-                        <stop offset="100%" stopColor="#2BBF9D" stopOpacity="0" />
+                        <stop offset="0%" stopColor="#1E8289" />
+                        <stop offset="100%" stopColor="#1E8289" stopOpacity="0" />
                     </linearGradient>
                 </defs>
             </svg>
@@ -161,7 +163,28 @@ export const BagiHasil: React.FC = () => {
 
     const runCalculation = async (kitchenId: number, amount: number) => {
         try {
-            const res = await api.calculatePayout({ kitchen_id: kitchenId, pool: amount });
+            const isSelisih = calcMode === 'selisih';
+            const res = await api.calculatePayout({ 
+                kitchen_id: kitchenId, 
+                pool: amount,
+                type: calcMode === 'sewa' ? 'SEWA' : 'SELISIH' 
+            });
+
+            // If Selisih, we subtract fixed costs locally for demonstration/validation
+            if (isSelisih) {
+                const dayCount = 30; // Standard month
+                const rawMaterialFixed = 6000000 * dayCount;
+                const staffFixed = 6000000;
+                const totalFixed = rawMaterialFixed + staffFixed;
+                
+                const sisaSetelahFixed = Math.max(0, amount - totalFixed);
+                
+                res.dpp_share_selisih = sisaSetelahFixed * 0.6; // 60% DPP
+                res.dpd_share_selisih = sisaSetelahFixed * 0.2; // 20% DPD
+                res.kop_share_selisih = sisaSetelahFixed * 0.2; // 20% KOPERASI
+                res.fixed_costs = totalFixed;
+            }
+
             setCalcResult(res);
         } catch (error) {
             alert('Gagal menghitung bagi hasil');
@@ -275,7 +298,7 @@ export const BagiHasil: React.FC = () => {
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2BBF9D]"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1E8289]"></div>
             </div>
         );
     }
@@ -285,7 +308,7 @@ export const BagiHasil: React.FC = () => {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-[#1A4D43] tracking-tight flex items-center gap-3">
+                    <h1 className="text-3xl font-bold text-[#164E4D] tracking-tight flex items-center gap-3">
                         <HandCoins className="w-8 h-8" />
                         Manajemen Bagi Hasil
                     </h1>
@@ -294,31 +317,31 @@ export const BagiHasil: React.FC = () => {
                 <div className="flex gap-3">
                     <button 
                         onClick={() => setIsRentModalOpen(true)}
-                        className="premium-button-primary bg-[#1A4D43] hover:bg-[#1A4D43]/90 flex items-center gap-2"
+                        className="premium-button-primary bg-[#164E4D] hover:bg-[#164E4D]/90 flex items-center gap-2"
                     >
                         <Plus className="w-5 h-5" />
                         Zakat/Sewa Masuk
                     </button>
                     <button 
                         onClick={() => setIsDistModalOpen(true)}
-                        className="premium-button-primary flex items-center gap-2 shadow-lg shadow-[#2BBF9D]/20"
+                        className="premium-button-primary flex items-center gap-2 shadow-lg shadow-[#1E8289]/20"
                     >
                         <ArrowRightLeft className="w-5 h-5" />
-                        Eksekusi Profit Sharing
+                        Eksekusi Bagi Hasil
                     </button>
                 </div>
             </div>
 
             {/* Summary Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="glass-card p-6 border-l-4 border-[#2BBF9D]">
+                <div className="glass-card p-6 border-l-4 border-[#1E8289]">
                     <div className="flex items-center gap-4">
-                        <div className="bg-[#E2F8F3] p-3 rounded-2xl text-[#2BBF9D]">
+                        <div className="bg-[#F0F7F7] p-3 rounded-2xl text-[#1E8289]">
                             <History className="w-6 h-6" />
                         </div>
                         <div>
                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Sewa Terkumpul</p>
-                            <h3 className="text-xl font-black text-[#1A4D43]">
+                            <h3 className="text-xl font-black text-[#164E4D]">
                                 Rp {(rentals || []).reduce((sum, r) => sum + r.amount, 0).toLocaleString('id-ID')}
                             </h3>
                         </div>
@@ -332,7 +355,7 @@ export const BagiHasil: React.FC = () => {
                         </div>
                         <div>
                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Terdistribusi</p>
-                            <h3 className="text-xl font-black text-[#1A4D43]">
+                            <h3 className="text-xl font-black text-[#164E4D]">
                                 Rp {(distributions || []).reduce((sum, d) => sum + d.total_pool, 0).toLocaleString('id-ID')}
                             </h3>
                         </div>
@@ -345,21 +368,21 @@ export const BagiHasil: React.FC = () => {
                             <Clock className="w-6 h-6" />
                         </div>
                         <div>
-                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Pending Remitansi</p>
-                            <h3 className="text-xl font-black text-[#1A4D43]">
-                                {(distributions || []).reduce((count, d) => count + (d.details?.filter(dt => dt.status === 'PENDING').length || 0), 0)} Payouts
+                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Remitansi Menunggu</p>
+                            <h3 className="text-xl font-black text-[#164E4D]">
+                                {(distributions || []).reduce((count, d) => count + (d.details?.filter(dt => dt.status === 'PENDING').length || 0), 0)} Pembayaran
                             </h3>
                         </div>
                     </div>
                 </div>
 
-                <div className="glass-card p-6 bg-gradient-to-br from-[#1A4D43] to-[#2BBF9D] border-none">
+                <div className="glass-card p-6 bg-gradient-to-br from-[#164E4D] to-[#1E8289] border-none">
                     <div className="flex items-center gap-4 text-white">
                         <div className="bg-white/20 p-3 rounded-2xl">
                             <TrendingUp className="w-6 h-6" />
                         </div>
                         <div>
-                            <p className="text-[10px] font-black text-white/60 uppercase tracking-widest">Nasional BEP Progres</p>
+                            <p className="text-[10px] font-black text-white/60 uppercase tracking-widest">Progres BEP Nasional</p>
                             <h3 className="text-xl font-black">
                                 {(()=>{
                                     const totalCap = (kitchens || []).reduce((sum, k) => sum + (k.initial_capital || 0), 0);
@@ -386,8 +409,8 @@ export const BagiHasil: React.FC = () => {
                             onClick={() => setActiveTab(tab.id as any)}
                             className={`flex-1 flex items-center justify-center gap-2 py-4 text-xs font-black uppercase tracking-widest transition-all rounded-xl ${
                                 activeTab === tab.id 
-                                ? 'bg-white text-[#1A4D43] shadow-sm' 
-                                : 'text-gray-400 hover:text-[#2BBF9D]'
+                                ? 'bg-white text-[#164E4D] shadow-sm' 
+                                : 'text-gray-400 hover:text-[#1E8289]'
                             }`}
                         >
                             <tab.icon className="w-4 h-4" />
@@ -412,14 +435,14 @@ export const BagiHasil: React.FC = () => {
                                 </thead>
                                 <tbody className="divide-y divide-gray-50">
                                     {(rentals || []).map(r => (
-                                        <tr key={r.id} className="hover:bg-[#F8FAF9] transition-colors">
-                                            <td className="px-4 py-4 text-xs font-bold text-[#1A4D43]">{(kitchens || []).find(k => k.id === r.kitchen_id)?.name}</td>
-                                            <td className="px-4 py-4 text-xs font-medium text-gray-500">{r.date}</td>
-                                            <td className="px-4 py-4 text-xs font-bold text-blue-600">{r.period}</td>
-                                            <td className="px-4 py-4 text-xs font-black text-[#1A4D43] text-right">Rp {r.amount.toLocaleString('id-ID')}</td>
+                                        <tr key={r.id} className="hover:bg-[#F9FAFA] transition-colors">
+                                            <td className="px-4 py-4 text-xs font-bold text-[#164E4D]">{(kitchens || []).find(k => k.id === r.kitchen_id)?.name}</td>
+                                            <td className="px-4 py-4 text-xs font-medium text-gray-500">{formatDateID(r.date)}</td>
+                                            <td className="px-4 py-4 text-xs font-bold text-blue-600">{formatPeriodID(r.period)}</td>
+                                            <td className="px-4 py-4 text-xs font-black text-[#164E4D] text-right">{formatCurrencyID(r.amount)}</td>
                                             <td className="px-4 py-4">
-                                                <span className="px-3 py-1 bg-[#E2F8F3] text-[#2BBF9D] text-[9px] font-black rounded-full uppercase">
-                                                    {r.status}
+                                                <span className="px-3 py-1 bg-[#F0F7F7] text-[#1E8289] text-[9px] font-black rounded-full uppercase">
+                                                    {r.status === 'PAID' ? 'Sudah Dibayar' : 'Menunggu'}
                                                 </span>
                                             </td>
                                             <td className="px-4 py-4 text-xs text-gray-400">{r.notes}</td>
@@ -439,27 +462,27 @@ export const BagiHasil: React.FC = () => {
                                             <span className="px-3 py-1 bg-blue-50 text-blue-600 text-[10px] font-black rounded-lg uppercase mb-2 inline-block">
                                                 ID DIST: #{d.id}
                                             </span>
-                                            <h4 className="text-lg font-black text-[#1A4D43]">{(kitchens || []).find(k => k.id === d.kitchen_id)?.name}</h4>
-                                            <p className="text-xs text-gray-400 font-bold uppercase tracking-tighter">Periode: {d.period} • {d.is_post_bep ? 'SKEMA PASCA-BEP' : 'SKEMA PRE-BEP'}</p>
+                                            <h4 className="text-lg font-black text-[#164E4D]">{(kitchens || []).find(k => k.id === d.kitchen_id)?.name}</h4>
+                                            <p className="text-xs text-gray-400 font-bold uppercase tracking-tighter">Periode: {formatPeriodID(d.period)} • {d.is_post_bep ? 'SKEMA PASCA-BEP' : 'SKEMA PRE-BEP'} • Transfer: {d.created_at ? formatDateID(d.created_at) : '-'}</p>
                                         </div>
                                         <div className="text-right">
                                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Pool</p>
-                                            <h3 className="text-2xl font-black text-[#1A4D43]">Rp {d.total_pool.toLocaleString('id-ID')}</h3>
+                                            <h3 className="text-2xl font-black text-[#164E4D]">{formatCurrencyID(d.total_pool)}</h3>
                                         </div>
                                     </div>
 
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                        <div className="bg-[#F8FAF9] p-4 rounded-xl">
+                                        <div className="bg-[#F9FAFA] p-4 rounded-xl">
                                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Porsi Investor</p>
-                                            <p className="text-lg font-black text-[#2BBF9D]">Rp {d.investor_split.toLocaleString('id-ID')}</p>
+                                            <p className="text-lg font-black text-[#1E8289]">{formatCurrencyID(d.investor_split)}</p>
                                         </div>
-                                        <div className="bg-[#F8FAF9] p-4 rounded-xl">
+                                        <div className="bg-[#F9FAFA] p-4 rounded-xl">
                                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Porsi DPP</p>
-                                            <p className="text-lg font-black text-[#1A4D43]">Rp {d.dpp_split.toLocaleString('id-ID')}</p>
+                                            <p className="text-lg font-black text-[#164E4D]">{formatCurrencyID(d.dpp_split)}</p>
                                         </div>
-                                        <div className="bg-[#F8FAF9] p-4 rounded-xl">
+                                        <div className="bg-[#F9FAFA] p-4 rounded-xl">
                                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Porsi YWMP</p>
-                                            <p className="text-lg font-black text-blue-600">Rp {d.ywmp_split.toLocaleString('id-ID')}</p>
+                                            <p className="text-lg font-black text-blue-600">{formatCurrencyID(d.ywmp_split)}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -473,7 +496,7 @@ export const BagiHasil: React.FC = () => {
                                 <div key={dt.id} className="glass-card p-4 flex items-center justify-between group">
                                     <div className="flex items-center gap-4">
                                         <div className={`w-10 h-10 rounded-2xl flex items-center justify-center font-black text-xs ${
-                                            dt.role === 'INVESTOR' ? 'bg-[#E2F8F3] text-[#2BBF9D]' : 'bg-[#1A4D43]/5 text-[#1A4D43]'
+                                            dt.role === 'INVESTOR' ? 'bg-[#F0F7F7] text-[#1E8289]' : 'bg-[#164E4D]/5 text-[#164E4D]'
                                         }`}>
                                             {dt.role.slice(0, 3)}
                                         </div>
@@ -484,11 +507,11 @@ export const BagiHasil: React.FC = () => {
                                     </div>
                                     <div className="flex items-center gap-6">
                                         <div className="text-right">
-                                            <p className="text-sm font-black text-[#1A4D43]">Rp {dt.amount.toLocaleString('id-ID')}</p>
+                                            <p className="text-sm font-black text-[#164E4D]">{formatCurrencyID(dt.amount)}</p>
                                             {dt.status === 'PAID' ? (
                                                 <button 
                                                     onClick={() => setSelectedEvidence(dt.remittance?.evidence_url || null)}
-                                                    className="text-[9px] text-[#2BBF9D] font-bold flex items-center gap-1 justify-end hover:underline"
+                                                    className="text-[9px] text-[#1E8289] font-bold flex items-center gap-1 justify-end hover:underline"
                                                 >
                                                     <CheckCircle2 className="w-3 h-3" />
                                                     SUDAH DIBAYAR (LIHAT BUKTI)
@@ -503,7 +526,7 @@ export const BagiHasil: React.FC = () => {
                                         {dt.status !== 'PAID' && (
                                             <button 
                                                 onClick={() => handleRemit(dt.id!)}
-                                                className="bg-[#1A4D43] text-white p-2 rounded-xl opacity-0 group-hover:opacity-100 transition-all hover:scale-110 shadow-lg shadow-[#1A4D43]/20"
+                                                className="bg-[#164E4D] text-white p-2 rounded-xl opacity-0 group-hover:opacity-100 transition-all hover:scale-110 shadow-lg shadow-[#164E4D]/20"
                                             >
                                                 <UploadCloud className="w-5 h-5" />
                                             </button>
@@ -520,16 +543,16 @@ export const BagiHasil: React.FC = () => {
                                 const progress = k.initial_capital > 0 ? (k.accumulated_profit / k.initial_capital) * 100 : 0;
                                 return (
                                     <div key={k.id} className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm relative overflow-hidden group hover:shadow-xl transition-all">
-                                        <div className="absolute -right-4 -top-4 w-32 h-32 bg-[#E2F8F3]/50 rounded-full blur-3xl group-hover:bg-[#2BBF9D]/20 transition-all"></div>
+                                        <div className="absolute -right-4 -top-4 w-32 h-32 bg-[#F0F7F7]/50 rounded-full blur-3xl group-hover:bg-[#1E8289]/20 transition-all"></div>
                                         
                                         <div className="flex justify-between items-start mb-8 relative z-10">
                                             <div>
-                                                <h4 className="text-xl font-black text-[#1A4D43]">{k.name}</h4>
+                                                <h4 className="text-xl font-black text-[#164E4D]">{k.name}</h4>
                                                 <p className="text-xs text-gray-400 font-bold uppercase tracking-widest">{k.region}</p>
                                             </div>
                                             <div className="text-right">
                                                 <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${
-                                                    k.bep_status === 'POST-BEP' ? 'bg-[#E2F8F3] text-[#2BBF9D]' : 'bg-orange-50 text-orange-600'
+                                                    k.bep_status === 'POST-BEP' ? 'bg-[#F0F7F7] text-[#1E8289]' : 'bg-orange-50 text-orange-600'
                                                 }`}>
                                                     {k.bep_status}
                                                 </span>
@@ -540,12 +563,12 @@ export const BagiHasil: React.FC = () => {
                                             <div>
                                                 <div className="flex justify-between text-xs font-black uppercase tracking-widest mb-3">
                                                     <span className="text-gray-400">Balik Modal Progress</span>
-                                                    <span className="text-[#1A4D43]">{progress.toFixed(1)}%</span>
+                                                    <span className="text-[#164E4D]">{progress.toFixed(1)}%</span>
                                                 </div>
                                                 <div className="h-4 bg-gray-100 rounded-full overflow-hidden p-1 border border-gray-50">
                                                     <div 
                                                         className={`h-full rounded-full transition-all duration-1000 ${
-                                                            k.bep_status === 'POST-BEP' ? 'bg-[#2BBF9D]' : 'bg-gradient-to-r from-[#1A4D43] to-[#2BBF9D]'
+                                                            k.bep_status === 'POST-BEP' ? 'bg-[#1E8289]' : 'bg-gradient-to-r from-[#164E4D] to-[#1E8289]'
                                                         }`}
                                                         style={{ width: `${Math.min(100, progress)}%` }}
                                                     ></div>
@@ -558,19 +581,19 @@ export const BagiHasil: React.FC = () => {
                                             <div className="grid grid-cols-2 gap-4">
                                                 <div className="bg-[#F8FAF9] p-4 rounded-2xl">
                                                     <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Target Investasi</p>
-                                                    <p className="text-sm font-black text-[#1A4D43]">Rp {k.initial_capital.toLocaleString('id-ID')}</p>
+                                                    <p className="text-sm font-black text-[#1A4D43]">{formatCurrencyID(k.initial_capital)}</p>
                                                 </div>
                                                 <div className="bg-[#F8FAF9] p-4 rounded-2xl">
                                                     <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Current Payout</p>
-                                                    <p className="text-sm font-black text-[#2BBF9D]">Rp {k.accumulated_profit.toLocaleString('id-ID')}</p>
+                                                    <p className="text-sm font-black text-[#2BBF9D]">{formatCurrencyID(k.accumulated_profit)}</p>
                                                 </div>
                                             </div>
 
                                             {k.bep_status === 'POST-BEP' && (
-                                                <div className="bg-[#E2F8F3] p-4 rounded-2xl border border-[#2BBF9D]/20 flex items-center gap-3">
-                                                    <ArrowUpRight className="w-5 h-5 text-[#2BBF9D]" />
-                                                    <p className="text-[11px] font-bold text-[#1A4D43] leading-tight">
-                                                        <span className="text-[#2BBF9D] font-black">PROFIT SAH!</span> Skema bagi hasil telah otomatis dibalik untuk periode mendatang.
+                                                <div className="bg-[#F0F7F7] p-4 rounded-2xl border border-[#1E8289]/20 flex items-center gap-3">
+                                                    <ArrowUpRight className="w-5 h-5 text-[#1E8289]" />
+                                                    <p className="text-[11px] font-bold text-[#164E4D] leading-tight">
+                                                        <span className="text-[#1E8289] font-black">PROFIT SAH!</span> Skema bagi hasil telah otomatis dibalik untuk periode mendatang.
                                                     </p>
                                                 </div>
                                             )}
@@ -612,11 +635,11 @@ export const BagiHasil: React.FC = () => {
                 </div>
             </div>
 
-            {/* Modals Implementation... (Simplified for brevity but fully functional) */}
+            {/* Modals Implementation */}
             {isRentModalOpen && (
-                <div className="fixed inset-0 bg-[#1A4D43]/40 flex items-center justify-center z-[1000] p-4 backdrop-blur-md">
+                <div className="fixed inset-0 bg-[#164E4D]/40 flex items-center justify-center z-[1000] p-4 backdrop-blur-md">
                     <div className="bg-white rounded-[2rem] max-w-lg w-full shadow-2xl overflow-hidden p-8">
-                        <h2 className="text-2xl font-black text-[#1A4D43] mb-6">Perekaman Setoran Sewa</h2>
+                        <h2 className="text-2xl font-black text-[#164E4D] mb-6">Perekaman Setoran Sewa</h2>
                         <form onSubmit={handleRentalSubmit} className="space-y-4">
                             <select name="kitchen_id" required className="premium-input w-full">
                                 <option value="">Pilih Dapur...</option>
@@ -628,7 +651,7 @@ export const BagiHasil: React.FC = () => {
                             <textarea name="notes" placeholder="Catatan Tambahan" className="premium-input w-full h-24" />
                             <div className="flex gap-4">
                                 <button type="button" onClick={() => setIsRentModalOpen(false)} className="flex-1 py-4 text-gray-400 font-bold uppercase tracking-widest text-xs">Batal</button>
-                                <button type="submit" className="flex-[2] premium-button-primary shadow-xl shadow-[#2BBF9D]/20 py-4">Simpan Setoran</button>
+                                <button type="submit" className="flex-[2] premium-button-primary shadow-xl shadow-[#1E8289]/20 py-4">Simpan Setoran</button>
                             </div>
                         </form>
                     </div>
@@ -636,9 +659,9 @@ export const BagiHasil: React.FC = () => {
             )}
 
             {isDistModalOpen && (
-                <div className="fixed inset-0 bg-[#1A4D43]/40 flex items-center justify-center z-[1000] p-4 backdrop-blur-md">
+                <div className="fixed inset-0 bg-[#164E4D]/40 flex items-center justify-center z-[1000] p-4 backdrop-blur-md">
                     <div className="bg-white rounded-[3rem] max-w-2xl w-full shadow-2xl overflow-hidden">
-                        <div className="bg-gradient-to-br from-[#1A4D43] to-[#2BBF9D] p-8 text-white relative">
+                        <div className="bg-gradient-to-br from-[#164E4D] to-[#1E8289] p-8 text-white relative">
                             <h2 className="text-2xl font-black mb-1">Kalkulator Bagi Hasil</h2>
                             <p className="text-white/60 text-xs font-bold uppercase tracking-widest">Generate distribusi profit otomatis</p>
                             <div className="absolute right-8 top-8 bg-white/20 p-4 rounded-3xl backdrop-blur-md">
@@ -675,7 +698,7 @@ export const BagiHasil: React.FC = () => {
                                     <div className="p-6 bg-[#F8FAF9] rounded-[2rem] border border-gray-100">
                                         <div className="flex justify-between items-center mb-6">
                                             <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${
-                                                calcResult.bep_status === 'POST-BEP' ? 'bg-[#2BBF9D] text-white' : 'bg-[#1A4D43]/10 text-[#1A4D43]'
+                                                calcResult.bep_status === 'POST-BEP' ? 'bg-[#1E8289] text-white' : 'bg-[#164E4D]/10 text-[#164E4D]'
                                             }`}>
                                                 {calcResult.bep_status} DETECTED
                                             </span>
@@ -689,11 +712,11 @@ export const BagiHasil: React.FC = () => {
                                         <div className="space-y-4">
                                             <div className="flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm">
                                                 <span className="text-xs font-black text-gray-400 uppercase tracking-widest">Alokasi Investor</span>
-                                                <span className="text-lg font-black text-[#2BBF9D]">Rp {calcResult.investor_share.toLocaleString('id-ID')}</span>
+                                                <span className="text-lg font-black text-[#1E8289]">Rp {calcResult.investor_share.toLocaleString('id-ID')}</span>
                                             </div>
                                             <div className="flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm">
                                                 <span className="text-xs font-black text-gray-400 uppercase tracking-widest">Alokasi DPP (Wahdah)</span>
-                                                <span className="text-lg font-black text-[#1A4D43]">Rp {calcResult.dpp_share_sewa.toLocaleString('id-ID')}</span>
+                                                <span className="text-lg font-black text-[#164E4D]">Rp {calcResult.dpp_share_sewa.toLocaleString('id-ID')}</span>
                                             </div>
                                             <div className="flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm">
                                                 <span className="text-xs font-black text-gray-400 uppercase tracking-widest">Alokasi YWMP</span>
@@ -724,7 +747,7 @@ export const BagiHasil: React.FC = () => {
                                 <button 
                                     disabled={!calcResult}
                                     onClick={executeDistribution}
-                                    className="flex-[2] premium-button-primary shadow-xl shadow-[#2BBF9D]/20 py-4 disabled:opacity-50"
+                                    className="flex-[2] premium-button-primary shadow-xl shadow-[#1E8289]/20 py-4 disabled:opacity-50"
                                 >
                                     Konfirmasi & Eksekusi Distribusi
                                 </button>
@@ -744,12 +767,12 @@ export const BagiHasil: React.FC = () => {
                         >
                             <X className="w-6 h-6" />
                         </button>
-                        <h3 className="text-xl font-black text-[#1A4D43] mb-4 flex items-center gap-2">
-                            <CheckCircle2 className="w-5 h-5 text-[#2BBF9D]" />
+                        <h3 className="text-xl font-black text-[#164E4D] mb-4 flex items-center gap-2">
+                            <CheckCircle2 className="w-5 h-5 text-[#1E8289]" />
                             Bukti Transfer Pembayaran
                         </h3>
                         <div className="aspect-video bg-gray-100 rounded-2xl overflow-hidden border border-gray-100 mb-4 flex items-center justify-center">
-                            <img src={selectedEvidence} alt="Bukti Transfer" className="max-w-full max-h-full object-contain" />
+                            <img src={getGoogleImageUrl(selectedEvidence)} alt="Bukti Transfer" className="max-w-full max-h-full object-contain" />
                         </div>
                         <div className="flex justify-end gap-3">
                             <button 

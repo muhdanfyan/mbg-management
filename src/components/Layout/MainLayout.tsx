@@ -11,13 +11,13 @@ interface MainLayoutProps {
 
 export const MainLayout: React.FC<MainLayoutProps> = ({
   children,
-  breadcrumbs = ['Dashboard']
+  breadcrumbs = ['Dasbor']
 }) => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const navigate = useNavigate();
 
   return (
-    <div className="h-screen flex bg-[#F8FAF9]">
+    <div className="h-screen flex bg-[#F0F7F7]">
       <Sidebar
         collapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
@@ -36,8 +36,8 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
                     onClick={() => index < breadcrumbs.length - 1 && navigate('/')}
                     className={`tracking-wide font-semibold ${
                       index === breadcrumbs.length - 1
-                        ? 'text-[#1A4D43] font-bold'
-                        : 'text-gray-400 hover:text-[#2BBF9D] transition-colors cursor-pointer'
+                        ? 'text-[#164E4D] font-bold'
+                        : 'text-gray-400 hover:text-[#1E8289] transition-colors cursor-pointer'
                     }`}
                   >
                     {crumb}

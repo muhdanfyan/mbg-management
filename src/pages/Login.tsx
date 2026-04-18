@@ -18,7 +18,7 @@ export const Login: React.FC = () => {
     try {
       await signIn(email, password);
     } catch (err: any) {
-      setError(err.message || 'Failed to sign in');
+      setError(err.message || 'Gagal masuk');
     } finally {
       setLoading(false);
     }
@@ -38,8 +38,8 @@ export const Login: React.FC = () => {
             </div>
           </div>
 
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Welcome Back</h2>
-          <p className="text-gray-600 mb-8">Sign in to access your dashboard</p>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Selamat Datang Kembali</h2>
+          <p className="text-gray-600 mb-8">Masuk untuk mengakses dasbor Anda</p>
 
           {error && (
             <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
@@ -51,7 +51,7 @@ export const Login: React.FC = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Email Address
+                Alamat Email
               </label>
               <input
                 type="email"
@@ -65,7 +65,7 @@ export const Login: React.FC = () => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Password
+                Kata Sandi
               </label>
               <input
                 type="password"
@@ -85,10 +85,10 @@ export const Login: React.FC = () => {
                   onChange={(e) => setRememberMe(e.target.checked)}
                   className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-600"
                 />
-                <span className="text-sm text-gray-700">Remember me</span>
+                <span className="text-sm text-gray-700">Ingat saya</span>
               </label>
               <button type="button" className="text-sm text-blue-600 hover:text-blue-700 font-medium">
-                Forgot password?
+                Lupa kata sandi?
               </button>
             </div>
 
@@ -102,7 +102,7 @@ export const Login: React.FC = () => {
               ) : (
                 <>
                   <LogIn className="w-5 h-5" />
-                  Sign In
+                  Masuk
                 </>
               )}
             </button>

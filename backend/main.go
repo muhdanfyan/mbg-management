@@ -231,6 +231,25 @@ func main() {
 	// --- API Groups ---
 	api := r.Group("/api")
 	{
+		api.POST("/upload", func(c *gin.Context) {
+			file, err := c.FormFile("file")
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": "No file uploaded"})
+				return
+			}
+
+			// Sanitize filename and add prefix to avoid collisions
+			ext := filepath.Ext(file.Filename)
+			filename := fmt.Sprintf("%d%s", time.Now().UnixNano(), ext)
+			dst := filepath.Join("uploads", filename)
+
+			if err := c.SaveUploadedFile(file, dst); err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save file: " + err.Error()})
+				return
+			}
+
+			c.JSON(http.StatusOK, gin.H{"url": "/uploads/" + filename})
+		})
 		// GET endpoints (Read)
 		api.GET("/kitchens", func(c *gin.Context) {
 			kitchens := []models.Dapur{}
@@ -538,6 +557,7 @@ func main() {
 				return
 			}
 			db.Create(&pu)
+			syncContractProgress(pu.ContractID)
 			c.JSON(http.StatusOK, pu)
 		})
 		api.PUT("/progress-updates/:id", func(c *gin.Context) {
@@ -547,14 +567,25 @@ func main() {
 				c.JSON(404, gin.H{"error": "Progress Update not found"})
 				return
 			}
-			c.ShouldBindJSON(&pu)
+			if err := c.ShouldBindJSON(&pu); err != nil {
+				c.JSON(400, gin.H{"error": "Invalid input: " + err.Error()})
+				return
+			}
 			db.Save(&pu)
+			syncContractProgress(pu.ContractID)
 			c.JSON(http.StatusOK, pu)
 		})
 		api.DELETE("/progress-updates/:id", func(c *gin.Context) {
 			id := c.Param("id")
-			db.Delete(&models.ProgressUpdate{}, id)
-			c.JSON(http.StatusOK, gin.H{"message": "Progress Update deleted"})
+			var pu models.ProgressUpdate
+			if err := db.First(&pu, id).Error; err == nil {
+				contractID := pu.ContractID
+				db.Delete(&pu)
+				syncContractProgress(contractID)
+				c.JSON(http.StatusOK, gin.H{"message": "Progress Update deleted"})
+			} else {
+				c.JSON(404, gin.H{"error": "Progress Update not found"})
+			}
 		})
 
 		// Procurement - Equipment
@@ -903,6 +934,23 @@ func main() {
 			db.Create(&inv)
 			c.JSON(http.StatusOK, inv)
 		})
+		api.PUT("/investors/:id", func(c *gin.Context) {
+			id := c.Param("id")
+			var inv models.InvestorParticipant
+			if err := db.First(&inv, id).Error; err != nil {
+				c.JSON(http.StatusNotFound, gin.H{"error": "Investor not found"})
+				return
+			}
+			if err := c.ShouldBindJSON(&inv); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON: " + err.Error()})
+				return
+			}
+			if err := db.Save(&inv).Error; err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update investor: " + err.Error()})
+				return
+			}
+			c.JSON(http.StatusOK, inv)
+		})
 		api.DELETE("/investors/:id", func(c *gin.Context) {
 			id := c.Param("id")
 			db.Delete(&models.InvestorParticipant{}, id)
@@ -1040,6 +1088,7 @@ func main() {
 	r.StaticFile("/favicon.ico", "./dist/favicon.ico")
 	r.Static("/assets", "./dist/assets")
 	r.StaticFile("/vite.svg", "./dist/vite.svg")
+	r.Static("/uploads", "./uploads")
 
 	r.NoRoute(func(c *gin.Context) {
 		c.File("./dist/index.html")
@@ -1378,3 +1427,13 @@ func calculateSplits(d models.Dapur, r models.FinancialRecord) gin.H {
 		"kop_share_selisih":  netSelisih * 0.20,
 	}
 }
+
+func syncContractProgress(contractID uint) {
+	var totalProgress int
+	db.Model(&models.ProgressUpdate{}).Where("contract_id = ?", contractID).Select("SUM(progress_percentage)").Scan(&totalProgress)
+	if totalProgress > 100 {
+		totalProgress = 100
+	}
+	db.Model(&models.Contract{}).Where("id = ?", contractID).Update("progress", totalProgress)
+}
+

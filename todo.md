@@ -57,8 +57,11 @@
     - [x] Testing input data khusus kasus dapur (Backend Unit Tests & API Scoping OK).
 - [x] **Dokumentasi & Presentasi**
     - [x] Membuat video tutorial/simulasi sistem untuk presentasi ke Sekjen dan Ketua.
-- [x] **Deployment**
-    - [x] Deploy sistem ke website resmi setelah semua perbaikan selesai.
-    - [x] Menyiapkan skema testing dalam Agentic Skill ([NOSS Testing Expert](file:///Users/pondokit/Herd/mbg-management/.agents/skills/noss_testing_expert.md)) berdasarkan 10 referensi repositori QA.
+- [x] **Deployment & Stability**
+    - [x] Setup Subdomain `dev.mbgone.site`
+    - [x] Automated Testing Scheme (NOSS Strategy) - [NOSS Testing Expert](file:///Users/pondokit/Herd/mbg-management/.agents/skills/noss_testing_expert.md)
+    - [x] Final Data Migration & Cleanup (Seeding Construction, HR, Procurement)
+    - [x] UI Overhaul Performance & Aesthetics (Mint Theme Standard)
+    - [x] Dashboard Scoping & RBAC Verification PASSED
 
     

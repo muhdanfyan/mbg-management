@@ -8,9 +8,9 @@ export const Header: React.FC = () => {
   const [showNotifications, setShowNotifications] = useState(false);
 
   const notifications = [
-    { id: 1, text: 'New purchase order waiting approval', time: '5m ago', unread: true },
-    { id: 2, text: 'Construction progress updated', time: '1h ago', unread: true },
-    { id: 3, text: 'Payroll processed for March', time: '2h ago', unread: false },
+    { id: 1, text: 'Pesanan pembelian baru menunggu persetujuan', time: '5m lalu', unread: true },
+    { id: 2, text: 'Progres pembangunan diperbarui', time: '1j lalu', unread: true },
+    { id: 3, text: 'Gaji untuk bulan Maret telah diproses', time: '2j lalu', unread: false },
   ];
 
   const unreadCount = notifications.filter(n => n.unread).length;
@@ -22,10 +22,10 @@ export const Header: React.FC = () => {
            <img src="/logo-wahdah.png" alt="Logo" className="w-10 h-10 object-contain" />
         </div>
         <div>
-          <h2 className="text-xl font-black text-[#1A4D43] tracking-tight">
+          <h2 className="text-xl font-black text-[#164E4D] tracking-tight">
             Selamat Datang, {profile?.full_name?.split(' ')[0]}
           </h2>
-          <p className="text-[10px] uppercase font-black text-[#2BBF9D] tracking-[0.2em]">{profile?.role}</p>
+          <p className="text-[10px] uppercase font-black text-[#1E8289] tracking-[0.2em]">{profile?.role}</p>
         </div>
       </div>
 
@@ -35,9 +35,9 @@ export const Header: React.FC = () => {
             onClick={() => setShowNotifications(!showNotifications)}
             className="relative p-2.5 hover:bg-gray-50 rounded-xl transition-all active:scale-95 group"
           >
-            <Bell className="w-5 h-5 text-gray-400 group-hover:text-[#2BBF9D] transition-colors" />
+            <Bell className="w-5 h-5 text-gray-400 group-hover:text-[#1E8289] transition-colors" />
             {unreadCount > 0 && (
-              <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-[#2BBF9D] rounded-full ring-2 ring-white"></span>
+              <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-[#1E8289] rounded-full ring-2 ring-white"></span>
             )}
           </button>
 
@@ -48,15 +48,15 @@ export const Header: React.FC = () => {
                 onClick={() => setShowNotifications(false)}
               ></div>
               <div className="absolute right-0 mt-4 w-80 bg-white rounded-2xl shadow-2xl border border-gray-50 z-[80] overflow-hidden animate-in fade-in zoom-in duration-200">
-                <div className="p-5 border-b border-gray-50 bg-[#F8FAF9]">
-                  <h3 className="font-bold text-[#1A4D43]">Notifikasi</h3>
+                <div className="p-5 border-b border-gray-50 bg-[#F0F7F7]">
+                  <h3 className="font-bold text-[#164E4D]">Notifikasi</h3>
                 </div>
                 <div className="max-h-[400px] overflow-y-auto">
                   {notifications.map((notif) => (
                     <div
                       key={notif.id}
                       className={`p-5 border-b border-gray-50 hover:bg-gray-50 cursor-pointer transition-colors ${
-                        notif.unread ? 'bg-[#E2F8F3]/30' : ''
+                        notif.unread ? 'bg-[#F0F7F7]/30' : ''
                       }`}
                     >
                       <p className="text-sm text-gray-700 font-medium leading-relaxed">{notif.text}</p>
@@ -64,8 +64,8 @@ export const Header: React.FC = () => {
                     </div>
                   ))}
                 </div>
-                <div className="p-4 text-center bg-[#F8FAF9]">
-                  <button className="text-xs text-[#2BBF9D] hover:text-[#1A4D43] font-black uppercase tracking-widest">
+                <div className="p-4 text-center bg-[#F0F7F7]">
+                  <button className="text-xs text-[#1E8289] hover:text-[#164E4D] font-black uppercase tracking-widest">
                     Lihat Semua
                   </button>
                 </div>
@@ -79,10 +79,10 @@ export const Header: React.FC = () => {
             onClick={() => setShowDropdown(!showDropdown)}
             className="flex items-center gap-3 p-1.5 hover:bg-gray-50 rounded-2xl transition-all active:scale-95 group"
           >
-            <div className="w-9 h-9 bg-gradient-to-br from-[#1A4D43] to-[#2BBF9D] rounded-xl flex items-center justify-center shadow-lg shadow-[#2BBF9D]/20">
+            <div className="w-9 h-9 bg-gradient-to-br from-[#164E4D] to-[#1E8289] rounded-xl flex items-center justify-center shadow-lg shadow-[#1E8289]/20">
               <User className="w-5 h-5 text-white" />
             </div>
-            <ChevronDown className="w-4 h-4 text-gray-400 group-hover:text-[#1A4D43] transition-colors" />
+            <ChevronDown className="w-4 h-4 text-gray-400 group-hover:text-[#164E4D] transition-colors" />
           </button>
 
           {showDropdown && (
@@ -92,28 +92,28 @@ export const Header: React.FC = () => {
                 onClick={() => setShowDropdown(false)}
               ></div>
               <div className="absolute right-0 mt-4 w-72 bg-white rounded-2xl shadow-2xl border border-gray-50 z-[80] overflow-hidden animate-in fade-in zoom-in duration-200">
-                <div className="p-6 border-b border-gray-50 bg-[#F8FAF9]">
-                  <p className="font-bold text-[#1A4D43] text-lg leading-tight">{profile?.full_name}</p>
+                <div className="p-6 border-b border-gray-50 bg-[#F0F7F7]">
+                  <p className="font-bold text-[#164E4D] text-lg leading-tight">{profile?.full_name}</p>
                   <p className="text-xs text-gray-400 font-medium mb-3">{profile?.email}</p>
-                  <span className="px-3 py-1 bg-[#E2F8F3] text-[#2BBF9D] text-[10px] font-black uppercase tracking-widest rounded-full shadow-sm">
+                  <span className="px-3 py-1 bg-[#F0F7F7] text-[#1E8289] text-[10px] font-black uppercase tracking-widest rounded-full shadow-sm border border-[#1E8289]/10">
                     {profile?.role}
                   </span>
                 </div>
                 <div className="p-3">
-                  <button className="w-full flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-[#1A4D43] rounded-xl transition-all group">
+                  <button className="w-full flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-[#164E4D] rounded-xl transition-all group">
                     <div className="p-2 bg-gray-50 rounded-lg group-hover:bg-white transition-colors">
                       <User className="w-4 h-4" />
                     </div>
                     <span className="text-sm font-bold">Profil Saya</span>
                   </button>
-                  <button className="w-full flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-[#1A4D43] rounded-xl transition-all group">
+                  <button className="w-full flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-[#164E4D] rounded-xl transition-all group">
                     <div className="p-2 bg-gray-50 rounded-lg group-hover:bg-white transition-colors">
                       <Settings className="w-4 h-4" />
                     </div>
                     <span className="text-sm font-bold">Pengaturan</span>
                   </button>
                 </div>
-                <div className="p-3 border-t border-gray-50 bg-[#F8FAF9]">
+                <div className="p-3 border-t border-gray-50 bg-[#F0F7F7]">
                   <button
                     onClick={() => signOut()}
                     className="w-full flex items-center gap-3 px-4 py-3 text-red-500 hover:bg-red-50 rounded-xl transition-all group"

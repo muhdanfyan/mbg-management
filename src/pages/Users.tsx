@@ -14,7 +14,7 @@ export const Users: React.FC = () => {
       const data = await api.get('/users');
       setUsers(Array.isArray(data) ? data : []);
     } catch (err: any) {
-      setError('Failed to fetch users');
+      setError('Gagal mengambil data pengguna');
     } finally {
       setLoading(false);
     }
@@ -25,13 +25,13 @@ export const Users: React.FC = () => {
   }, []);
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this user?')) return;
+    if (!window.confirm('Apakah Anda yakin ingin menghapus pengguna ini?')) return;
     try {
       await api.delete(`/users/${id}`);
-      setSuccess('User deleted successfully');
+      setSuccess('Pengguna berhasil dihapus');
       fetchUsers();
     } catch (err: any) {
-      setError('Failed to delete user');
+      setError('Gagal menghapus pengguna');
     }
   };
 
@@ -52,12 +52,12 @@ export const Users: React.FC = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
-          <p className="text-gray-600 mt-1">Manage system access and roles</p>
+          <h1 className="text-2xl font-bold text-gray-900">Manajemen Pengguna</h1>
+          <p className="text-gray-600 mt-1">Kelola akses dan peran sistem</p>
         </div>
         <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
           <UserPlus className="w-5 h-5" />
-          Add New User
+          Tambah Pengguna Baru
         </button>
       </div>
 
@@ -74,7 +74,7 @@ export const Users: React.FC = () => {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
               type="text"
-              placeholder="Search users..."
+              placeholder="Cari pengguna..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
@@ -86,11 +86,11 @@ export const Users: React.FC = () => {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="px-6 py-4 text-sm font-semibold text-gray-900">User</th>
-                <th className="px-6 py-4 text-sm font-semibold text-gray-900">Role</th>
-                <th className="px-6 py-4 text-sm font-semibold text-gray-900">Department</th>
-                <th className="px-6 py-4 text-sm font-semibold text-gray-900">Contact</th>
-                <th className="px-6 py-4 text-sm font-semibold text-gray-900">Actions</th>
+                <th className="px-6 py-4 text-sm font-semibold text-gray-900">Pengguna</th>
+                <th className="px-6 py-4 text-sm font-semibold text-gray-900">Peran</th>
+                <th className="px-6 py-4 text-sm font-semibold text-gray-900">Departemen</th>
+                <th className="px-6 py-4 text-sm font-semibold text-gray-900">Kontak</th>
+                <th className="px-6 py-4 text-sm font-semibold text-gray-900">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
