@@ -903,7 +903,7 @@ export const Finance: React.FC = () => {
                   </button>
                 </div>
                 <div className="mt-4 p-4 bg-[#F0F7F7] border border-[#1E8289]/10 rounded-lg">
-                  <p className="text-xs text-blue-700 leading-relaxed"><span className="mr-1">💡</span><strong>Info Skema Keuangan:</strong> Perhitungan di bawah ini didasarkan pada alur kerja MBG. <strong>Modal Rp15.000/porsi</strong> (Rp5rb Operasional, Rp10rb Bahan Baku). Selisih bersih bahan baku setelah dikurangi biaya tetap <strong>Mandat Muktamar (Audit Rp 6jt/hari & Honor Rp 6jt/bulan)</strong> dibagi dengan rasio <strong>60% DPP : 20% DPD : 20% Koperasi</strong>.</p>
+                  <p className="text-xs text-blue-700 leading-relaxed"><span className="mr-1">💡</span><strong>Info Skema Keuangan:</strong> Perhitungan di bawah ini didasarkan pada alur kerja MBG. <strong>Modal Rp15.000/porsi</strong> (Rp5rb Operasional, Rp10rb Bahan Baku). Selisih bersih bahan baku setelah dikurangi biaya tetap <strong>Mandat Muktamar (Audit Bahan Rp 6jt/hari & Honor Rp 6jt/bulan)</strong> dibagi dengan rasio <strong>60% Investor : 20% DPP Wahdah : 20% YWMP</strong>.</p>
                 </div>
               </div>
 
@@ -989,22 +989,22 @@ export const Finance: React.FC = () => {
                         <div className="grid grid-cols-1 gap-2">
                            <div className="flex justify-between p-3 bg-blue-50 rounded-lg border border-blue-100">
                              <div>
-                               <span className="text-sm font-medium text-blue-800">DPP Wahdah (60%)</span>
-                               <p className="text-[10px] text-blue-600">Pusat Management</p>
+                               <span className="text-sm font-medium text-blue-800">Investor (60%)</span>
+                               <p className="text-[10px] text-blue-600">Alokasi Proporsional Investasi</p>
                              </div>
                              <span className="font-bold text-blue-900">Rp {reportData.dpp_share_selisih.toLocaleString('id-ID')}</span>
                            </div>
                            <div className="flex justify-between p-3 bg-emerald-50 rounded-lg border border-emerald-100">
                              <div>
-                               <span className="text-sm font-medium text-emerald-800">DPD (20%)</span>
-                               <p className="text-[10px] text-emerald-600">Daerah Pelaksana</p>
+                               <span className="text-sm font-medium text-emerald-800">DPP Wahdah (20%)</span>
+                               <p className="text-[10px] text-emerald-600">Kontribusi Organisasi Pusat</p>
                              </div>
                              <span className="font-bold text-emerald-900">Rp {reportData.dpd_share_selisih.toLocaleString('id-ID')}</span>
                            </div>
                            <div className="flex justify-between p-3 bg-purple-50 rounded-lg border border-purple-100">
                              <div>
-                               <span className="text-sm font-medium text-purple-800">Koperasi (20%)</span>
-                               <p className="text-[10px] text-purple-600">Penyedia Bahan Baku</p>
+                               <span className="text-sm font-medium text-purple-800">YWMP (20%)</span>
+                               <p className="text-[10px] text-purple-600">Dana Abadi Yayasan</p>
                              </div>
                              <span className="font-bold text-purple-900">Rp {reportData.kop_share_selisih.toLocaleString('id-ID')}</span>
                            </div>
@@ -1189,7 +1189,7 @@ export const Finance: React.FC = () => {
                        <TrendingUp className="w-5 h-5 text-[#2BBF9D]" />
                        Monitoring Selisih Bahan Baku
                     </h3>
-                    <p className="text-sm text-[#1A4D43]/70">Tracking margin belanja harian (60:20:20 Split)</p>
+                    <p className="text-sm text-[#1A4D43]/70">Tracking margin belanja harian (Split: Investor/DPP/YWMP)</p>
                   </div>
                   <div className="flex gap-2">
                     <span className="px-3 py-1 bg-white border border-[#2BBF9D]/10 text-[#2BBF9D] rounded-full text-xs font-black shadow-sm uppercase tracking-wider">
@@ -1209,14 +1209,14 @@ export const Finance: React.FC = () => {
                              <div className="p-2 bg-[#1E8289] rounded text-white font-black text-xs">60%</div>
                              <div>
                                 <p className="text-sm font-bold text-blue-900">DPP Wahdah</p>
-                                <p className="text-[10px] text-blue-700">Pusat Management & Pengembangan</p>
+                                <p className="text-[10px] text-blue-700">Alokasi Proporsional Investasi & Pengembangan</p>
                              </div>
                           </div>
                           <div className="flex items-start gap-4 p-3 bg-emerald-50 rounded-lg border border-emerald-100">
                              <div className="p-2 bg-emerald-600 rounded text-white font-black text-xs">20%</div>
                              <div>
                                 <p className="text-sm font-bold text-emerald-900">DPD</p>
-                                <p className="text-[10px] text-emerald-700">Wilayah / Daerah Pelaksana</p>
+                                <p className="text-[10px] text-emerald-700">Wilayah / Kontribusi Organisasi Pusat</p>
                              </div>
                           </div>
                           <div className="flex items-start gap-4 p-3 bg-purple-50 rounded-lg border border-purple-100">
@@ -1294,15 +1294,15 @@ export const Finance: React.FC = () => {
                                          <span>- Rp 6.000.000</span>
                                       </div>
                                       <div className="flex justify-between text-[11px] font-bold text-blue-600 pt-1">
-                                         <span>DPP Pusat (60%)</span>
+                                         <span>Investor (60%)</span>
                                          <span>Rp {(netMargin * 0.6).toLocaleString('id-ID')}</span>
                                       </div>
                                       <div className="flex justify-between text-[11px] font-bold text-emerald-600">
-                                         <span>DPD Wilayah (20%)</span>
+                                         <span>DPP Wahdah (20%)</span>
                                          <span>Rp {(netMargin * 0.2).toLocaleString('id-ID')}</span>
                                       </div>
                                       <div className="flex justify-between text-[11px] font-bold text-purple-600">
-                                         <span>Koperasi (20%)</span>
+                                         <span>YWMP (20%)</span>
                                          <span>Rp {(netMargin * 0.2).toLocaleString('id-ID')}</span>
                                       </div>
                                    </div>
