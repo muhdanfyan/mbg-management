@@ -7,7 +7,7 @@ REMOTE_DIR="/home/mbgone/mbg-management/backend"
 
 # Build and sync frontend
 echo "🏗️ Building frontend..."
-npm run build
+/usr/local/bin/npm run build
 rm -rf ./backend/dist && mkdir -p ./backend/dist
 cp -r ./dist/* ./backend/dist/
 
