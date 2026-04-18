@@ -5,10 +5,11 @@ VPS_USER="mbgone"
 VPS_IP="103.126.117.20"
 REMOTE_DIR="/home/mbgone/mbg-management/backend"
 
-echo "🚀 Preparing deployment to VPS..."
-
-# Create directory on VPS
-ssh -i mbg.pem -o StrictHostKeyChecking=no $VPS_USER@$VPS_IP "mkdir -p $REMOTE_DIR"
+# Build and sync frontend
+echo "🏗️ Building frontend..."
+npm run build
+rm -rf ./backend/dist && mkdir -p ./backend/dist
+cp -r ./dist/* ./backend/dist/
 
 # Sync files
 echo "📦 Uploading files..."
