@@ -4,7 +4,9 @@
 VPS_USER="mbgone"
 VPS_IP="103.126.117.20"
 REMOTE_DIR="/home/mbgone/mbg-management/backend"
+export PATH="/usr/local/bin:$PATH"
 
+echo "🚀 Preparing deployment to VPS..."
 # Build and sync frontend
 echo "🏗️ Building frontend..."
 /usr/local/bin/npm run build
