@@ -13,8 +13,9 @@ echo "🏗️ Building frontend..."
 rm -rf ./backend/dist && mkdir -p ./backend/dist
 cp -r ./dist/* ./backend/dist/
 
-# Sync files
+# Sync files (Wipe old dist first to prevent stale JS bundles)
 echo "📦 Uploading files..."
+ssh -i mbg.pem -o StrictHostKeyChecking=no $VPS_USER@$VPS_IP "rm -rf $REMOTE_DIR/dist"
 scp -i mbg.pem -o StrictHostKeyChecking=no -r ./backend/* $VPS_USER@$VPS_IP:$REMOTE_DIR/
 
 # Deploy using Docker Compose (DEV environment)
