@@ -17,8 +17,8 @@ cp -r ./dist/* ./backend/dist/
 echo "📦 Uploading files..."
 scp -i mbg.pem -o StrictHostKeyChecking=no -r ./backend/* $VPS_USER@$VPS_IP:$REMOTE_DIR/
 
-# Deploy using Docker Compose
-echo "🐳 Starting Docker containers on VPS..."
-ssh -i mbg.pem -o StrictHostKeyChecking=no $VPS_USER@$VPS_IP "cd $REMOTE_DIR && docker compose down && docker compose up -d --build"
+# Deploy using Docker Compose (DEV environment)
+echo "🐳 Starting Docker containers on VPS (DEV)..."
+ssh -i mbg.pem -o StrictHostKeyChecking=no $VPS_USER@$VPS_IP "cd $REMOTE_DIR && docker compose -f docker-compose.dev.yml down && docker compose -f docker-compose.dev.yml up -d --build"
 
 echo "✅ Deployment complete!"
