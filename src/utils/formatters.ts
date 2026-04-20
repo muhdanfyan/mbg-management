@@ -55,3 +55,15 @@ export const formatPeriodID = (period: string | undefined | null): string => {
 
   return `${months[d.getMonth()]} ${d.getFullYear()}`;
 };
+
+/**
+ * Formats a number with Indonesian thousand separators.
+ * @param value The number to format
+ * @returns e.g., "1.000.000"
+ */
+export const formatNumberID = (value: number | string | undefined | null): string => {
+  const num = typeof value === 'string' ? parseFloat(value) : value;
+  if (num === undefined || num === null || isNaN(num)) return '0';
+  
+  return new Intl.NumberFormat('id-ID').format(num);
+};

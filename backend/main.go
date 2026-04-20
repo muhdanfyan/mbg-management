@@ -23,7 +23,8 @@ func initDB() {
 	// DSN for VPS/Local MySQL
 	dsn := os.Getenv("DB_DSN")
 	if dsn == "" {
-		dsn = "kassaone:Piblajar2020@tcp(127.0.0.1:3306)/mbg_management?charset=utf8mb4&parseTime=True&loc=Local"
+		fmt.Println("Fatal: DB_DSN environment variable not set")
+		os.Exit(1)
 	}
 
 	var err error

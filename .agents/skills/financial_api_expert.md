@@ -30,16 +30,6 @@ Use this skill to ensure the MBG backend correctly implements the complex revenu
 - **Distribution:** Profit split (Investor part) is shared among participants based on their `share_percentage`.
 - **Logic:** `calculateSplits` must iterate through participants to calculate individual payouts.
 
-### 4. BEP (Break Even Point) Flipping Logic
-- **Detection:** Automatically triggered when `accumulated_profit >= initial_capital`.
-- **Pre-BEP Skema:** Investor receives the larger portion (e.g. 75% or 60%).
-- **Post-BEP Skema:** Investor portion is flipped with DPP portion (e.g. 75:25 becomes 25:75).
-- **Automation:** Backend handles the flip in `models.Dapur` updates during payout execution.
-
-### 5. Distribution & Remittance Tracking
-- **Models:** `ProfitDistribution` tracks the event, `PayoutDetail` tracks individual recipients, `Remittance` tracks payment proof.
-- **Status:** Records transition from `PENDING` to `PAID` (Remitansi completed).
-
 ## Sharia Compliance (Terminology)
 - **Interest Rate:** NEVER use this term. Use **Nisbah / Margin (%)**.
 - **Loan:** Use for benevolent loans (Qardh). 
@@ -47,7 +37,6 @@ Use this skill to ensure the MBG backend correctly implements the complex revenu
 
 ## Verification Steps
 - Check `main.go` -> `calculateSplits` function.
-- Check `main.go` -> `api.POST("/payouts")` for BEP flipping trigger.
 - Verify zero-guards (e.g., if net margin is negative).
 - Ensure currency types use `float64` or `int64` (decimal precision).
 - Confirm "Margin/Nisbah" usage in both UI and code identifiers.

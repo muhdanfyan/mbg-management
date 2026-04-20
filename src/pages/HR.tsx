@@ -30,10 +30,10 @@ export const HR: React.FC = () => {
         api.get('/departments'),
         api.get('/positions')
       ]);
-      setEmployees(Array.isArray(empData) ? empData : []);
-      setVacancies(Array.isArray(vacData) ? vacData : []);
-      setDepartments(Array.isArray(deptData) ? deptData : []);
-      setPositions(Array.isArray(posData) ? posData : []);
+      setEmployees(empData);
+      setVacancies(vacData);
+      setDepartments(deptData);
+      setPositions(posData);
     } catch (error) {
       console.error('Failed to fetch HR data:', error);
     } finally {
@@ -46,23 +46,23 @@ export const HR: React.FC = () => {
   }, []);
 
   const handleDeleteEmployee = async (id: number) => {
-    if (window.confirm('Apakah Anda yakin ingin menghapus karyawan ini?')) {
+    if (window.confirm('Are you sure you want to delete this employee?')) {
       try {
         await api.delete(`/employees/${id}`);
         fetchData();
       } catch (error) {
-        alert('Gagal menghapus karyawan');
+        alert('Failed to delete employee');
       }
     }
   };
 
   const handleDeleteVacancy = async (id: number) => {
-    if (window.confirm('Apakah Anda yakin ingin menghapus lowongan ini?')) {
+    if (window.confirm('Are you sure you want to delete this vacancy?')) {
       try {
         await api.delete(`/vacancies/${id}`);
         fetchData();
       } catch (error) {
-        alert('Gagal menghapus lowongan');
+        alert('Failed to delete vacancy');
       }
     }
   };
@@ -73,16 +73,7 @@ export const HR: React.FC = () => {
       inactive: 'bg-gray-100 text-gray-700',
       terminated: 'bg-red-100 text-red-700'
     };
-    const labels: any = {
-      active: 'Aktif',
-      inactive: 'Tidak Aktif',
-      terminated: 'Berhenti'
-    };
-    return (
-      <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${styles[status as keyof typeof styles] || styles.active}`}>
-        {labels[status as keyof typeof labels] || status}
-      </span>
-    );
+    return styles[status as keyof typeof styles] || styles.active;
   };
 
   const getApplicantStatusBadge = (status: string) => {
@@ -149,7 +140,7 @@ export const HR: React.FC = () => {
                   : 'border-transparent text-gray-600 hover:text-gray-900'
               }`}
             >
-              Data Karyawan
+              Employee Database
             </button>
             <button
               onClick={() => setActiveTab('recruitment')}
@@ -159,7 +150,7 @@ export const HR: React.FC = () => {
                   : 'border-transparent text-gray-600 hover:text-gray-900'
               }`}
             >
-              Rekrutmen
+              Recruitment
             </button>
             <button
               onClick={() => setActiveTab('attendance')}
@@ -169,7 +160,7 @@ export const HR: React.FC = () => {
                   : 'border-transparent text-gray-600 hover:text-gray-900'
               }`}
             >
-              Kehadiran
+              Attendance
             </button>
             <button
               onClick={() => setActiveTab('payroll')}
@@ -179,7 +170,7 @@ export const HR: React.FC = () => {
                   : 'border-transparent text-gray-600 hover:text-gray-900'
               }`}
             >
-              Penggajian
+              Payroll
             </button>
           </div>
         </div>
@@ -191,7 +182,7 @@ export const HR: React.FC = () => {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                 <input
                   type="text"
-                  placeholder="Cari karyawan..."
+                  placeholder="Search employees..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
@@ -214,43 +205,45 @@ export const HR: React.FC = () => {
                         <p className="text-xs font-semibold text-blue-600 uppercase tracking-wider mb-2">
                           {employee.position_detail?.name || employee.position}
                         </p>
-                        {getStatusBadge(employee.status)}
+                        <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${getStatusBadge(employee.status)}`}>
+                          {employee.status.replace('_', ' ')}
+                        </span>
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-3 mb-6 p-3 bg-gray-50 rounded-lg border border-gray-100">
                       <div>
-                        <p className="text-[10px] text-gray-500 uppercase font-bold tracking-tight">ID Karyawan</p>
+                        <p className="text-[10px] text-gray-500 uppercase font-bold tracking-tight">Employee ID</p>
                         <p className="text-sm font-bold text-gray-900">{employee.number}</p>
                       </div>
                       <div>
-                        <p className="text-[10px] text-gray-500 uppercase font-bold tracking-tight">Departemen</p>
+                        <p className="text-[10px] text-gray-500 uppercase font-bold tracking-tight">Department</p>
                         <p className="text-sm font-bold text-gray-900">
                           {employee.department_detail?.name || employee.department}
                         </p>
                       </div>
                       <div className="col-span-2 pt-2 border-t border-gray-200 mt-1">
-                        <p className="text-[10px] text-gray-500 uppercase font-bold tracking-tight">Bergabung Sejak</p>
+                        <p className="text-[10px] text-gray-500 uppercase font-bold tracking-tight">Joined Since</p>
                         <div className="flex items-center gap-1.5 text-sm font-medium text-gray-700">
                           <Calendar className="w-3.5 h-3.5 text-blue-500" />
-                          {formatDateID(employee.hire_date)}
+                          {employee.hire_date}
                         </div>
                       </div>
                     </div>
                     <div className="flex gap-2">
-                       <button 
+                      <button 
                         onClick={() => {
                           setEditingEmployee(employee);
                           setIsEmployeeModalOpen(true);
                         }}
                         className="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
                       >
-                        Ubah
+                        Edit
                       </button>
                       <button 
                         onClick={() => handleDeleteEmployee(employee.id)}
                         className="px-4 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition-colors text-sm"
                       >
-                        Hapus
+                        Delete
                       </button>
                     </div>
                   </div>
@@ -272,7 +265,7 @@ export const HR: React.FC = () => {
           {activeTab === 'recruitment' && (
             <div className="space-y-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Lowongan Kerja</h3>
+                <h3 className="text-lg font-semibold text-gray-900">Job Vacancies</h3>
                 <button 
                   onClick={() => {
                     setEditingVacancy(null);
@@ -280,7 +273,7 @@ export const HR: React.FC = () => {
                   }}
                   className="bg-blue-50 text-blue-600 px-3 py-1 rounded-lg hover:bg-blue-100 text-sm font-medium"
                 >
-                  + Pasang Lowongan
+                  + Post Vacancy
                 </button>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -310,8 +303,8 @@ export const HR: React.FC = () => {
                       </div>
                     </div>
                     <div className="flex items-center justify-between text-sm">
-                        <p className="text-xs text-gray-500 mb-1">Batas Waktu: {vacancy.deadline}</p>
-                        <p className="text-xs text-blue-600 font-medium">{vacancy.applicants_list?.length || 0} Pelamar</p>
+                        <p className="text-xs text-gray-500 mb-1">Deadline: {vacancy.deadline}</p>
+                        <p className="text-xs text-blue-600 font-medium">{vacancy.applicants_list?.length || 0} Applicants</p>
                     </div>
                   </div>
                 ))}
@@ -333,19 +326,19 @@ export const HR: React.FC = () => {
             <div className="space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="bg-green-50 rounded-xl p-6 border border-green-100">
-                  <div className="text-green-600 mb-2 font-medium">Tepat Waktu</div>
+                  <div className="text-green-600 mb-2 font-medium">On Time</div>
                   <div className="text-3xl font-bold text-green-700">94.2%</div>
-                  <div className="text-sm text-green-600 mt-1">Rata-rata bulan ini</div>
+                  <div className="text-sm text-green-600 mt-1">Average this month</div>
                 </div>
                 <div className="bg-orange-50 rounded-xl p-6 border border-orange-100">
-                  <div className="text-orange-600 mb-2 font-medium">Terlambat Datang</div>
+                  <div className="text-orange-600 mb-2 font-medium">Late In</div>
                   <div className="text-3xl font-bold text-orange-700">4.8%</div>
-                  <div className="text-sm text-orange-600 mt-1">Rata-rata bulan ini</div>
+                  <div className="text-sm text-orange-600 mt-1">Average this month</div>
                 </div>
                 <div className="bg-red-50 rounded-xl p-6 border border-red-100">
-                  <div className="text-red-600 mb-2 font-medium">Absen</div>
+                  <div className="text-red-600 mb-2 font-medium">Absent</div>
                   <div className="text-3xl font-bold text-red-700">1.0%</div>
-                  <div className="text-sm text-red-600 mt-1">Rata-rata bulan ini</div>
+                  <div className="text-sm text-red-600 mt-1">Average this month</div>
                 </div>
               </div>
             </div>
@@ -357,9 +350,9 @@ export const HR: React.FC = () => {
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-gray-200">
-                      <th className="text-left py-3 px-4 font-semibold text-gray-900">Karyawan</th>
-                      <th className="text-left py-3 px-4 font-semibold text-gray-900">Jabatan</th>
-                      <th className="text-left py-3 px-4 font-semibold text-gray-900">Gaji Bersih</th>
+                      <th className="text-left py-3 px-4 font-semibold text-gray-900">Employee</th>
+                      <th className="text-left py-3 px-4 font-semibold text-gray-900">Position</th>
+                      <th className="text-left py-3 px-4 font-semibold text-gray-900">Net Salary</th>
                       <th className="text-left py-3 px-4 font-semibold text-gray-900">Status</th>
                     </tr>
                   </thead>
@@ -373,7 +366,7 @@ export const HR: React.FC = () => {
                         </td>
                         <td className="py-4 px-4">
                           <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
-                            Terbayar
+                            Paid
                           </span>
                         </td>
                       </tr>
@@ -390,7 +383,7 @@ export const HR: React.FC = () => {
       {isEmployeeModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl max-w-lg w-full p-6">
-            <h2 className="text-xl font-bold mb-4">{editingEmployee ? 'Ubah Karyawan' : 'Tambah Karyawan Baru'}</h2>
+            <h2 className="text-xl font-bold mb-4">{editingEmployee ? 'Edit Employee' : 'Add New Employee'}</h2>
             <form onSubmit={async (e: any) => {
               e.preventDefault();
               const formData = new FormData(e.target);
@@ -412,34 +405,34 @@ export const HR: React.FC = () => {
                 setIsEmployeeModalOpen(false);
                 fetchData();
               } catch (error) {
-                alert('Gagal menyimpan data karyawan');
+                alert('Failed to save employee');
               }
             }}>
                <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Nomor Induk Karyawan (NIK)</label>
+                  <label className="block text-sm font-medium text-gray-700">Employee ID Number</label>
                   <div className="mt-1 w-full bg-gray-50 border rounded-lg p-2 text-gray-500 font-mono text-sm">
                     {editingEmployee ? editingEmployee.number : 'EMP-YYYY-XXX (Auto-generated)'}
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Nama Lengkap</label>
+                  <label className="block text-sm font-medium text-gray-700">Full Name</label>
                   <input name="name" defaultValue={editingEmployee?.name} required className="mt-1 w-full border rounded-lg p-2" />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Departemen</label>
+                    <label className="block text-sm font-medium text-gray-700">Department</label>
                     <select name="department_id" defaultValue={editingEmployee?.department_id} required className="mt-1 w-full border rounded-lg p-2">
-                       <option value="">Pilih Departemen</option>
+                       <option value="">Select Dept</option>
                        {(departments || []).map(d => (
                          <option key={d.id} value={d.id}>{d.name}</option>
                        ))}
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Jabatan</label>
+                    <label className="block text-sm font-medium text-gray-700">Position</label>
                     <select name="position_id" defaultValue={editingEmployee?.position_id} required className="mt-1 w-full border rounded-lg p-2">
-                       <option value="">Pilih Jabatan</option>
+                       <option value="">Select Position</option>
                        {(positions || []).map(p => (
                          <option key={p.id} value={p.id}>{p.name}</option>
                        ))}
@@ -457,15 +450,15 @@ export const HR: React.FC = () => {
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Status</label>
                   <select name="status" defaultValue={editingEmployee?.status || 'active'} className="mt-1 w-full border rounded-lg p-2">
-                    <option value="active">Aktif</option>
-                    <option value="inactive">Nonaktif</option>
-                    <option value="terminated">Diberhentikan</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                    <option value="terminated">Terminated</option>
                   </select>
                 </div>
               </div>
               <div className="flex justify-end gap-3 mt-6">
-                <button type="button" onClick={() => setIsEmployeeModalOpen(false)} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Batal</button>
-                <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Simpan</button>
+                <button type="button" onClick={() => setIsEmployeeModalOpen(false)} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Cancel</button>
+                <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Save</button>
               </div>
             </form>
           </div>
@@ -476,7 +469,7 @@ export const HR: React.FC = () => {
       {isVacancyModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl max-w-lg w-full p-6">
-            <h2 className="text-xl font-bold mb-4">{editingVacancy ? 'Ubah Lowongan' : 'Pasang Lowongan Baru'}</h2>
+            <h2 className="text-xl font-bold mb-4">{editingVacancy ? 'Edit Vacancy' : 'Post New Vacancy'}</h2>
             <form onSubmit={async (e: any) => {
               e.preventDefault();
               const formData = new FormData(e.target);
@@ -497,30 +490,30 @@ export const HR: React.FC = () => {
                 setIsVacancyModalOpen(false);
                 fetchData();
               } catch (error) {
-                alert('Gagal menyimpan lowongan');
+                alert('Failed to save vacancy');
               }
             }}>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Judul Pekerjaan</label>
+                  <label className="block text-sm font-medium text-gray-700">Job Title</label>
                   <input name="title" defaultValue={editingVacancy?.title} required className="mt-1 w-full border rounded-lg p-2" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Kategori</label>
-                  <input name="category" defaultValue={editingVacancy?.category || 'Umum'} required className="mt-1 w-full border rounded-lg p-2" />
+                  <label className="block text-sm font-medium text-gray-700">Department</label>
+                  <input name="department" defaultValue={editingVacancy?.department} required className="mt-1 w-full border rounded-lg p-2" />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Tipe Lowongan</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Vacancy Type</label>
                     <select
                       value={editingVacancy?.type || 'Full-time'}
                       onChange={(e) => setEditingVacancy(prev => prev ? { ...prev, type: e.target.value } : null)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
                     >
-                      <option value="Full-time">Penuh Waktu</option>
-                      <option value="Part-time">Paruh Waktu</option>
-                      <option value="Contract">Kontrak</option>
-                      <option value="Internship">Magang</option>
+                      <option value="Full-time">Full-time</option>
+                      <option value="Part-time">Part-time</option>
+                      <option value="Contract">Contract</option>
+                      <option value="Internship">Internship</option>
                     </select>
                   </div>
                   <div>
@@ -535,7 +528,7 @@ export const HR: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
                   <textarea
                     value={editingVacancy?.description || ''}
                     onChange={(e) => setEditingVacancy(prev => prev ? { ...prev, description: e.target.value } : null)}
@@ -546,8 +539,8 @@ export const HR: React.FC = () => {
                 </div>
               </div>
               <div className="flex justify-end gap-3 mt-6">
-                <button type="button" onClick={() => setIsVacancyModalOpen(false)} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Batal</button>
-                <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Simpan</button>
+                <button type="button" onClick={() => setIsVacancyModalOpen(false)} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Cancel</button>
+                <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Save</button>
               </div>
             </form>
           </div>

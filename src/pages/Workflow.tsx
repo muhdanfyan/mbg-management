@@ -27,7 +27,7 @@ export const Workflow: React.FC = () => {
             <span className="font-bold text-lg tracking-tight">Wahdah MBG</span>
           </div>
           <a href="/" className="text-sm font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1 group">
-            Masuk / Login
+            Login System
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </a>
         </div>
@@ -38,7 +38,7 @@ export const Workflow: React.FC = () => {
         <header className="text-center space-y-4">
           <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-bold border border-blue-100 uppercase tracking-wider">
             <Info className="w-3.5 h-3.5" />
-            Transparansi Sistem
+            System Transparency
           </div>
           <h1 className="text-3xl md:text-5xl font-black text-slate-900">
             Alur Keuangan <span className="text-blue-600">MBG</span>
@@ -107,7 +107,7 @@ export const Workflow: React.FC = () => {
                     Pemerintah membayar sewa tetap sebesar <span className="text-white font-bold">Rp 6 Juta / hari</span>. Pembagiannya terbagi dalam 2 skema:
                   </p>
                   <div className="bg-blue-600/20 border border-blue-500/30 px-3 py-1 rounded text-xs font-bold text-blue-400 uppercase">
-                    Pendapatan Harian Tetap
+                    Fixed Daily Income
                   </div>
                 </div>
 

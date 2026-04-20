@@ -22,14 +22,14 @@ export const SystemGuide: React.FC = () => {
       description: 'Bagaimana uang Rp 15.000/porsi dari BGN dibelah di dalam aplikasi ini.',
       content: (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <div className="bg-gradient-to-br from-[#F0F7F7] to-[#1E8289]/10 p-8 rounded-3xl border border-[#1E8289]/20">
-            <h3 className="text-2xl font-bold text-[#164E4D] mb-4">Pintu Masuk Dana BGN</h3>
-            <p className="text-[#164E4D] mb-6">
+          <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-8 rounded-3xl border border-blue-200">
+            <h3 className="text-2xl font-bold text-blue-900 mb-4">Pintu Masuk Dana BGN</h3>
+            <p className="text-blue-800 mb-6">
               Sistem MBG didesain untuk mencegah <strong>fraud</strong> dengan memecah hak input dana sebesar <strong>Rp 15.000/porsi</strong> ke dua belah entitas yang berbeda.
             </p>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-white p-6 rounded-2xl shadow-sm border border-[#1E8289]/10 flex flex-col items-center text-center hover:shadow-md transition-all">
+              <div className="bg-white p-6 rounded-2xl shadow-sm border border-blue-100 flex flex-col items-center text-center hover:shadow-md transition-all">
                 <div className="bg-orange-100 p-4 rounded-full mb-4">
                   <Building2 className="w-8 h-8 text-orange-600" />
                 </div>
@@ -40,12 +40,12 @@ export const SystemGuide: React.FC = () => {
                 </p>
               </div>
 
-              <div className="bg-white p-6 rounded-2xl shadow-sm border border-[#1E8289]/10 flex flex-col items-center text-center hover:shadow-md transition-all">
-                <div className="bg-[#F0F7F7] p-4 rounded-full mb-4">
-                  <Calculator className="w-8 h-8 text-[#1E8289]" />
+              <div className="bg-white p-6 rounded-2xl shadow-sm border border-blue-100 flex flex-col items-center text-center hover:shadow-md transition-all">
+                <div className="bg-green-100 p-4 rounded-full mb-4">
+                  <Calculator className="w-8 h-8 text-green-600" />
                 </div>
                 <h4 className="font-bold text-gray-900 text-lg">Rp 10.000 (Bahan Baku)</h4>
-                <span className="text-xs font-bold text-white bg-[#1E8289] px-3 py-1 rounded-full mt-2 mb-3">Diinput: Koperasi DPD</span>
+                <span className="text-xs font-bold text-white bg-green-500 px-3 py-1 rounded-full mt-2 mb-3">Diinput: Koperasi DPD</span>
                 <p className="text-sm text-gray-600">
                   Kuota *budget* khusus Koperasi DPD sebagai broker untuk belanja riil harian di pasar / supplier lokal.
                 </p>
@@ -127,9 +127,9 @@ export const SystemGuide: React.FC = () => {
                   Melalui portal <strong>Procurement</strong>, Koperasi DPD bertindak selaku *broker* dan wajib mengunggah faktur belanja riil. 
                   Aplikasi secara instan menghitung selisih antara batas makismal 10 Ribu per porsi dan *real-cost*.
                 </p>
-                <div className="bg-[#F0F7F7] p-5 rounded-2xl border border-[#1E8289]/10">
-                  <h4 className="font-bold text-[#164E4D] text-sm mb-2">Sistem Potong Otomatis:</h4>
-                  <ul className="text-sm text-[#164E4D] space-y-2 pl-4 list-disc marker:text-[#1E8289]">
+                <div className="bg-green-50 p-5 rounded-2xl border border-green-100">
+                  <h4 className="font-bold text-green-900 text-sm mb-2">Sistem Potong Otomatis:</h4>
+                  <ul className="text-sm text-green-800 space-y-2 pl-4 list-disc marker:text-green-500">
                     <li>Sebelum margin dibagi, Aplikasi <strong>mengunci Rp 15 Juta</strong> di awal untuk melunasi Honor 4 Tenaga Utama Dapur.</li>
                     <li>Sisa (*Net Margin*) kemudian ditarik ke Dashboard Nasional untuk dibagi hasilnya dengan perbandingan 60:20:20 (DPP:DPD:KOPERASI).</li>
                   </ul>
@@ -147,10 +147,10 @@ export const SystemGuide: React.FC = () => {
       description: 'Di mana DPP melihat total Setoran Sewa dan Margin terpisah.',
       content: (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <div className="bg-[#164E4D] p-8 rounded-3xl border border-[#164E4D]/20 shadow-2xl">
+          <div className="bg-[#1A4D43] p-8 rounded-3xl border border-[#1A4D43]/20 shadow-2xl">
             <div className="text-center max-w-2xl mx-auto space-y-4 mb-8">
               <h3 className="text-3xl font-bold text-white">The Central Intelligence</h3>
-              <p className="text-[#1E8289] font-medium text-lg">
+              <p className="text-[#2BBF9D] font-medium text-lg">
                 Dashboard ini adalah nyawa dari skema investasi dan transparansi.
               </p>
             </div>
@@ -181,7 +181,7 @@ export const SystemGuide: React.FC = () => {
                     </div>
                  </div>
                  {/* Visual Color Overlay */}
-                 <div className="absolute inset-0 opacity-40 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#1E8289]/50 via-[#164E4D] to-black mix-blend-multiply z-0"></div>
+                 <div className="absolute inset-0 opacity-40 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#2BBF9D]/50 via-[#1A4D43] to-black mix-blend-multiply z-0"></div>
             </div>
           </div>
         </div>
@@ -196,7 +196,7 @@ export const SystemGuide: React.FC = () => {
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
           <div className="bg-white p-8 rounded-3xl border border-gray-200">
             <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-              <span className="bg-[#F0F7F7] text-[#1E8289] p-2 rounded-xl">🎭</span> Skenario Live Demo Terbaik
+              <span className="bg-indigo-100 text-indigo-700 p-2 rounded-xl">🎭</span> Skenario Live Demo Terbaik
             </h3>
             
             <div className="space-y-6">
@@ -214,8 +214,10 @@ export const SystemGuide: React.FC = () => {
                   <h4 className="font-bold text-gray-900 text-lg">Pamerkan Pelaporan Riil (Procurement & Finance)</h4>
                   <p className="text-gray-600 text-sm mt-1">Sampaikan bahwa data di Dashboard tadi diturunkan dari input lapangan. Masuk ke tab <strong>Keuangan</strong> untuk mensimulasikan pencatatan dana Rp 5.000 (Operasional) melalui tabel pengeluaran bulanan.</p>
                 </div>
-                            <div className="flex gap-4">
-                <div className="w-10 h-10 rounded-full bg-[#DE9F22]/10 text-[#DE9F22] font-bold flex items-center justify-center shrink-0">3</div>
+              </div>
+
+              <div className="flex gap-4">
+                <div className="w-10 h-10 rounded-full bg-purple-100 text-purple-700 font-bold flex items-center justify-center shrink-0">3</div>
                 <div>
                   <h4 className="font-bold text-gray-900 text-lg">Galeri Bukti Fisik SPPG</h4>
                   <p className="text-gray-600 text-sm mt-1">Transparansi adalah kunci. Buka halaman <strong>Galeri Foto</strong> untuk menunjukkan foto progres fisik pembangunan dapur oleh kontraktor/vendor yang memvalidasi cairnya uang.</p>
@@ -223,16 +225,15 @@ export const SystemGuide: React.FC = () => {
               </div>
 
               <div className="flex gap-4">
-                <div className="w-10 h-10 rounded-full bg-[#1E8289]/10 text-[#1E8289] font-bold flex items-center justify-center shrink-0">4</div>
+                <div className="w-10 h-10 rounded-full bg-green-100 text-green-700 font-bold flex items-center justify-center shrink-0">4</div>
                 <div>
                   <h4 className="font-bold text-gray-900 text-lg">Tutup dengan Modul Investor</h4>
                   <p className="text-gray-600 text-sm mt-1">Terakhir, masuk ke <strong>Monitoring Investor</strong>. Demonstrasikan tabel simulasi 60:40 di mana bagi-hasil otomatis dipotong ketika tagihan tercetak. Ini adalah fitur penarik keyakinan (selling point) pemodal/BSI.</p>
                 </div>
               </div>
-  </div>
             </div>
 
-            <div className="mt-8 p-4 bg-[#F0F7F7] border border-[#1E8289]/10 rounded-xl text-[#164E4D] text-sm">
+            <div className="mt-8 p-4 bg-indigo-50 border border-indigo-100 rounded-xl text-indigo-900 text-sm">
                <strong>✨ Tip Praktis:</strong> Selalu posisikan antarmuka dengan tema gelap ringan (vibrant darkmode sidebar) agar kesan premium, aman, dan terkini (*state-of-the-art*) dirasakan kuat oleh audiens.
             </div>
           </div>
@@ -245,12 +246,12 @@ export const SystemGuide: React.FC = () => {
     <div className="max-w-6xl mx-auto space-y-6">
       {/* Header Section */}
       <div className="bg-white rounded-3xl border border-gray-200 p-8 md:p-12 shadow-sm text-center bg-gradient-to-b from-gray-50 to-white">
-        <div className="bg-[#1E8289]/10 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6">
-          < BookOpen className="w-8 h-8 text-[#1E8289]" />
+        <div className="bg-[#1A4D43]/10 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6">
+          <BookOpen className="w-8 h-8 text-[#1A4D43]" />
         </div>
         <h1 className="text-3xl md:text-5xl font-black text-gray-900 tracking-tight mb-4">
           Panduan Penggunaan<br/>
-          <span className="text-[#164E4D]">OS Manajemen Keuangan</span>
+          <span className="text-[#1A4D43]">OS Manajemen Keuangan</span>
         </h1>
         <p className="text-gray-500 max-w-2xl mx-auto text-lg">
           Tur interaktif untuk memahami bagaimana alur pendanaan MBG dieksekusi secara otomatis dan dicatat secara transparan di dalam sistem.
@@ -274,7 +275,7 @@ export const SystemGuide: React.FC = () => {
                   onClick={() => setActiveStep(step.id)}
                   className={`flex gap-4 p-4 rounded-2xl transition-all duration-300 text-left items-start ${
                     activeStep === step.id 
-                      ? 'bg-[#164E4D] text-white shadow-lg shadow-[#164E4D]/20 translate-x-2' 
+                      ? 'bg-[#1A4D43] text-white shadow-lg shadow-[#1A4D43]/20 translate-x-2' 
                       : 'hover:bg-gray-50 text-gray-600 hover:text-gray-900 hover:scale-105'
                   }`}
                 >
@@ -308,7 +309,7 @@ export const SystemGuide: React.FC = () => {
             <button 
               onClick={() => setActiveStep(prev => Math.max(1, prev - 1))}
               disabled={activeStep === 1}
-              className="text-sm font-bold text-gray-400 hover:text-[#164E4D] disabled:opacity-50 disabled:pointer-events-none px-4 py-2 transition-colors"
+              className="text-sm font-bold text-gray-400 hover:text-[#1A4D43] disabled:opacity-50 disabled:pointer-events-none px-4 py-2 transition-colors"
             >
               ← Kembali
             </button>
@@ -316,17 +317,23 @@ export const SystemGuide: React.FC = () => {
               {steps.map(step => (
                 <div 
                   key={step.id} 
-                  className={`w-2 h-2 rounded-full transition-all duration-500 ${activeStep === step.id ? 'bg-[#164E4D] w-6' : 'bg-gray-200'}`}
+                  className={`w-2 h-2 rounded-full transition-all duration-500 ${activeStep === step.id ? 'bg-[#1A4D43] w-6' : 'bg-gray-200'}`}
                 />
               ))}
             </div>
             <button 
               onClick={() => setActiveStep(prev => Math.min(steps.length, prev + 1))}
               disabled={activeStep === steps.length}
-              className="text-sm font-bold text-[#164E4D] bg-[#F0F7F7] hover:bg-[#164E4D] hover:text-white disabled:bg-gray-100 disabled:text-gray-400 disabled:pointer-events-none px-4 py-2 rounded-lg transition-colors"
+              className="text-sm font-bold text-[#1A4D43] bg-[#E6F3F0] hover:bg-[#1A4D43] hover:text-white disabled:bg-gray-100 disabled:text-gray-400 disabled:pointer-events-none px-4 py-2 rounded-lg transition-colors"
             >
               Selanjutnya →
             </button>
+          </div>
+
+          <div className="mt-6 text-center">
+            <p className="text-[10px] font-bold text-gray-300 uppercase tracking-[0.2em]">
+              Build Version: <span className="text-[#1A4D43] opacity-60">{import.meta.env.VITE_APP_COMMIT_ID || 'DEVELOPMENT'}</span>
+            </p>
           </div>
         </div>
       </div>

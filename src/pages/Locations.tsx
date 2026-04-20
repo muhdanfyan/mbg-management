@@ -243,8 +243,8 @@ export const Locations: React.FC = () => {
         api.get('/kitchens'),
         api.get('/routes')
       ]);
-      setKitchens(Array.isArray(kitchensData) ? kitchensData : []);
-      setRoutes(Array.isArray(routesData) ? routesData : []);
+      setKitchens(kitchensData);
+      setRoutes(routesData);
     } catch (error) {
       console.error('Failed to fetch locations data:', error);
     } finally {
@@ -288,8 +288,7 @@ export const Locations: React.FC = () => {
 
   const filteredKitchens = kitchens.filter(kitchen => {
     const matchesSearch = kitchen.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         kitchen.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         kitchen.id.toString().includes(searchTerm);
+                         kitchen.address.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRegion = selectedRegion === 'all' || kitchen.region.toUpperCase().includes(selectedRegion.toUpperCase());
     return matchesSearch && matchesRegion;
   });
@@ -356,13 +355,13 @@ export const Locations: React.FC = () => {
         </div>
         <div className="flex gap-3">
           {hasRole(['Super Admin']) && (
-              <button 
-                onClick={handleSyncSppg}
-                className="bg-orange-600 text-white px-6 py-2.5 rounded-2xl font-bold text-sm shadow-xl shadow-orange-500/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
-              >
-                <Activity className="w-5 h-5" />
-                Sinkron Data SPPG
-              </button>
+            <button 
+              onClick={handleSyncSppg}
+              className="bg-orange-600 text-white px-6 py-2.5 rounded-2xl font-bold text-sm shadow-xl shadow-orange-500/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
+            >
+              <Activity className="w-5 h-5" />
+              Sync Data Sppg
+            </button>
           )}
           <button 
             onClick={() => {
@@ -391,7 +390,7 @@ export const Locations: React.FC = () => {
                   : 'border-transparent text-gray-600 hover:text-gray-900'
               }`}
             >
-              Tampilan Peta
+              Map View
             </button>
             <button
               onClick={() => setActiveTab('list')}
@@ -401,7 +400,7 @@ export const Locations: React.FC = () => {
                   : 'border-transparent text-gray-600 hover:text-gray-900'
               }`}
             >
-              Daftar Dapur
+              Kitchen List
             </button>
             <button
               onClick={() => setActiveTab('routes')}
@@ -411,7 +410,7 @@ export const Locations: React.FC = () => {
                   : 'border-transparent text-gray-600 hover:text-gray-900'
               }`}
             >
-              Rute Distribusi
+              Distribution Routes
             </button>
           </div>
         </div>
@@ -422,7 +421,7 @@ export const Locations: React.FC = () => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 type="text"
-                placeholder="Cari nama, alamat, atau ID dapur..."
+                placeholder="Search kitchens..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
@@ -484,7 +483,7 @@ export const Locations: React.FC = () => {
                     <th className="text-left py-3 px-4 font-semibold text-gray-900">Region</th>
                     <th className="text-left py-3 px-4 font-semibold text-gray-900">Kapasitas</th>
                     <th className="text-left py-3 px-4 font-semibold text-gray-900">Status</th>
-                    <th className="text-left py-3 px-4 font-semibold text-gray-900">Aksi</th>
+                    <th className="text-left py-3 px-4 font-semibold text-gray-900">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -539,14 +538,14 @@ export const Locations: React.FC = () => {
                               setIsKitchenModalOpen(true);
                             }}
                             className="p-2 hover:bg-green-50 rounded-lg transition-colors" 
-                            title="Ubah"
+                            title="Edit"
                           >
                             <Edit className="w-4 h-4 text-green-600" />
                           </button>
                           <button 
                             onClick={() => handleDeleteKitchen(kitchen.id)}
                             className="p-2 hover:bg-red-50 rounded-lg transition-colors" 
-                            title="Hapus"
+                            title="Delete"
                           >
                             <Trash2 className="w-4 h-4 text-red-600" />
                           </button>
@@ -682,7 +681,7 @@ export const Locations: React.FC = () => {
             }}>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Nama</label>
+                  <label className="block text-sm font-medium text-gray-700">Name</label>
                   <input name="name" defaultValue={editingKitchen?.name} required className="mt-1 w-full border rounded-lg p-2" />
                 </div>
                 <div>
@@ -749,9 +748,9 @@ export const Locations: React.FC = () => {
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Status</label>
                     <select name="status" defaultValue={editingKitchen?.status || 'active'} className="mt-1 w-full border rounded-lg p-2">
-                      <option value="active">Aktif</option>
-                      <option value="construction">Konstruksi</option>
-                      <option value="inactive">Nonaktif</option>
+                      <option value="active">Active</option>
+                      <option value="construction">Construction</option>
+                      <option value="inactive">Inactive</option>
                     </select>
                   </div>
                   <div>
@@ -793,8 +792,8 @@ export const Locations: React.FC = () => {
                 </div>
               </div>
               <div className="flex justify-end gap-3 mt-6">
-                <button type="button" onClick={() => setIsKitchenModalOpen(false)} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Batal</button>
-                <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Simpan</button>
+                <button type="button" onClick={() => setIsKitchenModalOpen(false)} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Cancel</button>
+                <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Save</button>
               </div>
             </form>
           </div>
@@ -854,7 +853,7 @@ export const Locations: React.FC = () => {
                     <select name="status" defaultValue={editingRoute?.status || 'scheduled'} className="mt-1 w-full border rounded-lg p-2">
                       <option value="scheduled">Scheduled</option>
                       <option value="in_transit">In Transit</option>
-                      <option value="completed">Selesai</option>
+                      <option value="completed">Completed</option>
                     </select>
                   </div>
                   <div>
@@ -864,8 +863,8 @@ export const Locations: React.FC = () => {
                 </div>
               </div>
               <div className="flex justify-end gap-3 mt-6">
-                <button type="button" onClick={() => setIsRouteModalOpen(false)} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Batal</button>
-                <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Simpan</button>
+                <button type="button" onClick={() => setIsRouteModalOpen(false)} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Cancel</button>
+                <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Save</button>
               </div>
             </form>
           </div>
@@ -1044,7 +1043,7 @@ export const Locations: React.FC = () => {
                       <p className="text-sm text-gray-500">Checklist kelayakan operasional gedung</p>
                     </div>
                     <div className={`px-4 py-2 rounded-xl text-sm font-black ${viewingKitchen.sppg_detail?.readiness?.is_ready_to_run ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-400'}`}>
-                      {viewingKitchen.sppg_detail?.readiness?.is_ready_to_run ? 'READY - SIAP PAKAI' : 'TERTUNDA - DALAM PROSES'}
+                      {viewingKitchen.sppg_detail?.readiness?.is_ready_to_run ? 'READY - SIAP PAKAI' : 'PENDING - DALAM PROSES'}
                     </div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -1078,7 +1077,7 @@ export const Locations: React.FC = () => {
                     <div className="md:col-span-2 bg-[#1A4D43] p-6 rounded-2xl text-white flex items-center justify-between">
                        <div>
                          <p className="text-white/50 text-[10px] font-black uppercase tracking-[0.2em] mb-1">Status Pengiriman</p>
-                         <h4 className="text-2xl font-black">Semua Rute Aktif</h4>
+                         <h4 className="text-2xl font-black">All Routes Active</h4>
                        </div>
                        <div className="text-right">
                          <button className="bg-[#2BBF9D] px-4 py-2 rounded-xl font-bold text-xs shadow-lg shadow-black/20">Manage Routes</button>

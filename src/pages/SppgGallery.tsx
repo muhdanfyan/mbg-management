@@ -3,7 +3,6 @@ import { ImageIcon, Building2, MapPin, X, ChevronRight, LayoutGrid, List, ArrowU
 import { useLocation } from 'react-router-dom';
 import { api, Sppg } from '../services/api';
 import { Pagination } from '../components/UI/Pagination';
-import { getGoogleImageUrl } from '../utils/mediaUtils';
 
 export const SppgGallery: React.FC = () => {
   const [sppgs, setSppgs] = useState<Sppg[]>([]);
@@ -35,17 +34,45 @@ export const SppgGallery: React.FC = () => {
     try {
       setLoading(true);
       const data = await api.get('/sppgs');
-      setSppgs(Array.isArray(data) ? data : []);
+      setSppgs(data);
       return data;
     } catch (error) {
       console.error('Failed to fetch SPPG data:', error);
-      setSppgs([]);
-      return [];
+      return null;
     } finally {
       setLoading(false);
     }
   };
 
+  const getGoogleImageUrl = (url: string) => {
+    if (!url) return url;
+
+    // Handle lh3.googleusercontent.com/d/ format
+    if (url.includes('lh3.googleusercontent.com/d/')) {
+      const parts = url.split('/d/');
+      if (parts.length > 1) {
+        const id = parts[1].split('/')[0];
+        return `https://drive.google.com/thumbnail?id=${id}&sz=w1200`;
+      }
+    }
+
+    // Handle drive.google.com/open?id= format
+    if (url.includes('drive.google.com/open?id=')) {
+      const id = new URL(url).searchParams.get('id');
+      if (id) return `https://drive.google.com/thumbnail?id=${id}&sz=w1200`;
+    }
+
+    // Handle drive.google.com/file/d/ format
+    if (url.includes('drive.google.com/file/d/')) {
+      const parts = url.split('/file/d/');
+      if (parts.length > 1) {
+        const id = parts[1].split('/')[0];
+        return `https://drive.google.com/thumbnail?id=${id}&sz=w1200`;
+      }
+    }
+
+    return url;
+  };
 
   // Pagination Logic
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -56,7 +83,7 @@ export const SppgGallery: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#164E4D]"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1A4D43]"></div>
       </div>
     );
   }
@@ -71,13 +98,13 @@ export const SppgGallery: React.FC = () => {
         <div className="flex bg-white rounded-lg border border-gray-200 p-1">
           <button
             onClick={() => setViewMode('grid')}
-            className={`p-2 rounded-md ${viewMode === 'grid' ? 'bg-gray-100 text-[#164E4D]' : 'text-gray-400'}`}
+            className={`p-2 rounded-md ${viewMode === 'grid' ? 'bg-gray-100 text-[#1A4D43]' : 'text-gray-400'}`}
           >
             <LayoutGrid className="w-5 h-5" />
           </button>
           <button
             onClick={() => setViewMode('list')}
-            className={`p-2 rounded-md ${viewMode === 'list' ? 'bg-gray-100 text-[#164E4D]' : 'text-gray-400'}`}
+            className={`p-2 rounded-md ${viewMode === 'list' ? 'bg-gray-100 text-[#1A4D43]' : 'text-gray-400'}`}
           >
             <List className="w-5 h-5" />
           </button>
@@ -106,7 +133,7 @@ export const SppgGallery: React.FC = () => {
                   </div>
                 )}
                 <div className="absolute top-3 right-3">
-                  <span className="bg-[#164E4D] text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg">
+                  <span className="bg-[#1A4D43] text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg">
                     {sppg.media?.length || 0} FOTO
                   </span>
                 </div>
@@ -119,7 +146,7 @@ export const SppgGallery: React.FC = () => {
               <div className="p-4">
                 <div className="flex items-start justify-between gap-2 mb-2">
                   <h3 className="font-bold text-gray-900 line-clamp-1">{sppg.name}</h3>
-                  <span className="text-[#164E4D] font-bold text-xs shrink-0 bg-[#F0F7F7] px-2 py-0.5 rounded">
+                  <span className="text-[#1A4D43] font-bold text-xs shrink-0 bg-[#E6F3F0] px-2 py-0.5 rounded">
                     {sppg.sppg_id}
                   </span>
                 </div>
@@ -128,8 +155,8 @@ export const SppgGallery: React.FC = () => {
                   <span className="truncate">{sppg.location || 'Lokasi tidak terekam'}</span>
                 </div>
                 <div className="flex items-center justify-between pt-3 border-t border-gray-50">
-                  <div className="text-[10px] text-gray-400 font-medium">PROGRES</div>
-                  <div className="text-sm font-bold text-[#1E8289]">{sppg.progress}</div>
+                  <div className="text-[10px] text-gray-400 font-medium">PROGRESS</div>
+                  <div className="text-sm font-bold text-[#2BBF9D]">{sppg.progress}</div>
                 </div>
               </div>
             </div>
@@ -140,50 +167,28 @@ export const SppgGallery: React.FC = () => {
           <table className="w-full text-left border-collapse">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Pratinjau</th>
                 <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">ID</th>
                 <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Nama SPPG</th>
-                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Progres</th>
+                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Progress</th>
                 <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 font-medium">
               {paginatedSppgs.map((sppg: Sppg) => (
                 <tr key={sppg.id} className="hover:bg-gray-50 transition-colors group">
+                  <td className="px-6 py-4 text-sm text-[#1A4D43] font-bold">{sppg.sppg_id}</td>
                   <td className="px-6 py-4">
-                    <div className="w-16 h-10 bg-gray-100 rounded-lg overflow-hidden border border-gray-100">
-                      {sppg.media && sppg.media.length > 0 ? (
-                        <img 
-                          src={getGoogleImageUrl(sppg.media[0].preview_url)} 
-                          alt="Thumbnail" 
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center font-bold text-[8px] text-gray-300">NO FOTO</div>
-                      )}
-                    </div>
+                    <div className="text-sm text-gray-900">{sppg.name}</div>
+                    <div className="text-[10px] text-gray-400 truncate max-w-xs">{sppg.location}</div>
                   </td>
-                  <td className="px-6 py-4 text-sm text-[#164E4D] font-bold">{sppg.sppg_id}</td>
-                  <td className="px-6 py-4">
-                    <div className="text-sm text-gray-900 font-bold">{sppg.name}</div>
-                    <div className="text-[10px] text-gray-400 truncate max-w-xs flex items-center gap-1">
-                      {sppg.location?.startsWith('http') ? (
-                        <a href={sppg.location} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline flex items-center gap-0.5">
-                          <MapPin className="w-2.5 h-2.5" /> Lihat di Peta
-                        </a>
-                      ) : (
-                        <>{sppg.location}</>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-[#1E8289] font-bold">{sppg.progress}</td>
+                  <td className="px-6 py-4 text-sm text-[#2BBF9D] font-bold">{sppg.progress}</td>
                   <td className="px-6 py-4 text-right">
                     <button
                       onClick={() => setSelectedSppg(sppg)}
-                      className="bg-[#164E4D] text-white px-3 py-1.5 rounded-lg text-xs hover:bg-[#123e3e] transition-colors inline-flex items-center gap-2"
+                      className="bg-[#1A4D43] text-white px-3 py-1.5 rounded-lg text-xs hover:bg-[#153b34] transition-colors inline-flex items-center gap-2"
                     >
                       <ImageIcon className="w-3.5 h-3.5" />
-                      Lihat {sppg.media?.length || 0} Foto
+                      View {sppg.media?.length || 0} Photos
                     </button>
                   </td>
                 </tr>
@@ -211,7 +216,7 @@ export const SppgGallery: React.FC = () => {
           <div className="bg-white rounded-3xl w-full max-w-6xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
             <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-white sticky top-0 z-10">
               <div className="flex items-center gap-4">
-                <div className="bg-[#164E4D] p-3 rounded-2xl">
+                <div className="bg-[#1A4D43] p-3 rounded-2xl">
                   <Building2 className="w-6 h-6 text-white" />
                 </div>
                 <div>
@@ -243,7 +248,7 @@ export const SppgGallery: React.FC = () => {
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-end p-6">
                         <div className="w-full flex items-center justify-between">
                           <span className="text-white text-xs font-bold tracking-widest uppercase">
-                            FOTO #{idx + 1}
+                            PHOTO #{idx + 1}
                           </span>
                           <a
                             href={getGoogleImageUrl(item.preview_url)}
@@ -293,7 +298,7 @@ export const SppgGallery: React.FC = () => {
               </div>
               <button
                 onClick={() => setSelectedSppg(null)}
-                className="bg-[#164E4D] text-white px-8 py-3 rounded-2xl font-bold text-sm hover:shadow-lg hover:shadow-[#164E4D]/20 transition-all"
+                className="bg-[#1A4D43] text-white px-8 py-3 rounded-2xl font-bold text-sm hover:shadow-lg hover:shadow-[#1A4D43]/20 transition-all"
               >
                 Close Gallery
               </button>

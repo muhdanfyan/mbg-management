@@ -1,15 +1,15 @@
 mbgone.site {
-    reverse_proxy mbg_backend:8080
+    reverse_proxy backend:8080
 }
 
 api.mbgone.site {
-    reverse_proxy mbg_backend:8080
+    reverse_proxy backend:8080
 }
 
 dev.mbgone.site {
-    reverse_proxy mbg_backend_dev:8081
+    reverse_proxy backend_dev:8081
 }
 
 api-dev.mbgone.site {
-    reverse_proxy mbg_backend_dev:8081
+    reverse_proxy backend_dev:8081
 }
