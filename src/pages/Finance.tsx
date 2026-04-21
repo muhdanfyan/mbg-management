@@ -758,7 +758,7 @@ export const Finance: React.FC = () => {
             </div>
           )}
 
-          {(activeTab === 'reports' || activeTab === 'investasi' || activeTab === 'sewa' || activeTab === 'margin' || activeTab === 'operasional') && (
+          {(activeTab === 'reports') && (
             <div className="space-y-4">
               <div className="bg-white p-4 border border-gray-200 rounded-lg">
                 <h3 className="text-base font-semibold text-gray-900 mb-4">
@@ -944,6 +944,185 @@ export const Finance: React.FC = () => {
           )}
         </div>
       </div>
+
+      
+          {activeTab === 'investasi' && (
+            <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4">
+              <div className="bg-white p-4 border border-gray-200 rounded-lg">
+                <h3 className="text-lg font-bold text-gray-900 mb-2">Realisasi Investasi per Dapur</h3>
+                <p className="text-sm text-gray-500 mb-4">Pantau persentase Return on Investment (ROI) dari masing-masing dapur.</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {kitchens.filter(k => k.accumulated_profit > 0).map((kitchen: any) => {
+                    const target = kitchen.initial_capital * 1.5;
+                    const percentage = Math.min((kitchen.accumulated_profit / target) * 100, 100);
+                    return (
+                      <div key={kitchen.id} className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                        <div className="flex justify-between mb-3">
+                           <div>
+                              <h4 className="font-bold text-gray-900">{kitchen.name}</h4>
+                              <p className="text-xs text-gray-500">Target BEP + 50% Profit</p>
+                           </div>
+                           <span className="text-[10px] font-black text-[#1A4D43] bg-[#E6F3F0] px-2 py-1 rounded-full h-fit">
+                              {percentage.toFixed(1)}% RECOVERED
+                           </span>
+                        </div>
+                        <div className="w-full bg-white rounded-full h-3 mb-2 overflow-hidden border border-gray-200">
+                           <div className="h-full bg-gradient-to-r from-[#2BBF9D] to-[#1A4D43]" style={{ width: `${percentage}%` }} />
+                        </div>
+                        <div className="flex justify-between text-xs text-gray-500 font-medium">
+                           <span>Rlz: Rp {(kitchen.accumulated_profit / 1000000).toFixed(1)}M</span>
+                           <span>Trg: Rp {(target / 1000000).toFixed(1)}M</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'sewa' && (
+            <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4">
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-lg p-5">
+                 <h3 className="text-lg font-bold text-blue-900 mb-1">Distribusi Sewa Dapur</h3>
+                 <p className="text-xs text-blue-700">Tampilan rekapitulasi Gross Pendapatan Sewa Dapur dan rincian bagi hasil ke Pusat Manajemen.</p>
+              </div>
+              <div className="flex gap-3">
+                 <select className="w-full md:w-1/3 border border-gray-300 rounded-lg px-3 py-2 bg-white" value={selectedKitchenId || ''} onChange={(e) => { const id = Number(e.target.value); setSelectedKitchenId(id); fetchReport(id); }}>
+                    <option value="">Pilih Dapur...</option>
+                    {filteredKitchens.map(k => <option key={k.id} value={k.id}>{k.name}</option>)}
+                 </select>
+                 <button onClick={() => selectedKitchenId && fetchReport(selectedKitchenId)} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium text-sm">Muat Data</button>
+              </div>
+              {reportData && (
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
+                       <h4 className="text-gray-500 text-xs font-bold uppercase tracking-wider mb-2">Gross Pendapatan Sewa</h4>
+                       <span className="text-2xl font-black text-gray-900">Rp {reportData.rental_income.toLocaleString()}</span>
+                       <div className="mt-4 pt-4 border-t border-gray-100">
+                         <p className="text-[10px] text-gray-500">Status: <span className="font-bold text-green-600 border border-green-200 bg-green-50 px-2 py-0.5 rounded-full">{reportData.record_status || 'APPROVED'}</span></p>
+                       </div>
+                    </div>
+                    <div className="bg-white p-5 rounded-lg border border-gray-200 shadow-sm space-y-3">
+                       <h4 className="text-gray-500 text-xs font-bold uppercase tracking-wider mb-2">Alokasi Dana Pusat</h4>
+                       <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg border border-blue-100">
+                         <div>
+                           <p className="font-bold text-blue-900 text-sm">DPP Wahdah</p>
+                           <p className="text-[10px] text-blue-700">Manajemen Pusat</p>
+                         </div>
+                         <span className="text-lg font-bold text-blue-900">Rp {reportData.dpp_share_sewa.toLocaleString()}</span>
+                       </div>
+                       <div className="flex justify-between items-center p-3 bg-indigo-50 rounded-lg border border-indigo-100">
+                         <div>
+                           <p className="font-bold text-indigo-900 text-sm">YWMP</p>
+                           <p className="text-[10px] text-indigo-700">Yayasan</p>
+                         </div>
+                         <span className="text-lg font-bold text-indigo-900">Rp {reportData.ywmp_share_sewa.toLocaleString()}</span>
+                       </div>
+                    </div>
+                 </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === 'margin' && (
+            <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4">
+              <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-100 rounded-lg p-5">
+                 <h3 className="text-lg font-bold text-emerald-900 mb-1">Selisih Bahan Baku (Koperasi)</h3>
+                 <p className="text-xs text-emerald-700">Pemantauan margin terpusat. Dibagi dengan rasio 60% DPP, 20% DPD, 20% Koperasi.</p>
+              </div>
+              <div className="flex gap-3">
+                 <select className="w-full md:w-1/3 border border-gray-300 rounded-lg px-3 py-2 bg-white" value={selectedKitchenId || ''} onChange={(e) => { const id = Number(e.target.value); setSelectedKitchenId(id); fetchReport(id); }}>
+                    <option value="">Pilih Dapur...</option>
+                    {filteredKitchens.map(k => <option key={k.id} value={k.id}>{k.name}</option>)}
+                 </select>
+                 <button onClick={() => selectedKitchenId && fetchReport(selectedKitchenId)} className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition font-medium text-sm">Muat Data</button>
+              </div>
+              {reportData && (
+                 <div className="space-y-4">
+                   <div className="bg-white p-5 rounded-lg border border-gray-200 flex flex-col md:flex-row justify-between items-center gap-4">
+                      <div>
+                        <h4 className="text-gray-500 text-[10px] font-bold uppercase tracking-wider mb-1">Total Margin Kotor</h4>
+                        <span className="text-xl font-black text-gray-900">Rp {reportData.selisih_bahan_baku.toLocaleString()}</span>
+                      </div>
+                      <div className="h-8 w-px bg-gray-200 hidden md:block"></div>
+                      <div className="text-right">
+                        <h4 className="text-gray-500 text-[10px] font-bold uppercase tracking-wider mb-1">Sisa Bersih (Didistribusikan)</h4>
+                        <span className="text-xl font-black text-emerald-600">Rp {reportData.sisa_bersih.toLocaleString()}</span>
+                      </div>
+                   </div>
+                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm border-t-4 border-t-blue-500">
+                         <p className="text-[10px] text-gray-400 font-bold uppercase mb-1">60% Porsi</p>
+                         <p className="text-sm font-bold text-gray-900 mb-1">DPP Wahdah</p>
+                         <p className="text-lg font-black text-blue-600">Rp {reportData.dpp_share_selisih.toLocaleString()}</p>
+                      </div>
+                      <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm border-t-4 border-t-emerald-500">
+                         <p className="text-[10px] text-gray-400 font-bold uppercase mb-1">20% Porsi</p>
+                         <p className="text-sm font-bold text-gray-900 mb-1">DPD Pelaksana</p>
+                         <p className="text-lg font-black text-emerald-600">Rp {reportData.dpd_share_selisih.toLocaleString()}</p>
+                      </div>
+                      <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm border-t-4 border-t-purple-500">
+                         <p className="text-[10px] text-gray-400 font-bold uppercase mb-1">20% Porsi</p>
+                         <p className="text-sm font-bold text-gray-900 mb-1">Koperasi</p>
+                         <p className="text-lg font-black text-purple-600">Rp {reportData.kop_share_selisih.toLocaleString()}</p>
+                      </div>
+                   </div>
+                 </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === 'operasional' && (
+            <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4">
+              <div className="bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-100 rounded-lg p-5">
+                 <h3 className="text-lg font-bold text-orange-900 mb-1">Kinerja Operasional Dapur</h3>
+                 <p className="text-xs text-orange-700">Mencatat pengeluaran tetap bulanan termasuk Honor Kepala Dapur, Akuntan, dan Staff operasional.</p>
+              </div>
+              <div className="flex gap-3">
+                 <select className="w-full md:w-1/3 border border-gray-300 rounded-lg px-3 py-2 bg-white" value={selectedKitchenId || ''} onChange={(e) => { const id = Number(e.target.value); setSelectedKitchenId(id); fetchReport(id); }}>
+                    <option value="">Pilih Dapur...</option>
+                    {filteredKitchens.map(k => <option key={k.id} value={k.id}>{k.name}</option>)}
+                 </select>
+                 <button onClick={() => selectedKitchenId && fetchReport(selectedKitchenId)} className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition font-medium text-sm">Muat Data</button>
+              </div>
+              
+              {reportData && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                   <div className="bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
+                      <div className="flex items-center gap-2 mb-4">
+                        <div className="bg-orange-100 p-2 rounded-lg"><CheckCircle className="w-5 h-5 text-orange-600" /></div>
+                        <div>
+                          <h4 className="font-bold text-gray-900 text-sm">Alokasi Dana Operasional</h4>
+                          <p className="text-[10px] text-gray-500">Estimasi dari Rp 5.000/porsi</p>
+                        </div>
+                      </div>
+                      <div className="space-y-3">
+                        <div className="p-3 bg-gray-50 border border-gray-100 rounded-lg flex justify-between items-center text-sm">
+                          <span className="font-medium text-gray-700">Honor Tetap Staff (Per Bulan)</span>
+                          <span className="font-bold text-red-600">- Rp 6.000.000</span>
+                        </div>
+                        <div className="p-3 bg-gray-50 border border-gray-100 rounded-lg flex justify-between items-center text-sm">
+                          <span className="font-medium text-gray-700">Potongan Tenaga Utama Dapur</span>
+                          <span className="font-bold text-red-600">- Rp 15.000.000</span>
+                        </div>
+                      </div>
+                   </div>
+                   
+                   <div className="bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
+                      <h4 className="font-bold text-gray-900 mb-2 text-sm">Tracking BGN</h4>
+                      <p className="text-xs text-gray-600 mb-4 border-b border-gray-100 pb-3">
+                        Dapur ini telah tersinkronisasi dengan pelaporan pusat. Penggunaan dana BGN per termin diteruskan untuk pembayaran gaji operasional.
+                      </p>
+                      <div className="flex justify-between text-xs">
+                         <span className="text-gray-500 uppercase font-bold tracking-wider">Status Termin:</span>
+                         <span className="font-black text-green-600">SELESAI DITRANSFER</span>
+                      </div>
+                   </div>
+                </div>
+              )}
+            </div>
+          )}
 
       {/* Transaction Modal */}
       {isTransModalOpen && (
