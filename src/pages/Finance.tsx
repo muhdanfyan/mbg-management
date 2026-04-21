@@ -824,7 +824,13 @@ export const Finance: React.FC = () => {
                     className="w-full md:w-64 border border-gray-300 rounded-lg px-4 py-2 bg-white"
                     value={selectedKitchenId || ''}
                     onChange={(e) => {
-                      const id = Number(e.target.value);
+                      const val = e.target.value;
+                      if (!val) {
+                        setSelectedKitchenId(null);
+                        setReportData(null);
+                        return;
+                      }
+                      const id = Number(val);
                       setSelectedKitchenId(id);
                       fetchReport(id);
                     }}
@@ -1089,7 +1095,17 @@ export const Finance: React.FC = () => {
                  <p className="text-xs text-blue-700">Tampilan rekapitulasi Gross Pendapatan Sewa Dapur dan rincian bagi hasil ke Pusat Manajemen.</p>
               </div>
               <div className="flex gap-3">
-                 <select className="w-full md:w-1/3 border border-gray-300 rounded-lg px-3 py-2 bg-white" value={selectedKitchenId || ''} onChange={(e) => { const id = Number(e.target.value); setSelectedKitchenId(id); fetchReport(id); }}>
+                 <select className="w-full md:w-1/3 border border-gray-300 rounded-lg px-3 py-2 bg-white" value={selectedKitchenId || ''} onChange={(e) => { 
+                    const val = e.target.value;
+                    if (!val) {
+                      setSelectedKitchenId(null);
+                      setReportData(null);
+                      return;
+                    }
+                    const id = Number(val); 
+                    setSelectedKitchenId(id); 
+                    fetchReport(id); 
+                  }}>
                     <option value="">Pilih Dapur...</option>
                     {filteredKitchens.map(k => <option key={k.id} value={k.id}>{k.name}</option>)}
                  </select>
@@ -1133,7 +1149,17 @@ export const Finance: React.FC = () => {
                  <p className="text-xs text-emerald-700">Pemantauan margin terpusat. Dibagi dengan rasio 60% DPP, 20% DPD, 20% Koperasi.</p>
               </div>
               <div className="flex gap-3">
-                 <select className="w-full md:w-1/3 border border-gray-300 rounded-lg px-3 py-2 bg-white" value={selectedKitchenId || ''} onChange={(e) => { const id = Number(e.target.value); setSelectedKitchenId(id); fetchReport(id); }}>
+                 <select className="w-full md:w-1/3 border border-gray-300 rounded-lg px-3 py-2 bg-white" value={selectedKitchenId || ''} onChange={(e) => { 
+                    const val = e.target.value;
+                    if (!val) {
+                      setSelectedKitchenId(null);
+                      setReportData(null);
+                      return;
+                    }
+                    const id = Number(val); 
+                    setSelectedKitchenId(id); 
+                    fetchReport(id); 
+                  }}>
                     <option value="">Pilih Dapur...</option>
                     {filteredKitchens.map(k => <option key={k.id} value={k.id}>{k.name}</option>)}
                  </select>
@@ -1185,7 +1211,17 @@ export const Finance: React.FC = () => {
                     className="w-full md:w-1/3 border border-gray-300 rounded-lg px-3 py-2 bg-white disabled:bg-gray-50" 
                     value={selectedKitchenId || ''} 
                     disabled={profile?.role === 'PIC Dapur'}
-                    onChange={(e) => { const id = Number(e.target.value); setSelectedKitchenId(id); fetchReport(id); }}
+                    onChange={(e) => { 
+                      const val = e.target.value;
+                      if (!val) {
+                        setSelectedKitchenId(null);
+                        setReportData(null);
+                        return;
+                      }
+                      const id = Number(val); 
+                      setSelectedKitchenId(id); 
+                      fetchReport(id); 
+                    }}
                  >
                     <option value="">Pilih Dapur...</option>
                     {filteredKitchens.map(k => <option key={k.id} value={k.id}>{k.name}</option>)}
