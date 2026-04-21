@@ -49,19 +49,19 @@ export const Login: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center p-4">
-      <div className={`max-w-6xl w-full grid ${isDemoEnv ? 'md:grid-cols-2' : 'max-w-md'} gap-8`}>
-        <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12">
+      <div className={`max-w-5xl w-full grid ${isDemoEnv ? 'md:grid-cols-2' : 'max-w-md'} gap-4`}>
+        <div className="bg-white rounded-xl shadow-xl p-4 md:p-12">
           <div className="flex items-center gap-3 mb-8">
-            <div className="bg-white p-1 rounded-xl shadow-sm border border-gray-100">
-              <img src="/logo-wahdah.png?v=2" alt="Logo" className="w-10 h-10 object-contain" />
+            <div className="bg-white p-1 rounded-lg shadow-sm border border-gray-100">
+              <img src="/logo-wahdah.png?v=2" alt="Logo" className="w-8 h-8 object-contain" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Wahdah MBG</h1>
+              <h1 className="text-xl font-bold text-gray-900">Wahdah MBG</h1>
               <p className="text-sm text-gray-600">Management System</p>
             </div>
           </div>
 
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Welcome Back</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-2">Welcome Back</h2>
           <p className="text-gray-600 mb-8">Sign in to access your dashboard</p>
 
           {error && (
@@ -71,7 +71,7 @@ export const Login: React.FC = () => {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Email Address
@@ -143,8 +143,8 @@ export const Login: React.FC = () => {
         </div>
 
         {isDemoEnv && (
-          <div className="bg-white rounded-2xl shadow-xl p-8">
-            <h3 className="text-xl font-semibold text-gray-900 mb-6">Demo Accounts</h3>
+          <div className="bg-white rounded-xl shadow-xl p-4">
+            <h3 className="text-lg font-semibold text-gray-900 mb-6">Demo Accounts</h3>
             <p className="text-sm text-gray-600 mb-6">
               Click any account below to auto-fill the login form
             </p>
@@ -154,7 +154,7 @@ export const Login: React.FC = () => {
                 <button
                   key={user.email}
                   onClick={() => handleDemoLogin(user.email)}
-                  className="p-3 border border-gray-200 rounded-xl hover:border-[#1A4D43] hover:bg-[#F0F7F5] transition-all group text-center"
+                  className="p-3 border border-gray-200 rounded-lg hover:border-[#1A4D43] hover:bg-[#F0F7F5] transition-all group text-center"
                 >
                   <p className="text-xs font-bold text-gray-900 group-hover:text-[#1A4D43] truncate">
                     {user.role}

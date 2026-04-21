@@ -36,7 +36,7 @@ export const Pagination: React.FC<PaginationProps> = ({
   const uniquePages = Array.from(new Set(pages));
 
   return (
-    <div className="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200 sm:px-6 mt-4 rounded-b-xl">
+    <div className="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200 sm:px-4 mt-4 rounded-b-xl">
       <div className="flex flex-1 justify-between sm:hidden">
         <button
           onClick={() => onPageChange(Math.max(1, currentPage - 1))}

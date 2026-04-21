@@ -120,16 +120,16 @@ export const Procurement: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Procurement & Inventory</h1>
+          <h1 className="text-xl font-bold text-gray-900">Procurement & Inventory</h1>
           <p className="text-gray-600 mt-1">Kelola pengadaan peralatan dan inventaris dapur</p>
         </div>
         <div className="flex gap-3">
@@ -171,12 +171,12 @@ export const Procurement: React.FC = () => {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200">
+      <div className="bg-white rounded-lg border border-gray-200">
         <div className="border-b border-gray-200">
-          <div className="flex gap-4 px-6">
+          <div className="flex gap-4 px-4">
             <button
               onClick={() => setActiveTab('catalog')}
-              className={`py-4 px-2 border-b-2 font-medium transition-colors ${
+              className={`py-3 px-2 border-b-2 font-medium transition-colors ${
                 activeTab === 'catalog'
                   ? 'border-blue-600 text-blue-600'
                   : 'border-transparent text-gray-600 hover:text-gray-900'
@@ -186,7 +186,7 @@ export const Procurement: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveTab('orders')}
-              className={`py-4 px-2 border-b-2 font-medium transition-colors ${
+              className={`py-3 px-2 border-b-2 font-medium transition-colors ${
                 activeTab === 'orders'
                   ? 'border-blue-600 text-blue-600'
                   : 'border-transparent text-gray-600 hover:text-gray-900'
@@ -196,7 +196,7 @@ export const Procurement: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveTab('inventory')}
-              className={`py-4 px-2 border-b-2 font-medium transition-colors ${
+              className={`py-3 px-2 border-b-2 font-medium transition-colors ${
                 activeTab === 'inventory'
                   ? 'border-blue-600 text-blue-600'
                   : 'border-transparent text-gray-600 hover:text-gray-900'
@@ -207,7 +207,7 @@ export const Procurement: React.FC = () => {
           </div>
         </div>
 
-        <div className="p-6">
+        <div className="p-4">
           <div className="flex gap-4 mb-6">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -226,14 +226,14 @@ export const Procurement: React.FC = () => {
           </div>
 
           {activeTab === 'catalog' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredEquipment.map((item) => (
-                <div key={item.id} className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-shadow">
+                <div key={item.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
                   <div className="aspect-video bg-gray-100 flex items-center justify-center overflow-hidden">
                     {item.image ? (
                       <img src={getImageUrl(item.image)} alt={item.name} className="w-full h-full object-cover" />
                     ) : (
-                      <Package className="w-12 h-12 text-gray-400" />
+                      <Package className="w-10 h-10 text-gray-400" />
                     )}
                   </div>
                   <div className="p-4">
@@ -288,16 +288,16 @@ export const Procurement: React.FC = () => {
                 <tbody>
                   {orders.map((po) => (
                     <tr key={po.id} className="border-b border-gray-100 hover:bg-gray-50">
-                      <td className="py-4 px-4 font-medium text-gray-900">{po.number}</td>
-                      <td className="py-4 px-4 text-sm text-gray-600">{po.supplier}</td>
-                      <td className="py-4 px-4 text-sm font-bold text-gray-900">Rp {(po.total_amount || 0).toLocaleString()}</td>
-                      <td className="py-4 px-4 text-sm text-gray-600">{po.date}</td>
-                      <td className="py-4 px-4">
+                      <td className="py-3 px-4 font-medium text-gray-900">{po.number}</td>
+                      <td className="py-3 px-4 text-sm text-gray-600">{po.supplier}</td>
+                      <td className="py-3 px-4 text-sm font-bold text-gray-900">Rp {(po.total_amount || 0).toLocaleString()}</td>
+                      <td className="py-3 px-4 text-sm text-gray-600">{po.date}</td>
+                      <td className="py-3 px-4">
                         <span className={`px-3 py-1 rounded-full text-xs font-medium ${getPOStatusBadge(po.status)}`}>
                           {po.status}
                         </span>
                       </td>
-                      <td className="py-4 px-4">
+                      <td className="py-3 px-4">
                         <div className="flex gap-2">
                           <button 
                             onClick={() => {
@@ -324,14 +324,14 @@ export const Procurement: React.FC = () => {
           )}
 
           {activeTab === 'inventory' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="bg-gray-50 rounded-xl p-6 border border-gray-200 text-center">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 text-center">
                 <QrCode className="w-16 h-16 mx-auto text-gray-400 mb-4" />
                 <h3 className="font-bold text-gray-900 mb-2">QR Code Management</h3>
                 <p className="text-sm text-gray-600 mb-6">Scan atau cetak QR code baru untuk peralatan dapur</p>
-                <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">Generate Labels</button>
+                <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">Generate Labels</button>
               </div>
-              <div className="bg-white rounded-xl p-6 border border-gray-200">
+              <div className="bg-white rounded-lg p-4 border border-gray-200">
                 <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
                   <TrendingUp className="w-5 h-5 text-blue-600" />
                   Inventory Stats
@@ -349,11 +349,11 @@ export const Procurement: React.FC = () => {
                   <div className="grid grid-cols-2 gap-4 mt-6">
                     <div className="p-3 bg-red-50 rounded-lg">
                       <p className="text-xs text-red-600 mb-1">Stock Alerts</p>
-                      <p className="text-lg font-bold text-red-700">12 Items</p>
+                      <p className="text-base font-bold text-red-700">12 Items</p>
                     </div>
                     <div className="p-3 bg-green-50 rounded-lg">
                       <p className="text-xs text-green-600 mb-1">Active Assets</p>
-                      <p className="text-lg font-bold text-green-700">1,192 Units</p>
+                      <p className="text-base font-bold text-green-700">1,192 Units</p>
                     </div>
                   </div>
                 </div>
@@ -366,8 +366,8 @@ export const Procurement: React.FC = () => {
       {/* Equipment Modal */}
       {isEquipmentModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-lg w-full p-6">
-            <h2 className="text-xl font-bold mb-4">{editingEquipment ? 'Edit Equipment' : 'Add New Equipment'}</h2>
+          <div className="bg-white rounded-lg max-w-lg w-full p-4">
+            <h2 className="text-lg font-bold mb-4">{editingEquipment ? 'Edit Equipment' : 'Add New Equipment'}</h2>
             <form onSubmit={async (e: any) => {
               e.preventDefault();
               const formData = new FormData(e.target);
@@ -435,8 +435,8 @@ export const Procurement: React.FC = () => {
       {/* PO Modal */}
       {isPOModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-lg w-full p-6">
-            <h2 className="text-xl font-bold mb-4">{editingPO ? 'Edit Purchase Order' : 'Create Purchase Order'}</h2>
+          <div className="bg-white rounded-lg max-w-lg w-full p-4">
+            <h2 className="text-lg font-bold mb-4">{editingPO ? 'Edit Purchase Order' : 'Create Purchase Order'}</h2>
             <form onSubmit={async (e: any) => {
               e.preventDefault();
               const formData = new FormData(e.target);
@@ -501,19 +501,19 @@ export const Procurement: React.FC = () => {
       {/* Audit Belanja Modal */}
       {isAuditModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-8 shadow-2xl animate-in zoom-in duration-300">
+          <div className="bg-white rounded-xl max-w-lg w-full p-4 shadow-2xl animate-in zoom-in duration-300">
             <div className="flex items-center gap-3 mb-6">
-              <div className="bg-[#E2F8F3] p-3 rounded-xl">
+              <div className="bg-[#E2F8F3] p-3 rounded-lg">
                 <Activity className="w-6 h-6 text-[#2BBF9D]" />
               </div>
               <div>
-                <h2 className="text-xl font-black text-[#1A4D43]">Audit Belanja Harian</h2>
+                <h2 className="text-lg font-black text-[#1A4D43]">Audit Belanja Harian</h2>
                 <p className="text-sm text-gray-500 font-medium tracking-tight">Validasi biaya bahan baku per porsi</p>
               </div>
             </div>
             
-            <form onSubmit={handleAuditSubmit} className="space-y-6">
-              <div className="grid grid-cols-2 gap-6">
+            <form onSubmit={handleAuditSubmit} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Tanggal Belanja</label>
                   <input 
@@ -521,7 +521,7 @@ export const Procurement: React.FC = () => {
                     required
                     value={auditForm.date}
                     onChange={e => setAuditForm({...auditForm, date: e.target.value})}
-                    className="w-full border border-gray-100 rounded-xl px-4 py-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-[#2BBF9D] focus:border-transparent transition-all outline-none"
+                    className="w-full border border-gray-100 rounded-lg px-4 py-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-[#2BBF9D] focus:border-transparent transition-all outline-none"
                   />
                 </div>
                 <div>
@@ -532,7 +532,7 @@ export const Procurement: React.FC = () => {
                     placeholder="Contoh: 500"
                     value={auditForm.portions || ''}
                     onChange={e => setAuditForm({...auditForm, portions: Number(e.target.value)})}
-                    className="w-full border border-gray-100 rounded-xl px-4 py-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-[#2BBF9D] focus:border-transparent transition-all outline-none"
+                    className="w-full border border-gray-100 rounded-lg px-4 py-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-[#2BBF9D] focus:border-transparent transition-all outline-none"
                   />
                 </div>
               </div>
@@ -547,20 +547,20 @@ export const Procurement: React.FC = () => {
                     placeholder="Total nota hari ini"
                     value={auditForm.total_cost || ''}
                     onChange={e => setAuditForm({...auditForm, total_cost: Number(e.target.value)})}
-                    className="w-full border border-gray-100 rounded-xl pl-12 pr-4 py-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-[#2BBF9D] focus:border-transparent transition-all outline-none font-bold"
+                    className="w-full border border-gray-100 rounded-lg pl-12 pr-4 py-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-[#2BBF9D] focus:border-transparent transition-all outline-none font-bold"
                   />
                 </div>
               </div>
 
               {auditForm.portions > 0 && auditForm.total_cost > 0 && (
-                <div className={`p-4 rounded-xl border ${
+                <div className={`p-4 rounded-lg border ${
                   auditForm.total_cost / auditForm.portions > 10000 
                   ? 'bg-red-50 border-red-100 text-red-700' 
                   : 'bg-emerald-50 border-emerald-100 text-emerald-700'
                 }`}>
                   <div className="flex items-center justify-between font-bold">
                     <span>Estimasi Biaya per Porsi:</span>
-                    <span className="text-lg">Rp {(auditForm.total_cost / auditForm.portions).toLocaleString()}</span>
+                    <span className="text-base">Rp {(auditForm.total_cost / auditForm.portions).toLocaleString()}</span>
                   </div>
                   {auditForm.total_cost / auditForm.portions > 10000 && (
                     <p className="text-[10px] mt-2 font-medium flex items-center gap-1">
@@ -578,7 +578,7 @@ export const Procurement: React.FC = () => {
                   rows={2}
                   value={auditForm.items}
                   onChange={e => setAuditForm({...auditForm, items: e.target.value})}
-                  className="w-full border border-gray-100 rounded-xl px-4 py-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-[#2BBF9D] focus:border-transparent transition-all outline-none resize-none"
+                  className="w-full border border-gray-100 rounded-lg px-4 py-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-[#2BBF9D] focus:border-transparent transition-all outline-none resize-none"
                 />
               </div>
 
@@ -586,13 +586,13 @@ export const Procurement: React.FC = () => {
                 <button 
                   type="button"
                   onClick={() => setIsAuditModalOpen(false)}
-                  className="flex-1 px-4 py-3 border border-gray-100 rounded-xl hover:bg-gray-50 font-bold text-gray-500 transition-all active:scale-95"
+                  className="flex-1 px-4 py-3 border border-gray-100 rounded-lg hover:bg-gray-50 font-bold text-gray-500 transition-all active:scale-95"
                 >
                   Batal
                 </button>
                 <button 
                   type="submit"
-                  className={`flex-1 px-4 py-3 text-white rounded-xl font-bold transition-all shadow-lg active:scale-95 ${
+                  className={`flex-1 px-4 py-3 text-white rounded-lg font-bold transition-all shadow-lg active:scale-95 ${
                     auditForm.total_cost / auditForm.portions > 10000 
                     ? 'bg-red-600 hover:bg-red-700 shadow-red-200' 
                     : 'bg-[#1A4D43] hover:bg-[#1A4D43]/90 shadow-[#1A4D43]/10'

@@ -98,16 +98,16 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2BBF9D]"></div>
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#2BBF9D]"></div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-700">
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+    <div className="space-y-4 animate-in fade-in duration-700">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-[#1A4D43] tracking-tight">Selamat Datang, {profile?.full_name?.split(' ')[0]}!</h1>
+          <h1 className="text-2xl font-bold text-[#1A4D43] tracking-tight">Selamat Datang, {profile?.full_name?.split(' ')[0]}!</h1>
           <p className="text-gray-500 mt-2 font-medium">Berikut adalah manajemen Wahdah MBG.</p>
         </div>
         <div className="flex items-center gap-3 overflow-x-auto pb-2 -mb-2 scrollbar-hide no-scrollbar lg:pb-0 lg:mb-0 lg:overflow-visible">
@@ -117,7 +117,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
               onClick={() => action.action === 'external-finance-report' 
                 ? window.open('file:///Users/pondokit/Herd/mbg-management/out/pemahaman_alur_keuangan_mbg.html', '_blank')
                 : onNavigate?.(action.action)}
-              className="flex items-center gap-2 bg-white px-5 py-2.5 rounded-xl text-sm font-semibold text-[#1A4D43] border border-gray-100 hover:border-[#2BBF9D] hover:text-[#2BBF9D] transition-all shadow-sm active:scale-95 whitespace-nowrap flex-shrink-0"
+              className="flex items-center gap-2 bg-white px-5 py-2.5 rounded-lg text-sm font-semibold text-[#1A4D43] border border-gray-100 hover:border-[#2BBF9D] hover:text-[#2BBF9D] transition-all shadow-sm active:scale-95 whitespace-nowrap flex-shrink-0"
             >
               <action.icon className="w-4 h-4" />
               {action.label}
@@ -126,7 +126,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
         </div>
       </div>
 
-      <div className="flex items-center gap-1 bg-[#1A4D43]/5 p-1 rounded-2xl w-fit">
+      <div className="flex items-center gap-1 bg-[#1A4D43]/5 p-1 rounded-xl w-fit">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -134,7 +134,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${isActive ? 'bg-white text-[#2BBF9D] shadow-sm' : 'text-gray-500 hover:text-[#1A4D43] hover:bg-white/50'}`}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold transition-all ${isActive ? 'bg-white text-[#2BBF9D] shadow-sm' : 'text-gray-500 hover:text-[#1A4D43] hover:bg-white/50'}`}
             >
               <Icon className="w-4 h-4" />
               {tab.label}
@@ -145,13 +145,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
 
       {activeTab === 'overview' && (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {stats.map((stat) => {
               const Icon = stat.icon;
               return (
-                <div key={stat.label} className="glass-card p-6 group hover:shadow-xl hover:-translate-y-1">
+                <div key={stat.label} className="glass-card p-4 group hover:shadow-xl hover:-translate-y-1">
                   <div className="flex items-start justify-between mb-6">
-                    <div className={`p-4 rounded-2xl ${stat.color === 'mint' ? 'bg-[#E2F8F3] text-[#2BBF9D]' : 'bg-[#1A4D43]/5 text-[#1A4D43]'}`}>
+                    <div className={`p-4 rounded-xl ${stat.color === 'mint' ? 'bg-[#E2F8F3] text-[#2BBF9D]' : 'bg-[#1A4D43]/5 text-[#1A4D43]'}`}>
                       <Icon className="w-7 h-7" />
                     </div>
                     <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${stat.trend === 'up' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
@@ -161,7 +161,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                   </div>
                   <div>
                     <p className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-1">{stat.label}</p>
-                    <h3 className="text-2xl font-black text-[#1A4D43] tracking-tight">{stat.value}</h3>
+                    <h3 className="text-xl font-black text-[#1A4D43] tracking-tight">{stat.value}</h3>
                   </div>
                 </div>
               );
@@ -169,9 +169,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
           </div>
 
           <div className="glass-card overflow-hidden">
-            <div className="p-6 border-b border-gray-50 flex items-center justify-between bg-white/30">
+            <div className="p-4 border-b border-gray-50 flex items-center justify-between bg-white/30">
               <div>
-                <h2 className="text-xl font-bold text-[#1A4D43] flex items-center gap-2"><MapPin className="w-5 h-5 text-[#2BBF9D]" /> Sebaran Dapur MBG</h2>
+                <h2 className="text-lg font-bold text-[#1A4D43] flex items-center gap-2"><MapPin className="w-5 h-5 text-[#2BBF9D]" /> Sebaran Dapur MBG</h2>
                 <p className="text-sm text-gray-500 font-medium tracking-tight">Monitoring lokasi operasional real-time</p>
               </div>
               <button onClick={() => onNavigate?.('locations')} className="text-xs font-black text-[#2BBF9D] uppercase tracking-widest hover:underline">Detail Peta</button>
@@ -194,9 +194,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div className="glass-card p-8 group overflow-hidden">
-              <h2 className="text-xl font-bold text-[#1A4D43] flex items-center gap-2 mb-8"><TrendingUp className="w-5 h-5 text-[#2BBF9D]" /> Performa Keuangan</h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="glass-card p-4 group overflow-hidden">
+              <h2 className="text-lg font-bold text-[#1A4D43] flex items-center gap-2 mb-8"><TrendingUp className="w-5 h-5 text-[#2BBF9D]" /> Performa Keuangan</h2>
               <div className="h-64 flex items-end gap-3 px-2">
                 {[65, 45, 80, 55, 90, 70, 85].map((val, i) => (
                   <div key={i} className="flex-1 flex flex-col items-center gap-2 group/bar">
@@ -209,9 +209,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                 ))}
               </div>
             </div>
-            <div className="glass-card p-8 overflow-hidden relative">
-              <h2 className="text-xl font-bold text-[#1A4D43] flex items-center gap-2 mb-8"><Activity className="w-5 h-5 text-[#2BBF9D]" /> Progress Pembangunan</h2>
-              <div className="space-y-6">
+            <div className="glass-card p-4 overflow-hidden relative">
+              <h2 className="text-lg font-bold text-[#1A4D43] flex items-center gap-2 mb-8"><Activity className="w-5 h-5 text-[#2BBF9D]" /> Progress Pembangunan</h2>
+              <div className="space-y-4">
                 <div className="relative pt-1">
                   <div className="flex mb-2 items-center justify-between">
                     <span className="text-[10px] font-black py-1 px-2 uppercase rounded-full text-[#2BBF9D] bg-[#E2F8F3]">In Progress</span>
@@ -222,31 +222,31 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                   <div className="p-4 rounded-2xl bg-[#E2F8F3]/50 border border-white/50">
+                   <div className="p-4 rounded-xl bg-[#E2F8F3]/50 border border-white/50">
                       <p className="text-[10px] font-black text-gray-400 uppercase mb-1">Dapur Selesai</p>
-                      <p className="text-2xl font-black text-[#1A4D43]">{Math.floor((summary?.construction_progress || 0) / 10)}</p>
+                      <p className="text-xl font-black text-[#1A4D43]">{Math.floor((summary?.construction_progress || 0) / 10)}</p>
                    </div>
-                   <div className="p-4 rounded-2xl bg-[#F8FAF9] border border-white/50">
+                   <div className="p-4 rounded-xl bg-[#F8FAF9] border border-white/50">
                       <p className="text-[10px] font-black text-gray-400 uppercase mb-1">Target Tahunan</p>
-                      <p className="text-2xl font-black text-[#1A4D43]">50</p>
+                      <p className="text-xl font-black text-[#1A4D43]">50</p>
                    </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 space-y-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div className="lg:col-span-2 space-y-4">
               <div className="glass-card overflow-hidden">
-                <div className="p-8 border-b border-gray-50 flex items-center justify-between bg-white/30">
-                  <h2 className="text-xl font-bold text-[#1A4D43] flex items-center gap-2"><Activity className="w-5 h-5 text-[#2BBF9D]" /> Aktivitas Terbaru</h2>
+                <div className="p-4 border-b border-gray-50 flex items-center justify-between bg-white/30">
+                  <h2 className="text-lg font-bold text-[#1A4D43] flex items-center gap-2"><Activity className="w-5 h-5 text-[#2BBF9D]" /> Aktivitas Terbaru</h2>
                   <button onClick={() => onNavigate?.('construction')} className="text-xs font-black text-[#2BBF9D] hover:underline uppercase tracking-widest">Lihat Semua</button>
                 </div>
-                <div className="p-8 space-y-8">
+                <div className="p-4 space-y-4">
                   {activities.map((activity, idx) => (
-                    <div key={activity.id || idx} className="flex gap-6 relative group">
+                    <div key={activity.id || idx} className="flex gap-4 relative group">
                       {idx < activities.length - 1 && <div className="absolute left-[23px] top-12 bottom-[-32px] w-0.5 bg-gray-100"></div>}
-                      <div className="w-12 h-12 bg-[#F8FAF9] rounded-2xl flex items-center justify-center border border-gray-100 group-hover:border-[#2BBF9D] transition-colors shadow-sm">
+                      <div className="w-10 h-10 bg-[#F8FAF9] rounded-xl flex items-center justify-center border border-gray-100 group-hover:border-[#2BBF9D] transition-colors shadow-sm">
                         <Clock className="w-5 h-5 text-gray-400 group-hover:text-[#2BBF9D]" />
                       </div>
                       <div className="flex-1">
@@ -262,23 +262,23 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                 </div>
               </div>
             </div>
-            <div className="space-y-8">
-              <div className="glass-card p-8 bg-gradient-to-br from-[#1A4D43] to-[#2BBF9D] text-white overflow-hidden relative shadow-2xl shadow-[#2BBF9D]/20">
+            <div className="space-y-4">
+              <div className="glass-card p-4 bg-gradient-to-br from-[#1A4D43] to-[#2BBF9D] text-white overflow-hidden relative shadow-2xl shadow-[#2BBF9D]/20">
                 <p className="text-white/60 text-xs font-black uppercase tracking-widest mb-2">User Profile</p>
-                <h3 className="text-2xl font-black mb-1">{profile?.full_name}</h3>
+                <h3 className="text-xl font-black mb-1">{profile?.full_name}</h3>
                 <p className="text-white/80 font-bold mb-8 opacity-80">{profile?.role}</p>
                 <div className="space-y-4">
-                   <div className="flex items-center justify-between p-3 bg-white/10 rounded-xl backdrop-blur-md">
+                   <div className="flex items-center justify-between p-3 bg-white/10 rounded-lg backdrop-blur-md">
                       <span className="text-xs font-bold">Akses Departemen</span>
                       <span className="text-xs font-black px-2 py-0.5 bg-white/20 rounded-lg">{profile?.department || 'ALL'}</span>
                    </div>
                 </div>
               </div>
-              <div className="glass-card p-8">
-                <h2 className="text-lg font-bold text-[#1A4D43] mb-6">Informasi Sistem</h2>
-                <div className="space-y-6">
+              <div className="glass-card p-4">
+                <h2 className="text-base font-bold text-[#1A4D43] mb-6">Informasi Sistem</h2>
+                <div className="space-y-4">
                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center font-bold">V</div>
+                      <div className="w-8 h-8 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center font-bold">V</div>
                       <div><p className="text-sm font-bold text-[#1A4D43]">Versi Dashboard</p><p className="text-xs text-gray-500">v2.5.1 (Expansion Edition)</p></div>
                    </div>
                 </div>
@@ -289,20 +289,20 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
       )}
 
       {activeTab === 'finance' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="glass-card p-8 group">
-             <h2 className="text-xl font-bold text-[#1A4D43] mb-4">Ringkasan Keuangan</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="glass-card p-4 group">
+             <h2 className="text-lg font-bold text-[#1A4D43] mb-4">Ringkasan Keuangan</h2>
              <p className="text-sm text-gray-500 mb-6">Monitoring dana BGN dan alur bagi hasil investor.</p>
              <div className="space-y-4">
-                <div className="flex justify-between p-4 bg-[#E2F8F3]/50 rounded-xl">
+                <div className="flex justify-between p-4 bg-[#E2F8F3]/50 rounded-lg">
                   <span className="text-sm font-bold text-gray-600">Total Transaksi</span>
-                  <span className="text-lg font-black text-[#1A4D43]">Rp {(summary?.cash_flow || 0).toLocaleString()}</span>
+                  <span className="text-base font-black text-[#1A4D43]">Rp {(summary?.cash_flow || 0).toLocaleString()}</span>
                 </div>
              </div>
           </div>
-          <div className="glass-card p-8 bg-white overflow-hidden relative">
-             <h2 className="text-xl font-bold text-[#1A4D43] mb-4">Target BEP Investor</h2>
-             <div className="space-y-6 mt-8">
+          <div className="glass-card p-4 bg-white overflow-hidden relative">
+             <h2 className="text-lg font-bold text-[#1A4D43] mb-4">Target BEP Investor</h2>
+             <div className="space-y-4 mt-8">
                 <div className="relative pt-1">
                   <div className="flex mb-2 items-center justify-between">
                     <span className="text-xs font-black uppercase text-[#2BBF9D]">Progress BEP (Estimasi)</span>
@@ -318,9 +318,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
       )}
 
       {activeTab === 'construction' && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-           <div className="glass-card p-6 md:col-span-2">
-              <h2 className="text-xl font-bold text-[#1A4D43] mb-4">Status Kontrak & SPPG</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+           <div className="glass-card p-4 md:col-span-2">
+              <h2 className="text-lg font-bold text-[#1A4D43] mb-4">Status Kontrak & SPPG</h2>
               <div className="overflow-x-auto">
                 <table className="w-full text-left">
                   <thead>
@@ -332,8 +332,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                   <tbody className="divide-y divide-gray-50">
                      {kitchens.slice(0, 5).map(k => (
                        <tr key={k.id}>
-                         <td className="py-4 font-bold text-[#1A4D43]">{k.name}</td>
-                         <td className="py-4"><span className="px-2 py-1 bg-green-50 text-green-600 rounded text-[10px] font-black uppercase">Aktif</span></td>
+                         <td className="py-3 font-bold text-[#1A4D43]">{k.name}</td>
+                         <td className="py-3"><span className="px-2 py-1 bg-green-50 text-green-600 rounded text-[10px] font-black uppercase">Aktif</span></td>
                        </tr>
                      ))}
                   </tbody>
@@ -344,13 +344,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
       )}
 
       {activeTab === 'logistics' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-           <div className="glass-card p-8">
-              <h2 className="text-xl font-bold text-[#1A4D43] mb-4">Monitoring Logistik</h2>
-              <div className="grid grid-cols-2 gap-6 mt-6">
-                 <div className="p-4 bg-gray-50 rounded-2xl">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+           <div className="glass-card p-4">
+              <h2 className="text-lg font-bold text-[#1A4D43] mb-4">Monitoring Logistik</h2>
+              <div className="grid grid-cols-2 gap-4 mt-6">
+                 <div className="p-4 bg-gray-50 rounded-xl">
                     <p className="text-[10px] font-black text-gray-400 uppercase mb-1">Rute Aktif</p>
-                    <p className="text-2xl font-black text-[#1A4D43]">{kitchens.reduce((acc, k) => acc + (k.routes?.length || 0), 0)}</p>
+                    <p className="text-xl font-black text-[#1A4D43]">{kitchens.reduce((acc, k) => acc + (k.routes?.length || 0), 0)}</p>
                  </div>
               </div>
            </div>

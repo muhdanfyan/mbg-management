@@ -38,26 +38,26 @@ class ErrorBoundary extends Component<Props, State> {
   public render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-white flex items-center justify-center p-6 font-sans">
+        <div className="min-h-screen bg-white flex items-center justify-center p-4 font-sans">
           <div className="max-w-xl w-full">
             {/* Visual Header */}
             <div className="text-center mb-12">
-              <div className="inline-flex items-center justify-center w-20 h-20 bg-[#F0F7F7] rounded-3xl mb-6 text-[#1E8289] animate-pulse">
-                <AlertTriangle className="w-10 h-10" />
+              <div className="inline-flex items-center justify-center w-20 h-20 bg-[#F0F7F7] rounded-2xl mb-6 text-[#1E8289] animate-pulse">
+                <AlertTriangle className="w-8 h-8" />
               </div>
-              <h1 className="text-3xl font-bold text-[#164E4D] mb-4">
+              <h1 className="text-2xl font-bold text-[#164E4D] mb-4">
                 Sistem Mengalami Kendala
               </h1>
-              <p className="text-gray-500 text-lg">
+              <p className="text-gray-500 text-base">
                 Kami mendeteksi gangguan pada modul ini. Jangan khawatir, data Anda tetap aman dalam sistem.
               </p>
             </div>
 
             {/* Support Box */}
-            <div className="bg-[#F8FAF9] border border-[#E2E8F0] rounded-[2.5rem] p-8 mb-8">
+            <div className="bg-[#F8FAF9] border border-[#E2E8F0] rounded-[2.5rem] p-4 mb-8">
                <div className="space-y-4">
                   <div className="flex items-start gap-4">
-                     <div className="w-10 h-10 rounded-xl bg-white border border-[#E2F8F3] flex items-center justify-center text-[#1E8289] shrink-0">
+                     <div className="w-8 h-8 rounded-lg bg-white border border-[#E2F8F3] flex items-center justify-center text-[#1E8289] shrink-0">
                         <RefreshCcw className="w-5 h-5" />
                      </div>
                      <div>
@@ -71,7 +71,7 @@ class ErrorBoundary extends Component<Props, State> {
                       <ChevronRight className="w-4 h-4 group-open:rotate-90 transition-transform" />
                       Detail Teknis (Untuk Admin)
                     </summary>
-                    <div className="mt-4 p-4 bg-white rounded-xl border border-[#E2E8F0] text-[10px] font-mono text-red-600 overflow-auto max-h-40">
+                    <div className="mt-4 p-4 bg-white rounded-lg border border-[#E2E8F0] text-[10px] font-mono text-red-600 overflow-auto max-h-40">
                       {this.state.error && this.state.error.toString()}
                       <br />
                       {this.state.errorInfo && this.state.errorInfo.componentStack}
@@ -84,14 +84,14 @@ class ErrorBoundary extends Component<Props, State> {
             <div className="flex flex-col sm:flex-row gap-4">
               <button
                 onClick={this.handleReset}
-                className="flex-1 bg-[#1E8289] text-white font-bold py-4 rounded-2xl shadow-lg shadow-[#1E8289]/20 hover:bg-[#166E74] transition-all flex items-center justify-center gap-2 active:scale-95"
+                className="flex-1 bg-[#1E8289] text-white font-bold py-3 rounded-xl shadow-lg shadow-[#1E8289]/20 hover:bg-[#166E74] transition-all flex items-center justify-center gap-2 active:scale-95"
               >
                 <RefreshCcw className="w-5 h-5" />
                 Muat Ulang Sekarang
               </button>
               <button
                 onClick={() => window.location.href = '/'}
-                className="flex-1 bg-white border border-[#E2E8F0] text-[#164E4D] font-bold py-4 rounded-2xl hover:bg-gray-50 transition-all flex items-center justify-center gap-2 active:scale-95"
+                className="flex-1 bg-white border border-[#E2E8F0] text-[#164E4D] font-bold py-3 rounded-xl hover:bg-gray-50 transition-all flex items-center justify-center gap-2 active:scale-95"
               >
                 <Home className="w-5 h-5" />
                 Kembali ke Beranda

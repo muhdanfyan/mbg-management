@@ -260,16 +260,16 @@ export const Finance: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Financial Management</h1>
+          <h1 className="text-xl font-bold text-gray-900">Financial Management</h1>
           <p className="text-gray-600 mt-1">Monitor cash flow, expenses, and funding</p>
         </div>
         <div className="flex gap-3">
@@ -334,14 +334,14 @@ export const Finance: React.FC = () => {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200">
+      <div className="bg-white rounded-lg border border-gray-200">
         <div className="border-b border-gray-200">
-          <div className="flex gap-4 px-6">
+          <div className="flex gap-4 px-4">
             {['dashboard', 'investasi', 'sewa', 'margin', 'operasional', 'transactions', 'reports'].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab as any)}
-                className={`py-4 px-2 border-b-2 font-medium transition-colors capitalize whitespace-nowrap ${
+                className={`py-3 px-2 border-b-2 font-medium transition-colors capitalize whitespace-nowrap ${
                   activeTab === tab
                     ? 'border-[#1A4D43] text-[#1A4D43]'
                     : 'border-transparent text-gray-600 hover:text-gray-900'
@@ -357,11 +357,11 @@ export const Finance: React.FC = () => {
           </div>
         </div>
 
-        <div className="p-6">
+        <div className="p-4">
           {activeTab === 'dashboard' && (
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-xl p-6">
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-lg p-4">
                   <div className="flex items-center justify-between mb-3">
                     <div className="bg-green-600 p-3 rounded-lg">
                       <TrendingUp className="w-6 h-6 text-white" />
@@ -369,13 +369,13 @@ export const Finance: React.FC = () => {
                     <ArrowUpRight className="w-5 h-5 text-green-600" />
                   </div>
                   <p className="text-sm text-green-700 font-medium mb-1">Total Income</p>
-                  <p className="text-2xl font-bold text-green-900">
+                  <p className="text-xl font-bold text-green-900">
                     Rp {(totalIncome / 1000000000).toFixed(1)}B
                   </p>
                   <p className="text-xs text-green-600 mt-2">+15% from last month</p>
                 </div>
 
-                <div className="bg-gradient-to-br from-red-50 to-red-100 border border-red-200 rounded-xl p-6">
+                <div className="bg-gradient-to-br from-red-50 to-red-100 border border-red-200 rounded-lg p-4">
                   <div className="flex items-center justify-between mb-3">
                     <div className="bg-red-600 p-3 rounded-lg">
                       <TrendingDown className="w-6 h-6 text-white" />
@@ -383,13 +383,13 @@ export const Finance: React.FC = () => {
                     <ArrowDownRight className="w-5 h-5 text-red-600" />
                   </div>
                   <p className="text-sm text-red-700 font-medium mb-1">Total Expenses</p>
-                  <p className="text-2xl font-bold text-red-900">
+                  <p className="text-xl font-bold text-red-900">
                     Rp {(totalExpense / 1000000000).toFixed(1)}B
                   </p>
                   <p className="text-xs text-red-600 mt-2">+8% from last month</p>
                 </div>
 
-                <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-xl p-6">
+                <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-4">
                   <div className="flex items-center justify-between mb-3">
                     <div className="bg-blue-600 p-3 rounded-lg">
                       <DollarSign className="w-6 h-6 text-white" />
@@ -397,16 +397,16 @@ export const Finance: React.FC = () => {
                     <ArrowUpRight className="w-5 h-5 text-blue-600" />
                   </div>
                   <p className="text-sm text-blue-700 font-medium mb-1">Net Cash Flow</p>
-                  <p className="text-2xl font-bold text-blue-900">
+                  <p className="text-xl font-bold text-blue-900">
                     Rp {(cashFlow / 1000000000).toFixed(1)}B
                   </p>
                   <p className="text-xs text-blue-600 mt-2">Positive flow</p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="bg-white border border-gray-200 rounded-xl p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Income vs Expense</h3>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                  <h3 className="text-base font-semibold text-gray-900 mb-4">Income vs Expense</h3>
                   <div className="space-y-4">
                     <div>
                       <div className="flex items-center justify-between mb-2">
@@ -444,9 +444,9 @@ export const Finance: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="bg-white border border-gray-200 rounded-xl p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Realisasi Bagi Hasil Investor</h3>
-                  <div className="space-y-6">
+                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                  <h3 className="text-base font-semibold text-gray-900 mb-4">Realisasi Bagi Hasil Investor</h3>
+                  <div className="space-y-4">
                     {kitchens.filter(k => k.accumulated_profit > 0).slice(0, 3).map((kitchen: any) => {
                       const target = kitchen.initial_capital * 1.5; // Contoh target 150% ROI
                       const percentage = Math.min((kitchen.accumulated_profit / target) * 100, 100);
@@ -475,7 +475,7 @@ export const Finance: React.FC = () => {
                       );
                     })}
                     {kitchens.filter(k => k.accumulated_profit > 0).length === 0 && (
-                      <div className="text-center py-8 text-gray-400 italic text-sm">
+                      <div className="text-center py-3 text-gray-400 italic text-sm">
                         Belum ada data distribusi bagi hasil terekam.
                       </div>
                     )}
@@ -512,9 +512,9 @@ export const Finance: React.FC = () => {
                           <p className="text-sm text-gray-600">{formatDateID(transaction.date)}</p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-6">
+                      <div className="flex items-center gap-4">
                         <div className="text-right">
-                          <p className={`text-lg font-bold ${
+                          <p className={`text-base font-bold ${
                             transaction.type === 'income' ? 'text-green-600' : 'text-red-600'
                           }`}>
                             {transaction.type === 'income' ? '+' : '-'}Rp {(transaction.amount / 1000000).toFixed(0)}M
@@ -557,14 +557,14 @@ export const Finance: React.FC = () => {
           )}
 
           {activeTab === 'loans' && (
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {paginatedLoans.map((loan: Loan) => {
                   const paidAmount = loan.amount - loan.remaining_balance;
                   const percentage = loan.amount > 0 ? (paidAmount / loan.amount) * 100 : 0;
 
                   return (
-                    <div key={loan.id} className="bg-white border border-gray-200 rounded-xl p-6 relative group">
+                    <div key={loan.id} className="bg-white border border-gray-200 rounded-lg p-4 relative group">
                       <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button 
                           onClick={() => openEditLoan(loan)}
@@ -651,10 +651,10 @@ export const Finance: React.FC = () => {
           )}
 
           {activeTab === 'expenses' && (
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-white border border-gray-200 rounded-xl p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-6">Expense Distribution</h3>
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                  <h3 className="text-base font-semibold text-gray-900 mb-6">Expense Distribution</h3>
                   <div className="space-y-4">
                     {expenseCategories.map((cat) => (
                       <div key={cat.category}>
@@ -680,8 +680,8 @@ export const Finance: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-blue-50 to-green-50 border border-blue-200 rounded-xl p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-6">Budget vs Actual</h3>
+                <div className="bg-gradient-to-br from-blue-50 to-green-50 border border-blue-200 rounded-lg p-4">
+                  <h3 className="text-base font-semibold text-gray-900 mb-6">Budget vs Actual</h3>
                   <div className="space-y-4">
                     {expenseCategories.map((cat) => {
                       const budget = cat.amount * 1.2;
@@ -717,8 +717,8 @@ export const Finance: React.FC = () => {
                 </div>
               </div>
 
-              <div className="bg-white border border-gray-200 rounded-xl p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Pending Approvals</h3>
+              <div className="bg-white border border-gray-200 rounded-lg p-4">
+                <h3 className="text-base font-semibold text-gray-900 mb-4">Pending Approvals</h3>
                 <div className="space-y-3">
                   {transactions.filter((t: Transaction) => t.status === 'pending').map((transaction: Transaction) => (
                     <div key={transaction.id} className="bg-orange-50 border border-orange-200 rounded-lg p-4">
@@ -727,7 +727,7 @@ export const Finance: React.FC = () => {
                           <p className="font-medium text-gray-900">{transaction.category}</p>
                           <p className="text-sm text-gray-600">{formatDateID(transaction.date)}</p>
                         </div>
-                        <p className="text-lg font-bold text-orange-600">
+                        <p className="text-base font-bold text-orange-600">
                           Rp {(transaction.amount / 1000000).toFixed(0)}M
                         </p>
                       </div>
@@ -759,9 +759,9 @@ export const Finance: React.FC = () => {
           )}
 
           {(activeTab === 'reports' || activeTab === 'investasi' || activeTab === 'sewa' || activeTab === 'margin' || activeTab === 'operasional') && (
-            <div className="space-y-6">
-              <div className="bg-white p-6 border border-gray-200 rounded-xl">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            <div className="space-y-4">
+              <div className="bg-white p-4 border border-gray-200 rounded-lg">
+                <h3 className="text-base font-semibold text-gray-900 mb-4">
                   {activeTab === 'reports' ? 'Laporan Bagi Hasil Per Dapur' :
                    activeTab === 'sewa' ? 'Laporan Sewa Dapur' :
                    activeTab === 'margin' ? 'Laporan Selisih Bahan (60:20:20)' :
@@ -795,7 +795,7 @@ export const Finance: React.FC = () => {
                   </select>
                   <button 
                     onClick={() => selectedKitchenId && fetchReport(selectedKitchenId)}
-                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
                   >
                     Refresh Laporan
                   </button>
@@ -811,14 +811,14 @@ export const Finance: React.FC = () => {
               </div>
 
               {reportData && (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-in fade-in slide-in-from-bottom-4">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 animate-in fade-in slide-in-from-bottom-4">
                   {/* Summary Card */}
-                  <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-                    <div className="p-6 bg-slate-50 border-b border-gray-200">
+                  <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                    <div className="p-4 bg-slate-50 border-b border-gray-200">
                       <h4 className="font-bold text-gray-900">{reportData.dapur_name}</h4>
                       <p className="text-sm text-gray-500">Skema: {reportData.type}</p>
                     </div>
-                    <div className="p-6 space-y-4">
+                    <div className="p-4 space-y-4">
                       <div className="grid grid-cols-2 gap-4 pb-4 border-b border-gray-100">
                         <div>
                           <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Tanggal Masuk Dana</p>
@@ -865,22 +865,22 @@ export const Finance: React.FC = () => {
 
                       <div className="pt-4 border-t-2 border-dashed border-gray-100 flex justify-between items-center">
                         <span className="font-bold text-gray-900">Total Sisa Bersih (Net)</span>
-                        <span className="text-xl font-black text-blue-600">Rp {reportData.sisa_bersih.toLocaleString()}</span>
+                        <span className="text-lg font-black text-blue-600">Rp {reportData.sisa_bersih.toLocaleString()}</span>
                       </div>
                     </div>
                   </div>
 
                   {/* Distribution Breakdown */}
-                  <div className="bg-white border border-gray-200 rounded-xl p-6">
+                  <div className="bg-white border border-gray-200 rounded-lg p-4">
                     <h4 className="font-bold text-gray-900 mb-6 flex items-center gap-2">
                        <PieChart className="w-5 h-5 text-blue-600" />
                        Rincian Pembagian (Split)
                     </h4>
-                    <div className="space-y-6">
+                    <div className="space-y-4">
                       {/* Rental Split & Investor */}
                       {(activeTab === 'reports' || activeTab === 'investasi' || activeTab === 'sewa') && (
                         <div className="space-y-2">
-                          <p className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nisbah / Margin (%)</p>
+                          <p className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nisbah / Margin (%)</p>
                           <div className="grid grid-cols-1 gap-2">
                              {(activeTab === 'reports' || activeTab === 'investasi') && reportData.investor_share > 0 && (
                                <div className="flex justify-between p-3 bg-slate-50 rounded-lg">
@@ -948,8 +948,8 @@ export const Finance: React.FC = () => {
       {/* Transaction Modal */}
       {isTransModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl max-w-md w-full p-6">
-            <h2 className="text-xl font-bold mb-4">{editingTrans ? 'Edit Transaction' : 'New Transaction'}</h2>
+          <div className="bg-white rounded-lg max-w-md w-full p-4">
+            <h2 className="text-lg font-bold mb-4">{editingTrans ? 'Edit Transaction' : 'New Transaction'}</h2>
             <form onSubmit={handleTransSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
@@ -1030,8 +1030,8 @@ export const Finance: React.FC = () => {
       {/* Loan Modal */}
       {isLoanModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl max-w-lg w-full p-6">
-            <h2 className="text-xl font-bold mb-4">{editingLoan ? 'Edit Loan' : 'New Loan'}</h2>
+          <div className="bg-white rounded-lg max-w-lg w-full p-4">
+            <h2 className="text-lg font-bold mb-4">{editingLoan ? 'Edit Loan' : 'New Loan'}</h2>
             <form onSubmit={handleLoanSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -1158,19 +1158,19 @@ export const Finance: React.FC = () => {
       {/* BGN Modal */}
       {isBGNModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-8 shadow-2xl animate-in zoom-in duration-300">
+          <div className="bg-white rounded-xl max-w-lg w-full p-4 shadow-2xl animate-in zoom-in duration-300">
             <div className="flex items-center gap-3 mb-6">
-              <div className="bg-[#E2F8F3] p-3 rounded-xl">
+              <div className="bg-[#E2F8F3] p-3 rounded-lg">
                 <CheckCircle className="w-6 h-6 text-[#2BBF9D]" />
               </div>
               <div>
-                <h2 className="text-xl font-black text-[#1A4D43]">Lapor Dana BGN</h2>
+                <h2 className="text-lg font-black text-[#1A4D43]">Lapor Dana BGN</h2>
                 <p className="text-sm text-gray-500 font-medium tracking-tight">Input dana masuk per 10 hari</p>
               </div>
             </div>
             
-            <form onSubmit={handleBGNSubmit} className="space-y-6">
-              <div className="grid grid-cols-2 gap-6">
+            <form onSubmit={handleBGNSubmit} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Tanggal Masuk</label>
                   <input 
@@ -1178,7 +1178,7 @@ export const Finance: React.FC = () => {
                     required
                     value={bgnForm.date}
                     onChange={e => setBgnForm({...bgnForm, date: e.target.value})}
-                    className="w-full border border-gray-100 rounded-xl px-4 py-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-[#2BBF9D] focus:border-transparent transition-all outline-none"
+                    className="w-full border border-gray-100 rounded-lg px-4 py-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-[#2BBF9D] focus:border-transparent transition-all outline-none"
                   />
                 </div>
                 <div>
@@ -1186,7 +1186,7 @@ export const Finance: React.FC = () => {
                   <select 
                     value={bgnForm.period}
                     onChange={e => setBgnForm({...bgnForm, period: e.target.value})}
-                    className="w-full border border-gray-100 rounded-xl px-4 py-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-[#2BBF9D] focus:border-transparent transition-all outline-none"
+                    className="w-full border border-gray-100 rounded-lg px-4 py-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-[#2BBF9D] focus:border-transparent transition-all outline-none"
                   >
                     <option value="Tgl 1-10">Tgl 1-10</option>
                     <option value="Tgl 11-20">Tgl 11-20</option>
@@ -1205,7 +1205,7 @@ export const Finance: React.FC = () => {
                     placeholder="Contoh: 150000000"
                     value={bgnForm.amount || ''}
                     onChange={e => setBgnForm({...bgnForm, amount: Number(e.target.value)})}
-                    className="w-full border border-gray-100 rounded-xl pl-12 pr-4 py-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-[#2BBF9D] focus:border-transparent transition-all outline-none font-bold"
+                    className="w-full border border-gray-100 rounded-lg pl-12 pr-4 py-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-[#2BBF9D] focus:border-transparent transition-all outline-none font-bold"
                   />
                 </div>
               </div>
@@ -1218,7 +1218,7 @@ export const Finance: React.FC = () => {
                   required
                   value={bgnForm.proof_ref}
                   onChange={e => setBgnForm({...bgnForm, proof_ref: e.target.value})}
-                  className="w-full border border-gray-100 rounded-xl px-4 py-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-[#2BBF9D] focus:border-transparent transition-all outline-none"
+                  className="w-full border border-gray-100 rounded-lg px-4 py-3 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-[#2BBF9D] focus:border-transparent transition-all outline-none"
                 />
               </div>
 
@@ -1226,13 +1226,13 @@ export const Finance: React.FC = () => {
                 <button 
                   type="button"
                   onClick={() => setIsBGNModalOpen(false)}
-                  className="flex-1 px-4 py-3 border border-gray-100 rounded-xl hover:bg-gray-50 font-bold text-gray-500 transition-all active:scale-95"
+                  className="flex-1 px-4 py-3 border border-gray-100 rounded-lg hover:bg-gray-50 font-bold text-gray-500 transition-all active:scale-95"
                 >
                   Batal
                 </button>
                 <button 
                   type="submit"
-                  className="flex-1 px-4 py-3 bg-[#1A4D43] text-white rounded-xl hover:bg-[#1A4D43]/90 font-bold transition-all shadow-lg shadow-[#1A4D43]/20 active:scale-95"
+                  className="flex-1 px-4 py-3 bg-[#1A4D43] text-white rounded-lg hover:bg-[#1A4D43]/90 font-bold transition-all shadow-lg shadow-[#1A4D43]/20 active:scale-95"
                 >
                   Kirim Laporan
                 </button>

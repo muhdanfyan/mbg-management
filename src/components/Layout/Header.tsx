@@ -17,24 +17,24 @@ export const Header: React.FC = () => {
   const unreadCount = notifications.filter(n => n.unread).length;
 
   return (
-    <header className="h-20 bg-white/70 border-b border-white/20 flex items-center justify-between px-8 sticky top-0 z-[60] backdrop-blur-xl">
+    <header className="h-20 bg-white/70 border-b border-white/20 flex items-center justify-between px-4 sticky top-0 z-[60] backdrop-blur-xl">
       <div className="flex items-center gap-4">
-        <div className="bg-white p-2 rounded-2xl shadow-sm border border-gray-100">
-           <img src="/logo-wahdah.png" alt="Logo" className="w-10 h-10 object-contain" />
+        <div className="bg-white p-2 rounded-xl shadow-sm border border-gray-100">
+           <img src="/logo-wahdah.png" alt="Logo" className="w-8 h-8 object-contain" />
         </div>
         <div>
-          <h2 className="text-xl font-black text-[#1A4D43] tracking-tight">
+          <h2 className="text-lg font-black text-[#1A4D43] tracking-tight">
             Selamat Datang, {profile?.full_name?.split(' ')[0]}
           </h2>
           <p className="text-[10px] uppercase font-black text-[#2BBF9D] tracking-[0.2em]">{profile?.role}</p>
         </div>
       </div>
 
-      <div className="flex items-center gap-6">
+      <div className="flex items-center gap-4">
         <div className="relative">
           <button
             onClick={() => setShowNotifications(!showNotifications)}
-            className="relative p-2.5 hover:bg-gray-50 rounded-xl transition-all active:scale-95 group"
+            className="relative p-2.5 hover:bg-gray-50 rounded-lg transition-all active:scale-95 group"
           >
             <Bell className="w-5 h-5 text-gray-400 group-hover:text-[#2BBF9D] transition-colors" />
             {unreadCount > 0 && (
@@ -48,7 +48,7 @@ export const Header: React.FC = () => {
                 className="fixed inset-0 z-[70]"
                 onClick={() => setShowNotifications(false)}
               ></div>
-              <div className="absolute right-0 mt-4 w-80 bg-white rounded-2xl shadow-2xl border border-gray-50 z-[80] overflow-hidden animate-in fade-in zoom-in duration-200">
+              <div className="absolute right-0 mt-4 w-80 bg-white rounded-xl shadow-2xl border border-gray-50 z-[80] overflow-hidden animate-in fade-in zoom-in duration-200">
                 <div className="p-5 border-b border-gray-50 bg-[#F8FAF9]">
                   <h3 className="font-bold text-[#1A4D43]">Notifikasi</h3>
                 </div>
@@ -78,9 +78,9 @@ export const Header: React.FC = () => {
         <div className="relative">
           <button
             onClick={() => setShowDropdown(!showDropdown)}
-            className="flex items-center gap-3 p-1.5 hover:bg-gray-50 rounded-2xl transition-all active:scale-95 group"
+            className="flex items-center gap-3 p-1.5 hover:bg-gray-50 rounded-xl transition-all active:scale-95 group"
           >
-            <div className="w-9 h-9 bg-gradient-to-br from-[#1A4D43] to-[#2BBF9D] rounded-xl flex items-center justify-center shadow-lg shadow-[#2BBF9D]/20 overflow-hidden">
+            <div className="w-9 h-9 bg-gradient-to-br from-[#1A4D43] to-[#2BBF9D] rounded-lg flex items-center justify-center shadow-lg shadow-[#2BBF9D]/20 overflow-hidden">
               {profile?.avatar_url ? (
                 <img src={getImageUrl(profile.avatar_url)} alt="Avatar" className="w-full h-full object-cover" />
               ) : (
@@ -96,22 +96,22 @@ export const Header: React.FC = () => {
                 className="fixed inset-0 z-[70]"
                 onClick={() => setShowDropdown(false)}
               ></div>
-              <div className="absolute right-0 mt-4 w-72 bg-white rounded-2xl shadow-2xl border border-gray-50 z-[80] overflow-hidden animate-in fade-in zoom-in duration-200">
-                <div className="p-6 border-b border-gray-50 bg-[#F8FAF9]">
-                  <p className="font-bold text-[#1A4D43] text-lg leading-tight">{profile?.full_name}</p>
+              <div className="absolute right-0 mt-4 w-72 bg-white rounded-xl shadow-2xl border border-gray-50 z-[80] overflow-hidden animate-in fade-in zoom-in duration-200">
+                <div className="p-4 border-b border-gray-50 bg-[#F8FAF9]">
+                  <p className="font-bold text-[#1A4D43] text-base leading-tight">{profile?.full_name}</p>
                   <p className="text-xs text-gray-400 font-medium mb-3">{profile?.email}</p>
                   <span className="px-3 py-1 bg-[#E2F8F3] text-[#2BBF9D] text-[10px] font-black uppercase tracking-widest rounded-full shadow-sm">
                     {profile?.role}
                   </span>
                 </div>
                 <div className="p-3">
-                  <button className="w-full flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-[#1A4D43] rounded-xl transition-all group">
+                  <button className="w-full flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-[#1A4D43] rounded-lg transition-all group">
                     <div className="p-2 bg-gray-50 rounded-lg group-hover:bg-white transition-colors">
                       <User className="w-4 h-4" />
                     </div>
                     <span className="text-sm font-bold">Profil Saya</span>
                   </button>
-                  <button className="w-full flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-[#1A4D43] rounded-xl transition-all group">
+                  <button className="w-full flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-[#1A4D43] rounded-lg transition-all group">
                     <div className="p-2 bg-gray-50 rounded-lg group-hover:bg-white transition-colors">
                       <Settings className="w-4 h-4" />
                     </div>
@@ -121,7 +121,7 @@ export const Header: React.FC = () => {
                 <div className="p-3 border-t border-gray-50 bg-[#F8FAF9]">
                   <button
                     onClick={() => signOut()}
-                    className="w-full flex items-center gap-3 px-4 py-3 text-red-500 hover:bg-red-50 rounded-xl transition-all group"
+                    className="w-full flex items-center gap-3 px-4 py-3 text-red-500 hover:bg-red-50 rounded-lg transition-all group"
                   >
                     <div className="p-2 bg-red-50 rounded-lg group-hover:bg-white transition-colors">
                       <LogOut className="w-4 h-4" />

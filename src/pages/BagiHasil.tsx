@@ -298,7 +298,7 @@ export const BagiHasil: React.FC = () => {
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1E8289]"></div>
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#1E8289]"></div>
             </div>
         );
     }
@@ -308,7 +308,7 @@ export const BagiHasil: React.FC = () => {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-[#164E4D] tracking-tight flex items-center gap-3">
+                    <h1 className="text-2xl font-bold text-[#164E4D] tracking-tight flex items-center gap-3">
                         <HandCoins className="w-8 h-8" />
                         Manajemen Bagi Hasil
                     </h1>
@@ -334,56 +334,56 @@ export const BagiHasil: React.FC = () => {
 
             {/* Summary Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="glass-card p-6 border-l-4 border-[#1E8289]">
+                <div className="glass-card p-4 border-l-4 border-[#1E8289]">
                     <div className="flex items-center gap-4">
-                        <div className="bg-[#F0F7F7] p-3 rounded-2xl text-[#1E8289]">
+                        <div className="bg-[#F0F7F7] p-3 rounded-xl text-[#1E8289]">
                             <History className="w-6 h-6" />
                         </div>
                         <div>
                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Sewa Terkumpul</p>
-                            <h3 className="text-xl font-black text-[#164E4D]">
+                            <h3 className="text-lg font-black text-[#164E4D]">
                                 Rp {(rentals || []).reduce((sum, r) => sum + r.amount, 0).toLocaleString('id-ID')}
                             </h3>
                         </div>
                     </div>
                 </div>
 
-                <div className="glass-card p-6 border-l-4 border-blue-500">
+                <div className="glass-card p-4 border-l-4 border-blue-500">
                     <div className="flex items-center gap-4">
-                        <div className="bg-blue-50 p-3 rounded-2xl text-blue-500">
+                        <div className="bg-blue-50 p-3 rounded-xl text-blue-500">
                             <Send className="w-6 h-6" />
                         </div>
                         <div>
                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Terdistribusi</p>
-                            <h3 className="text-xl font-black text-[#164E4D]">
+                            <h3 className="text-lg font-black text-[#164E4D]">
                                 Rp {(distributions || []).reduce((sum, d) => sum + d.total_pool, 0).toLocaleString('id-ID')}
                             </h3>
                         </div>
                     </div>
                 </div>
 
-                <div className="glass-card p-6 border-l-4 border-orange-500">
+                <div className="glass-card p-4 border-l-4 border-orange-500">
                     <div className="flex items-center gap-4">
-                        <div className="bg-orange-50 p-3 rounded-2xl text-orange-500">
+                        <div className="bg-orange-50 p-3 rounded-xl text-orange-500">
                             <Clock className="w-6 h-6" />
                         </div>
                         <div>
                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Remitansi Menunggu</p>
-                            <h3 className="text-xl font-black text-[#164E4D]">
+                            <h3 className="text-lg font-black text-[#164E4D]">
                                 {(distributions || []).reduce((count, d) => count + (d.details?.filter(dt => dt.status === 'PENDING').length || 0), 0)} Pembayaran
                             </h3>
                         </div>
                     </div>
                 </div>
 
-                <div className="glass-card p-6 bg-gradient-to-br from-[#164E4D] to-[#1E8289] border-none">
+                <div className="glass-card p-4 bg-gradient-to-br from-[#164E4D] to-[#1E8289] border-none">
                     <div className="flex items-center gap-4 text-white">
-                        <div className="bg-white/20 p-3 rounded-2xl">
+                        <div className="bg-white/20 p-3 rounded-xl">
                             <TrendingUp className="w-6 h-6" />
                         </div>
                         <div>
                             <p className="text-[10px] font-black text-white/60 uppercase tracking-widest">Progres BEP Nasional</p>
-                            <h3 className="text-xl font-black">
+                            <h3 className="text-lg font-black">
                                 {(()=>{
                                     const totalCap = (kitchens || []).reduce((sum, k) => sum + (k.initial_capital || 0), 0);
                                     const totalProf = (kitchens || []).reduce((sum, k) => sum + (k.accumulated_profit || 0), 0);
@@ -407,7 +407,7 @@ export const BagiHasil: React.FC = () => {
                         <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id as any)}
-                            className={`flex-1 flex items-center justify-center gap-2 py-4 text-xs font-black uppercase tracking-widest transition-all rounded-xl ${
+                            className={`flex-1 flex items-center justify-center gap-2 py-3 text-xs font-black uppercase tracking-widest transition-all rounded-lg ${
                                 activeTab === tab.id 
                                 ? 'bg-white text-[#164E4D] shadow-sm' 
                                 : 'text-gray-400 hover:text-[#1E8289]'
@@ -419,33 +419,33 @@ export const BagiHasil: React.FC = () => {
                     ))}
                 </div>
 
-                <div className="p-6">
+                <div className="p-4">
                     {activeTab === 'sewa' && (
                         <div className="overflow-x-auto">
                             <table className="w-full text-left">
                                 <thead className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
                                     <tr>
-                                        <th className="px-4 py-4">Kitchen</th>
-                                        <th className="px-4 py-4">Tanggal</th>
-                                        <th className="px-4 py-4">Periode</th>
-                                        <th className="px-4 py-4 text-right">Jumlah</th>
-                                        <th className="px-4 py-4">Status</th>
-                                        <th className="px-4 py-4">Catatan</th>
+                                        <th className="px-4 py-3">Kitchen</th>
+                                        <th className="px-4 py-3">Tanggal</th>
+                                        <th className="px-4 py-3">Periode</th>
+                                        <th className="px-4 py-3 text-right">Jumlah</th>
+                                        <th className="px-4 py-3">Status</th>
+                                        <th className="px-4 py-3">Catatan</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-50">
                                     {(rentals || []).map(r => (
                                         <tr key={r.id} className="hover:bg-[#F9FAFA] transition-colors">
-                                            <td className="px-4 py-4 text-xs font-bold text-[#164E4D]">{(kitchens || []).find(k => k.id === r.kitchen_id)?.name}</td>
-                                            <td className="px-4 py-4 text-xs font-medium text-gray-500">{formatDateID(r.date)}</td>
-                                            <td className="px-4 py-4 text-xs font-bold text-blue-600">{formatPeriodID(r.period)}</td>
-                                            <td className="px-4 py-4 text-xs font-black text-[#164E4D] text-right">{formatCurrencyID(r.amount)}</td>
-                                            <td className="px-4 py-4">
+                                            <td className="px-4 py-3 text-xs font-bold text-[#164E4D]">{(kitchens || []).find(k => k.id === r.kitchen_id)?.name}</td>
+                                            <td className="px-4 py-3 text-xs font-medium text-gray-500">{formatDateID(r.date)}</td>
+                                            <td className="px-4 py-3 text-xs font-bold text-blue-600">{formatPeriodID(r.period)}</td>
+                                            <td className="px-4 py-3 text-xs font-black text-[#164E4D] text-right">{formatCurrencyID(r.amount)}</td>
+                                            <td className="px-4 py-3">
                                                 <span className="px-3 py-1 bg-[#F0F7F7] text-[#1E8289] text-[9px] font-black rounded-full uppercase">
                                                     {r.status === 'PAID' ? 'Sudah Dibayar' : 'Menunggu'}
                                                 </span>
                                             </td>
-                                            <td className="px-4 py-4 text-xs text-gray-400">{r.notes}</td>
+                                            <td className="px-4 py-3 text-xs text-gray-400">{r.notes}</td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -454,35 +454,35 @@ export const BagiHasil: React.FC = () => {
                     )}
 
                     {activeTab === 'distribusi' && (
-                        <div className="space-y-6">
+                        <div className="space-y-4">
                             {(distributions || []).map(d => (
-                                <div key={d.id} className="border border-gray-100 rounded-2xl p-6 bg-white hover:shadow-lg transition-all">
+                                <div key={d.id} className="border border-gray-100 rounded-xl p-4 bg-white hover:shadow-lg transition-all">
                                     <div className="flex justify-between items-start mb-6">
                                         <div>
                                             <span className="px-3 py-1 bg-blue-50 text-blue-600 text-[10px] font-black rounded-lg uppercase mb-2 inline-block">
                                                 ID DIST: #{d.id}
                                             </span>
-                                            <h4 className="text-lg font-black text-[#164E4D]">{(kitchens || []).find(k => k.id === d.kitchen_id)?.name}</h4>
+                                            <h4 className="text-base font-black text-[#164E4D]">{(kitchens || []).find(k => k.id === d.kitchen_id)?.name}</h4>
                                             <p className="text-xs text-gray-400 font-bold uppercase tracking-tighter">Periode: {formatPeriodID(d.period)} • {d.is_post_bep ? 'SKEMA PASCA-BEP' : 'SKEMA PRE-BEP'} • Transfer: {d.created_at ? formatDateID(d.created_at) : '-'}</p>
                                         </div>
                                         <div className="text-right">
                                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Pool</p>
-                                            <h3 className="text-2xl font-black text-[#164E4D]">{formatCurrencyID(d.total_pool)}</h3>
+                                            <h3 className="text-xl font-black text-[#164E4D]">{formatCurrencyID(d.total_pool)}</h3>
                                         </div>
                                     </div>
 
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                        <div className="bg-[#F9FAFA] p-4 rounded-xl">
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div className="bg-[#F9FAFA] p-4 rounded-lg">
                                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Porsi Investor</p>
-                                            <p className="text-lg font-black text-[#1E8289]">{formatCurrencyID(d.investor_split)}</p>
+                                            <p className="text-base font-black text-[#1E8289]">{formatCurrencyID(d.investor_split)}</p>
                                         </div>
-                                        <div className="bg-[#F9FAFA] p-4 rounded-xl">
+                                        <div className="bg-[#F9FAFA] p-4 rounded-lg">
                                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Porsi DPP</p>
-                                            <p className="text-lg font-black text-[#164E4D]">{formatCurrencyID(d.dpp_split)}</p>
+                                            <p className="text-base font-black text-[#164E4D]">{formatCurrencyID(d.dpp_split)}</p>
                                         </div>
-                                        <div className="bg-[#F9FAFA] p-4 rounded-xl">
+                                        <div className="bg-[#F9FAFA] p-4 rounded-lg">
                                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Porsi YWMP</p>
-                                            <p className="text-lg font-black text-blue-600">{formatCurrencyID(d.ywmp_split)}</p>
+                                            <p className="text-base font-black text-blue-600">{formatCurrencyID(d.ywmp_split)}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -495,7 +495,7 @@ export const BagiHasil: React.FC = () => {
                             {(distributions || []).flatMap(d => d.details || []).map(dt => (
                                 <div key={dt.id} className="glass-card p-4 flex items-center justify-between group">
                                     <div className="flex items-center gap-4">
-                                        <div className={`w-10 h-10 rounded-2xl flex items-center justify-center font-black text-xs ${
+                                        <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs ${
                                             dt.role === 'INVESTOR' ? 'bg-[#F0F7F7] text-[#1E8289]' : 'bg-[#164E4D]/5 text-[#164E4D]'
                                         }`}>
                                             {dt.role.slice(0, 3)}
@@ -505,7 +505,7 @@ export const BagiHasil: React.FC = () => {
                                             <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Proporsional: {dt.percentage}%</p>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-6">
+                                    <div className="flex items-center gap-4">
                                         <div className="text-right">
                                             <p className="text-sm font-black text-[#164E4D]">{formatCurrencyID(dt.amount)}</p>
                                             {dt.status === 'PAID' ? (
@@ -526,7 +526,7 @@ export const BagiHasil: React.FC = () => {
                                         {dt.status !== 'PAID' && (
                                             <button 
                                                 onClick={() => handleRemit(dt.id!)}
-                                                className="bg-[#164E4D] text-white p-2 rounded-xl opacity-0 group-hover:opacity-100 transition-all hover:scale-110 shadow-lg shadow-[#164E4D]/20"
+                                                className="bg-[#164E4D] text-white p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-all hover:scale-110 shadow-lg shadow-[#164E4D]/20"
                                             >
                                                 <UploadCloud className="w-5 h-5" />
                                             </button>
@@ -538,16 +538,16 @@ export const BagiHasil: React.FC = () => {
                     )}
 
                     {activeTab === 'bep' && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {(kitchens || []).filter(k => k.type === 'INVESTOR').map(k => {
                                 const progress = k.initial_capital > 0 ? (k.accumulated_profit / k.initial_capital) * 100 : 0;
                                 return (
-                                    <div key={k.id} className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm relative overflow-hidden group hover:shadow-xl transition-all">
+                                    <div key={k.id} className="bg-white p-4 rounded-[2rem] border border-gray-100 shadow-sm relative overflow-hidden group hover:shadow-xl transition-all">
                                         <div className="absolute -right-4 -top-4 w-32 h-32 bg-[#F0F7F7]/50 rounded-full blur-3xl group-hover:bg-[#1E8289]/20 transition-all"></div>
                                         
                                         <div className="flex justify-between items-start mb-8 relative z-10">
                                             <div>
-                                                <h4 className="text-xl font-black text-[#164E4D]">{k.name}</h4>
+                                                <h4 className="text-lg font-black text-[#164E4D]">{k.name}</h4>
                                                 <p className="text-xs text-gray-400 font-bold uppercase tracking-widest">{k.region}</p>
                                             </div>
                                             <div className="text-right">
@@ -559,7 +559,7 @@ export const BagiHasil: React.FC = () => {
                                             </div>
                                         </div>
 
-                                        <div className="space-y-6 relative z-10">
+                                        <div className="space-y-4 relative z-10">
                                             <div>
                                                 <div className="flex justify-between text-xs font-black uppercase tracking-widest mb-3">
                                                     <span className="text-gray-400">Balik Modal Progress</span>
@@ -579,18 +579,18 @@ export const BagiHasil: React.FC = () => {
                                             <BEPChart kitchenId={k.id} initialCapital={k.initial_capital} />
 
                                             <div className="grid grid-cols-2 gap-4">
-                                                <div className="bg-[#F8FAF9] p-4 rounded-2xl">
+                                                <div className="bg-[#F8FAF9] p-4 rounded-xl">
                                                     <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Target Investasi</p>
                                                     <p className="text-sm font-black text-[#1A4D43]">{formatCurrencyID(k.initial_capital)}</p>
                                                 </div>
-                                                <div className="bg-[#F8FAF9] p-4 rounded-2xl">
+                                                <div className="bg-[#F8FAF9] p-4 rounded-xl">
                                                     <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Current Payout</p>
                                                     <p className="text-sm font-black text-[#2BBF9D]">{formatCurrencyID(k.accumulated_profit)}</p>
                                                 </div>
                                             </div>
 
                                             {k.bep_status === 'POST-BEP' && (
-                                                <div className="bg-[#F0F7F7] p-4 rounded-2xl border border-[#1E8289]/20 flex items-center gap-3">
+                                                <div className="bg-[#F0F7F7] p-4 rounded-xl border border-[#1E8289]/20 flex items-center gap-3">
                                                     <ArrowUpRight className="w-5 h-5 text-[#1E8289]" />
                                                     <p className="text-[11px] font-bold text-[#164E4D] leading-tight">
                                                         <span className="text-[#1E8289] font-black">PROFIT SAH!</span> Skema bagi hasil telah otomatis dibalik untuk periode mendatang.
@@ -604,7 +604,7 @@ export const BagiHasil: React.FC = () => {
                                                 {k.investors && k.investors.length > 0 ? (
                                                     <div className="space-y-2">
                                                         {k.investors.map((inv) => (
-                                                            <div key={inv.id} className="flex items-center justify-between p-3 bg-[#F8FAF9]/50 rounded-xl border border-white">
+                                                            <div key={inv.id} className="flex items-center justify-between p-3 bg-[#F8FAF9]/50 rounded-lg border border-white">
                                                                 <div className="flex items-center gap-3">
                                                                     <div className="w-7 h-7 bg-white rounded-lg flex items-center justify-center text-[10px] font-black text-[#1A4D43] shadow-sm">
                                                                         {inv.name.slice(0, 1)}
@@ -638,8 +638,8 @@ export const BagiHasil: React.FC = () => {
             {/* Modals Implementation */}
             {isRentModalOpen && (
                 <div className="fixed inset-0 bg-[#164E4D]/40 flex items-center justify-center z-[1000] p-4 backdrop-blur-md">
-                    <div className="bg-white rounded-[2rem] max-w-lg w-full shadow-2xl overflow-hidden p-8">
-                        <h2 className="text-2xl font-black text-[#164E4D] mb-6">Perekaman Setoran Sewa</h2>
+                    <div className="bg-white rounded-[2rem] max-w-lg w-full shadow-2xl overflow-hidden p-4">
+                        <h2 className="text-xl font-black text-[#164E4D] mb-6">Perekaman Setoran Sewa</h2>
                         <form onSubmit={handleRentalSubmit} className="space-y-4">
                             <select name="kitchen_id" required className="premium-input w-full">
                                 <option value="">Pilih Dapur...</option>
@@ -650,8 +650,8 @@ export const BagiHasil: React.FC = () => {
                             <input type="text" name="period" required placeholder="Periode (e.g. April 2024)" className="premium-input w-full" />
                             <textarea name="notes" placeholder="Catatan Tambahan" className="premium-input w-full h-24" />
                             <div className="flex gap-4">
-                                <button type="button" onClick={() => setIsRentModalOpen(false)} className="flex-1 py-4 text-gray-400 font-bold uppercase tracking-widest text-xs">Batal</button>
-                                <button type="submit" className="flex-[2] premium-button-primary shadow-xl shadow-[#1E8289]/20 py-4">Simpan Setoran</button>
+                                <button type="button" onClick={() => setIsRentModalOpen(false)} className="flex-1 py-3 text-gray-400 font-bold uppercase tracking-widest text-xs">Batal</button>
+                                <button type="submit" className="flex-[2] premium-button-primary shadow-xl shadow-[#1E8289]/20 py-3">Simpan Setoran</button>
                             </div>
                         </form>
                     </div>
@@ -661,15 +661,15 @@ export const BagiHasil: React.FC = () => {
             {isDistModalOpen && (
                 <div className="fixed inset-0 bg-[#164E4D]/40 flex items-center justify-center z-[1000] p-4 backdrop-blur-md">
                     <div className="bg-white rounded-[3rem] max-w-2xl w-full shadow-2xl overflow-hidden">
-                        <div className="bg-gradient-to-br from-[#164E4D] to-[#1E8289] p-8 text-white relative">
-                            <h2 className="text-2xl font-black mb-1">Kalkulator Bagi Hasil</h2>
+                        <div className="bg-gradient-to-br from-[#164E4D] to-[#1E8289] p-4 text-white relative">
+                            <h2 className="text-xl font-black mb-1">Kalkulator Bagi Hasil</h2>
                             <p className="text-white/60 text-xs font-bold uppercase tracking-widest">Generate distribusi profit otomatis</p>
-                            <div className="absolute right-8 top-8 bg-white/20 p-4 rounded-3xl backdrop-blur-md">
+                            <div className="absolute right-8 top-8 bg-white/20 p-4 rounded-2xl backdrop-blur-md">
                                 <ArrowRightLeft className="w-8 h-8" />
                             </div>
                         </div>
                         
-                        <div className="p-8 space-y-6 max-h-[70vh] overflow-y-auto">
+                        <div className="p-4 space-y-4 max-h-[70vh] overflow-y-auto">
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 block ml-1">Pilih Dapur Target</label>
@@ -694,8 +694,8 @@ export const BagiHasil: React.FC = () => {
                             </div>
 
                             {calcResult && (
-                                <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-500">
-                                    <div className="p-6 bg-[#F8FAF9] rounded-[2rem] border border-gray-100">
+                                <div className="space-y-4 animate-in slide-in-from-bottom-4 duration-500">
+                                    <div className="p-4 bg-[#F8FAF9] rounded-[2rem] border border-gray-100">
                                         <div className="flex justify-between items-center mb-6">
                                             <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${
                                                 calcResult.bep_status === 'POST-BEP' ? 'bg-[#1E8289] text-white' : 'bg-[#164E4D]/10 text-[#164E4D]'
@@ -710,17 +710,17 @@ export const BagiHasil: React.FC = () => {
                                         </div>
 
                                         <div className="space-y-4">
-                                            <div className="flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm">
+                                            <div className="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm">
                                                 <span className="text-xs font-black text-gray-400 uppercase tracking-widest">Alokasi Investor</span>
-                                                <span className="text-lg font-black text-[#1E8289]">Rp {calcResult.investor_share.toLocaleString('id-ID')}</span>
+                                                <span className="text-base font-black text-[#1E8289]">Rp {calcResult.investor_share.toLocaleString('id-ID')}</span>
                                             </div>
-                                            <div className="flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm">
+                                            <div className="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm">
                                                 <span className="text-xs font-black text-gray-400 uppercase tracking-widest">Alokasi DPP (Wahdah)</span>
-                                                <span className="text-lg font-black text-[#164E4D]">Rp {calcResult.dpp_share_sewa.toLocaleString('id-ID')}</span>
+                                                <span className="text-base font-black text-[#164E4D]">Rp {calcResult.dpp_share_sewa.toLocaleString('id-ID')}</span>
                                             </div>
-                                            <div className="flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm">
+                                            <div className="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm">
                                                 <span className="text-xs font-black text-gray-400 uppercase tracking-widest">Alokasi YWMP</span>
-                                                <span className="text-lg font-black text-blue-600">Rp {calcResult.ywmp_share_sewa.toLocaleString('id-ID')}</span>
+                                                <span className="text-base font-black text-blue-600">Rp {calcResult.ywmp_share_sewa.toLocaleString('id-ID')}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -729,7 +729,7 @@ export const BagiHasil: React.FC = () => {
                                         <div className="space-y-3">
                                             <h5 className="text-xs font-black text-[#1A4D43] uppercase tracking-widest ml-1">Detail Eksekusi Investor</h5>
                                             {calcResult.investor_payouts.map((p: any, idx: number) => (
-                                                <div key={idx} className="flex justify-between items-center p-4 bg-white border border-gray-100 rounded-2xl">
+                                                <div key={idx} className="flex justify-between items-center p-4 bg-white border border-gray-100 rounded-xl">
                                                     <div>
                                                         <p className="text-sm font-black text-[#1A4D43]">{p.name}</p>
                                                         <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest">Porsi: {p.share_percentage}%</p>
@@ -743,11 +743,11 @@ export const BagiHasil: React.FC = () => {
                             )}
 
                             <div className="flex gap-4 pt-6 border-t border-gray-100">
-                                <button type="button" onClick={() => setIsDistModalOpen(false)} className="flex-1 py-4 text-gray-400 font-black uppercase tracking-widest text-[10px] transition-colors">Batal</button>
+                                <button type="button" onClick={() => setIsDistModalOpen(false)} className="flex-1 py-3 text-gray-400 font-black uppercase tracking-widest text-[10px] transition-colors">Batal</button>
                                 <button 
                                     disabled={!calcResult}
                                     onClick={executeDistribution}
-                                    className="flex-[2] premium-button-primary shadow-xl shadow-[#1E8289]/20 py-4 disabled:opacity-50"
+                                    className="flex-[2] premium-button-primary shadow-xl shadow-[#1E8289]/20 py-3 disabled:opacity-50"
                                 >
                                     Konfirmasi & Eksekusi Distribusi
                                 </button>
@@ -760,31 +760,31 @@ export const BagiHasil: React.FC = () => {
             {/* Evidence Modal */}
             {selectedEvidence && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
-                    <div className="bg-white rounded-3xl p-6 w-full max-w-2xl relative shadow-2xl animate-in zoom-in-95 duration-300">
+                    <div className="bg-white rounded-2xl p-4 w-full max-w-2xl relative shadow-2xl animate-in zoom-in-95 duration-300">
                         <button 
                             onClick={() => setSelectedEvidence(null)}
                             className="absolute -top-4 -right-4 bg-white text-gray-500 p-2 rounded-full shadow-lg hover:text-red-500 transition-colors"
                         >
                             <X className="w-6 h-6" />
                         </button>
-                        <h3 className="text-xl font-black text-[#164E4D] mb-4 flex items-center gap-2">
+                        <h3 className="text-lg font-black text-[#164E4D] mb-4 flex items-center gap-2">
                             <CheckCircle2 className="w-5 h-5 text-[#1E8289]" />
                             Bukti Transfer Pembayaran
                         </h3>
-                        <div className="aspect-video bg-gray-100 rounded-2xl overflow-hidden border border-gray-100 mb-4 flex items-center justify-center">
+                        <div className="aspect-video bg-gray-100 rounded-xl overflow-hidden border border-gray-100 mb-4 flex items-center justify-center">
                             <img src={getGoogleImageUrl(selectedEvidence)} alt="Bukti Transfer" className="max-w-full max-h-full object-contain" />
                         </div>
                         <div className="flex justify-end gap-3">
                             <button 
                                 onClick={() => window.open(selectedEvidence, '_blank')}
-                                className="px-6 py-2.5 rounded-xl bg-gray-100 text-[#1A4D43] text-sm font-bold hover:bg-gray-200 transition-colors flex items-center gap-2"
+                                className="px-4 py-2.5 rounded-lg bg-gray-100 text-[#1A4D43] text-sm font-bold hover:bg-gray-200 transition-colors flex items-center gap-2"
                             >
                                 <Download className="w-4 h-4" />
                                 Download Original
                             </button>
                             <button 
                                 onClick={() => setSelectedEvidence(null)}
-                                className="px-6 py-2.5 rounded-xl bg-[#1A4D43] text-white text-sm font-bold hover:bg-[#1A4D43]/90 transition-colors"
+                                className="px-4 py-2.5 rounded-lg bg-[#1A4D43] text-white text-sm font-bold hover:bg-[#1A4D43]/90 transition-colors"
                             >
                                 Tutup
                             </button>

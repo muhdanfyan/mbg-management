@@ -54,16 +54,16 @@ export const SppgGallery: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1A4D43]"></div>
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#1A4D43]"></div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Galeri SPPG YWMP</h1>
+          <h1 className="text-xl font-bold text-gray-900">Galeri SPPG YWMP</h1>
           <p className="text-gray-600 mt-1">Daftar progres pembangunan dapur SPPG di seluruh wilayah</p>
         </div>
         <div className="flex bg-white rounded-lg border border-gray-200 p-1">
@@ -83,12 +83,12 @@ export const SppgGallery: React.FC = () => {
       </div>
 
       {viewMode === 'grid' ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {paginatedSppgs.map((sppg: Sppg) => (
             <div
               key={sppg.id}
               onClick={() => setSelectedSppg(sppg)}
-              className="bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-xl transition-all cursor-pointer group"
+              className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-xl transition-all cursor-pointer group"
             >
               <div className="aspect-video bg-gray-100 relative overflow-hidden">
                 {sppg.media && sppg.media.length > 0 ? (
@@ -100,7 +100,7 @@ export const SppgGallery: React.FC = () => {
                   />
                 ) : (
                   <div className="flex items-center justify-center h-full">
-                    <ImageIcon className="w-12 h-12 text-gray-300" />
+                    <ImageIcon className="w-10 h-10 text-gray-300" />
                   </div>
                 )}
                 <div className="absolute top-3 right-3">
@@ -134,26 +134,26 @@ export const SppgGallery: React.FC = () => {
           ))}
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
           <table className="w-full text-left border-collapse">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">ID</th>
-                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Nama SPPG</th>
-                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Progress</th>
-                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Aksi</th>
+                <th className="px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">ID</th>
+                <th className="px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Nama SPPG</th>
+                <th className="px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Progress</th>
+                <th className="px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 font-medium">
               {paginatedSppgs.map((sppg: Sppg) => (
                 <tr key={sppg.id} className="hover:bg-gray-50 transition-colors group">
-                  <td className="px-6 py-4 text-sm text-[#1A4D43] font-bold">{sppg.sppg_id}</td>
-                  <td className="px-6 py-4">
+                  <td className="px-4 py-3 text-sm text-[#1A4D43] font-bold">{sppg.sppg_id}</td>
+                  <td className="px-4 py-3">
                     <div className="text-sm text-gray-900">{sppg.name}</div>
                     <div className="text-[10px] text-gray-400 truncate max-w-xs">{sppg.location}</div>
                   </td>
-                  <td className="px-6 py-4 text-sm text-[#2BBF9D] font-bold">{sppg.progress}</td>
-                  <td className="px-6 py-4 text-right">
+                  <td className="px-4 py-3 text-sm text-[#2BBF9D] font-bold">{sppg.progress}</td>
+                  <td className="px-4 py-3 text-right">
                     <button
                       onClick={() => setSelectedSppg(sppg)}
                       className="bg-[#1A4D43] text-white px-3 py-1.5 rounded-lg text-xs hover:bg-[#153b34] transition-colors inline-flex items-center gap-2"
@@ -184,14 +184,14 @@ export const SppgGallery: React.FC = () => {
       {/* Gallery Modal */}
       {selectedSppg && (
         <div className="fixed inset-0 bg-black/90 z-[60] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl w-full max-w-6xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
-            <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-white sticky top-0 z-10">
+          <div className="bg-white rounded-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
+            <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-white sticky top-0 z-10">
               <div className="flex items-center gap-4">
-                <div className="bg-[#1A4D43] p-3 rounded-2xl">
+                <div className="bg-[#1A4D43] p-3 rounded-xl">
                   <Building2 className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900">{selectedSppg.name}</h2>
+                  <h2 className="text-lg font-bold text-gray-900">{selectedSppg.name}</h2>
                   <p className="text-sm text-gray-500 flex items-center gap-2">
                     {selectedSppg.sppg_id} • {selectedSppg.location || 'Global Territory'}
                   </p>
@@ -199,24 +199,24 @@ export const SppgGallery: React.FC = () => {
               </div>
               <button
                 onClick={() => setSelectedSppg(null)}
-                className="p-2 hover:bg-gray-100 rounded-xl transition-colors group"
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors group"
               >
                 <X className="w-6 h-6 text-gray-400 group-hover:text-red-500" />
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
+            <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
               {selectedSppg.media && selectedSppg.media.length > 0 ? (
-                <div className="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
+                <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4">
                   {selectedSppg.media.map((item: any, idx: number) => (
-                    <div key={item.id} className="relative group rounded-2xl overflow-hidden shadow-sm border border-gray-100 break-inside-avoid">
+                    <div key={item.id} className="relative group rounded-xl overflow-hidden shadow-sm border border-gray-100 break-inside-avoid">
                       <img
                         src={resolveGoogleDriveUrl(item.preview_url)}
                         alt={`Photo ${idx + 1}`}
                         className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-700"
                         loading="lazy"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-end p-6">
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-end p-4">
                         <div className="w-full flex items-center justify-between">
                           <span className="text-white text-xs font-bold tracking-widest uppercase">
                             PHOTO #{idx + 1}
@@ -236,7 +236,7 @@ export const SppgGallery: React.FC = () => {
                 </div>
               ) : (
                 <div className="h-64 flex flex-col items-center justify-center text-gray-400 space-y-4">
-                  <div className="bg-gray-50 p-6 rounded-full">
+                  <div className="bg-gray-50 p-4 rounded-full">
                     <ImageIcon className="w-16 h-16 opacity-20" />
                   </div>
                   <p className="font-bold">Belum ada foto pembangunan tersedia.</p>
@@ -244,8 +244,8 @@ export const SppgGallery: React.FC = () => {
               )}
             </div>
             
-            <div className="p-6 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
-              <div className="flex items-center gap-6">
+            <div className="p-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
+              <div className="flex items-center gap-4">
                  <div className="flex flex-col">
                     <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Status Record</span>
                     <span className="text-sm font-bold text-green-600">VERIFIED DATA</span>
@@ -269,7 +269,7 @@ export const SppgGallery: React.FC = () => {
               </div>
               <button
                 onClick={() => setSelectedSppg(null)}
-                className="bg-[#1A4D43] text-white px-8 py-3 rounded-2xl font-bold text-sm hover:shadow-lg hover:shadow-[#1A4D43]/20 transition-all"
+                className="bg-[#1A4D43] text-white px-4 py-3 rounded-xl font-bold text-sm hover:shadow-lg hover:shadow-[#1A4D43]/20 transition-all"
               >
                 Close Gallery
               </button>

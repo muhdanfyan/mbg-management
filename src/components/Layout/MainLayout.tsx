@@ -27,7 +27,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
         <Header />
 
         <div className="flex-1 overflow-y-auto">
-          <div className="px-8 py-5 border-b border-gray-100 bg-white/50 backdrop-blur-md sticky top-0 z-[50]">
+          <div className="px-4 py-5 border-b border-gray-100 bg-white/50 backdrop-blur-md sticky top-0 z-[50]">
             <div className="flex items-center gap-2 text-sm">
               {breadcrumbs.map((crumb, index) => (
                 <React.Fragment key={index}>
@@ -47,7 +47,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
             </div>
           </div>
 
-          <div className="p-8 max-w-[1600px] mx-auto">
+          <div className="p-4 max-w-[1600px] mx-auto">
             {children}
           </div>
         </div>

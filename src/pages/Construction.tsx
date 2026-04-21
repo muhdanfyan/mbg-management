@@ -80,16 +80,16 @@ export const Construction: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Project Construction</h1>
+          <h1 className="text-xl font-bold text-gray-900">Project Construction</h1>
           <p className="text-gray-600 mt-1">Pantau progress pembangunan dan renovasi dapur</p>
         </div>
         <button 
@@ -104,12 +104,12 @@ export const Construction: React.FC = () => {
         </button>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200">
+      <div className="bg-white rounded-lg border border-gray-200">
         <div className="border-b border-gray-200">
-          <div className="flex gap-4 px-6">
+          <div className="flex gap-4 px-4">
             <button
               onClick={() => setActiveTab('contracts')}
-              className={`py-4 px-2 border-b-2 font-medium transition-colors ${
+              className={`py-3 px-2 border-b-2 font-medium transition-colors ${
                 activeTab === 'contracts'
                   ? 'border-blue-600 text-blue-600'
                   : 'border-transparent text-gray-600 hover:text-gray-900'
@@ -119,7 +119,7 @@ export const Construction: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveTab('updates')}
-              className={`py-4 px-2 border-b-2 font-medium transition-colors ${
+              className={`py-3 px-2 border-b-2 font-medium transition-colors ${
                 activeTab === 'updates'
                   ? 'border-blue-600 text-blue-600'
                   : 'border-transparent text-gray-600 hover:text-gray-900'
@@ -130,9 +130,9 @@ export const Construction: React.FC = () => {
           </div>
         </div>
 
-        <div className="p-6">
+        <div className="p-4">
           {activeTab === 'contracts' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {searchFilter && (
                 <div className="col-span-full bg-blue-50 border border-blue-100 p-3 rounded-lg flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2 text-sm text-blue-700">
@@ -149,10 +149,10 @@ export const Construction: React.FC = () => {
               {contracts
                 .filter(c => !searchFilter || (c.sppg_id === searchFilter || c.project_name.toLowerCase().includes(searchFilter.toLowerCase())))
                 .map((contract) => (
-                <div key={contract.id} className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-shadow">
+                <div key={contract.id} className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-lg transition-shadow">
                   <div className="flex justify-between items-start mb-4">
                     <div>
-                      <h3 className="font-bold text-gray-900 text-lg">{contract.project_name}</h3>
+                      <h3 className="font-bold text-gray-900 text-base">{contract.project_name}</h3>
                       <p className="text-sm text-gray-500">{contract.vendor_name}</p>
                     </div>
                     <div className="flex gap-1">
@@ -220,7 +220,7 @@ export const Construction: React.FC = () => {
           )}
 
           {activeTab === 'updates' && (
-            <div className="space-y-6">
+            <div className="space-y-4">
               <div className="flex justify-end">
                 <button 
                   onClick={() => {
@@ -234,7 +234,7 @@ export const Construction: React.FC = () => {
                 </button>
               </div>
               {updates.map((update) => (
-                <div key={update.id} className="bg-gray-50 rounded-xl p-6 border border-gray-200">
+                <div key={update.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
                   <div className="flex items-start gap-4">
                     <div className="aspect-square w-24 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
                       {update.photo_url ? (
@@ -287,8 +287,8 @@ export const Construction: React.FC = () => {
       {/* Contract Modal */}
       {isContractModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-lg w-full p-6">
-            <h2 className="text-xl font-bold mb-4">{editingContract ? 'Edit Contract' : 'Add New Contract'}</h2>
+          <div className="bg-white rounded-lg max-w-lg w-full p-4">
+            <h2 className="text-lg font-bold mb-4">{editingContract ? 'Edit Contract' : 'Add New Contract'}</h2>
             <form onSubmit={async (e: any) => {
               e.preventDefault();
               const formData = new FormData(e.target);
@@ -378,8 +378,8 @@ export const Construction: React.FC = () => {
       {/* Progress Update Modal */}
       {isUpdateModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-lg w-full p-6">
-            <h2 className="text-xl font-bold mb-4">{editingUpdate ? 'Edit Progress Update' : 'New Progress Update'}</h2>
+          <div className="bg-white rounded-lg max-w-lg w-full p-4">
+            <h2 className="text-lg font-bold mb-4">{editingUpdate ? 'Edit Progress Update' : 'New Progress Update'}</h2>
             <form onSubmit={async (e: any) => {
               e.preventDefault();
               const formData = new FormData(e.target);

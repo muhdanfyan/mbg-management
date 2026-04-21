@@ -80,7 +80,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {
       <div className="h-16 flex items-center justify-between px-4 border-b border-white/10">
         {!collapsed && (
           <div className="flex items-center gap-3">
-            <div className="bg-white p-1.5 rounded-xl shadow-sm">
+            <div className="bg-white p-1.5 rounded-lg shadow-sm">
               <img src="/logo-wahdah.png" alt="Logo" className="w-8 h-8 object-contain" />
             </div>
             <div>
@@ -91,7 +91,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {
         )}
         <button
           onClick={onToggle}
-          className="p-2 hover:bg-white/5 rounded-xl transition-colors"
+          className="p-2 hover:bg-white/5 rounded-lg transition-colors"
         >
           {collapsed ? (
             <ChevronRight className="w-5 h-5 text-white/60" />
@@ -118,7 +118,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {
                     navigate(item.path);
                   }
                 }}
-                className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl transition-all duration-300 group ${
+                className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-300 group ${
                   isBaseActive && !hasChildren
                     ? 'bg-[#2BBF9D] text-white shadow-lg shadow-[#2BBF9D]/20'
                     : 'text-white/60 hover:text-white hover:bg-white/5'
@@ -142,7 +142,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {
                     <button
                       key={child.path}
                       onClick={() => navigate(child.path)}
-                      className={`w-full text-left px-4 py-2 rounded-xl text-xs font-medium transition-all ${
+                      className={`w-full text-left px-4 py-2 rounded-lg text-xs font-medium transition-all ${
                         location.pathname + location.search === child.path
                           ? 'text-[#2BBF9D] bg-white/5'
                           : 'text-white/40 hover:text-white hover:bg-white/5'

@@ -104,7 +104,7 @@ export const Investors: React.FC = () => {
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2BBF9D]"></div>
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#2BBF9D]"></div>
             </div>
         );
     }
@@ -113,7 +113,7 @@ export const Investors: React.FC = () => {
         <div className="space-y-10 animate-in fade-in duration-500">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-[#1A4D43] tracking-tight">Monitoring Investor</h1>
+                    <h1 className="text-2xl font-bold text-[#1A4D43] tracking-tight">Monitoring Investor</h1>
                     <p className="text-gray-500 mt-1 font-medium">Status investasi Satuan Pelayanan Pemenuhan Gizi Wahdah Islamiyah</p>
                 </div>
                 <div className="flex gap-3">
@@ -133,12 +133,12 @@ export const Investors: React.FC = () => {
              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="glass-card p-4 group hover:shadow-xl transition-all">
                     <div className="flex items-center gap-3">
-                        <div className="bg-[#E2F8F3] p-3 rounded-2xl text-[#2BBF9D]">
+                        <div className="bg-[#E2F8F3] p-3 rounded-xl text-[#2BBF9D]">
                             <DollarSign className="w-6 h-6" />
                         </div>
                         <div className="whitespace-nowrap">
                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Total Investasi</p>
-                            <h3 className="text-xl font-black text-[#1A4D43] tracking-tight">
+                            <h3 className="text-lg font-black text-[#1A4D43] tracking-tight">
                                 Rp {totalInvestment.toLocaleString('id-ID')}
                             </h3>
                         </div>
@@ -147,12 +147,12 @@ export const Investors: React.FC = () => {
 
                 <div className="glass-card p-4 group hover:shadow-xl transition-all">
                     <div className="flex items-center gap-3">
-                        <div className="bg-[#1A4D43]/5 p-3 rounded-2xl text-[#1A4D43]">
+                        <div className="bg-[#1A4D43]/5 p-3 rounded-xl text-[#1A4D43]">
                             <Users className="w-6 h-6" />
                         </div>
                         <div className="whitespace-nowrap">
                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Total Peserta</p>
-                            <h3 className="text-xl font-black text-[#1A4D43] tracking-tight">
+                            <h3 className="text-lg font-black text-[#1A4D43] tracking-tight">
                                 {participants.length} Peserta
                             </h3>
                         </div>
@@ -161,26 +161,26 @@ export const Investors: React.FC = () => {
 
                 <div className="glass-card p-4 group hover:shadow-xl transition-all">
                     <div className="flex items-center gap-3">
-                        <div className="bg-[#E2F8F3] p-3 rounded-2xl text-[#2BBF9D]">
+                        <div className="bg-[#E2F8F3] p-3 rounded-xl text-[#2BBF9D]">
                             <PieChart className="w-6 h-6" />
                         </div>
                         <div className="whitespace-nowrap">
                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Kitchen Tercover</p>
-                            <h3 className="text-xl font-black text-[#1A4D43] tracking-tight">
+                            <h3 className="text-lg font-black text-[#1A4D43] tracking-tight">
                                 {[...new Set(participants.map(p => p.kitchen_id))].length} Titik
                             </h3>
                         </div>
                     </div>
                 </div>
 
-                <div className="glass-card p-6 group hover:shadow-xl transition-all bg-gradient-to-br from-[#1A4D43] to-[#2BBF9D]">
+                <div className="glass-card p-4 group hover:shadow-xl transition-all bg-gradient-to-br from-[#1A4D43] to-[#2BBF9D]">
                     <div className="flex items-center gap-3 text-white">
-                        <div className="bg-white/20 p-3 rounded-2xl">
+                        <div className="bg-white/20 p-3 rounded-xl">
                             <Briefcase className="w-6 h-6" />
                         </div>
                         <div className="whitespace-nowrap">
                             <p className="text-[10px] font-black text-white/60 uppercase tracking-widest mb-0.5">Target Funding</p>
-                            <h3 className="text-xl font-black tracking-tight">
+                            <h3 className="text-lg font-black tracking-tight">
                                 100% Locked
                             </h3>
                         </div>
@@ -201,7 +201,7 @@ export const Investors: React.FC = () => {
                         />
                     </div>
                     <div className="flex gap-2">
-                        <button className="flex items-center gap-2 bg-white px-5 py-2.5 rounded-xl text-sm font-semibold text-[#1A4D43] border border-gray-100 hover:border-[#2BBF9D] hover:text-[#2BBF9D] transition-all shadow-sm active:scale-95">
+                        <button className="flex items-center gap-2 bg-white px-5 py-2.5 rounded-lg text-sm font-semibold text-[#1A4D43] border border-gray-100 hover:border-[#2BBF9D] hover:text-[#2BBF9D] transition-all shadow-sm active:scale-95">
                             <Filter className="w-4 h-4" />
                             Filter
                         </button>
@@ -212,21 +212,21 @@ export const Investors: React.FC = () => {
                     <table className="w-full text-left">
                         <thead className="bg-[#F8FAF9]/50 border-b border-gray-100">
                              <tr>
-                                <th className="px-4 py-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.1em]">NO</th>
-                                <th className="px-4 py-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.1em]">ID SPPG (DAPUR)</th>
-                                <th className="px-4 py-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.1em]">STATUS FUNDING</th>
-                                <th className="px-4 py-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.1em] text-right">TOTAL INVESTOR</th>
-                                <th className="px-4 py-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.1em]">PESERTA</th>
-                                <th className="px-4 py-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.1em] text-center">%</th>
-                                <th className="px-4 py-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.1em]">EST. DIVIDEN</th>
-                                <th className="px-4 py-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.1em] text-right">AKSI</th>
+                                <th className="px-4 py-3 text-[10px] font-black text-gray-400 uppercase tracking-[0.1em]">NO</th>
+                                <th className="px-4 py-3 text-[10px] font-black text-gray-400 uppercase tracking-[0.1em]">ID SPPG (DAPUR)</th>
+                                <th className="px-4 py-3 text-[10px] font-black text-gray-400 uppercase tracking-[0.1em]">STATUS FUNDING</th>
+                                <th className="px-4 py-3 text-[10px] font-black text-gray-400 uppercase tracking-[0.1em] text-right">TOTAL INVESTOR</th>
+                                <th className="px-4 py-3 text-[10px] font-black text-gray-400 uppercase tracking-[0.1em]">PESERTA</th>
+                                <th className="px-4 py-3 text-[10px] font-black text-gray-400 uppercase tracking-[0.1em] text-center">%</th>
+                                <th className="px-4 py-3 text-[10px] font-black text-gray-400 uppercase tracking-[0.1em]">EST. DIVIDEN</th>
+                                <th className="px-4 py-3 text-[10px] font-black text-gray-400 uppercase tracking-[0.1em] text-right">AKSI</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50">
                             {paginatedParticipants.map((p, index) => (
                                 <tr key={p.id} className="hover:bg-[#F8FAF9] transition-colors group">
-                                     <td className="px-4 py-4 whitespace-nowrap text-[10px] font-bold text-gray-400">{(currentPage - 1) * itemsPerPage + index + 1}</td>
-                                    <td className="px-4 py-4 whitespace-nowrap">
+                                     <td className="px-4 py-3 whitespace-nowrap text-[10px] font-bold text-gray-400">{(currentPage - 1) * itemsPerPage + index + 1}</td>
+                                    <td className="px-4 py-3 whitespace-nowrap">
                                         <div className="flex items-center gap-3">
                                             <div className="w-8 h-8 rounded-lg bg-[#E2F8F3] flex items-center justify-center text-[#2BBF9D] text-[10px] font-black shadow-sm group-hover:scale-110 transition-transform">
                                                 {p.kitchen?.name.slice(0, 2).toUpperCase() || '??'}
@@ -237,7 +237,7 @@ export const Investors: React.FC = () => {
                                             </div>
                                         </div>
                                     </td>
-                                     <td className="px-4 py-4">
+                                     <td className="px-4 py-3">
                                         {/* Kitchen Funding Progress */}
                                         <div className="w-full max-w-[100px]">
                                             <div className="flex justify-between text-[8px] font-bold mb-1">
@@ -260,13 +260,13 @@ export const Investors: React.FC = () => {
                                             </div>
                                         </div>
                                     </td>
-                                     <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#1A4D43] text-right font-black">
+                                     <td className="px-4 py-3 whitespace-nowrap text-[11px] text-[#1A4D43] text-right font-black">
                                         Rp {p.investment_amount.toLocaleString('id-ID')}
                                     </td>
-                                    <td className="px-4 py-4 whitespace-nowrap text-[11px] font-bold text-[#1A4D43]">
+                                    <td className="px-4 py-3 whitespace-nowrap text-[11px] font-bold text-[#1A4D43]">
                                         {p.name}
                                     </td>
-                                    <td className="px-4 py-4 whitespace-nowrap text-center">
+                                    <td className="px-4 py-3 whitespace-nowrap text-center">
                                         <div className="flex items-center gap-2 justify-center">
                                             <span className="px-2 py-0.5 rounded-full bg-[#E2F8F3] text-[#2BBF9D] text-[9px] font-black uppercase shadow-sm">
                                                 {p.share_percentage}%
@@ -274,7 +274,7 @@ export const Investors: React.FC = () => {
                                             <span className="text-[7px] text-gray-400 font-bold">{p.saham_ratio}</span>
                                         </div>
                                     </td>
-                                    <td className="px-4 py-4 whitespace-nowrap">
+                                    <td className="px-4 py-3 whitespace-nowrap">
                                         <div className="flex flex-col">
                                             <span className="text-[10px] font-black text-blue-600">
                                                 Rp {(p.investment_amount * 0.05).toLocaleString('id-ID')}*
@@ -282,7 +282,7 @@ export const Investors: React.FC = () => {
                                             <span className="text-[7px] text-gray-400 font-bold uppercase tracking-widest italic">Est. 5% ROI/mo</span>
                                         </div>
                                     </td>
-                                    <td className="px-4 py-4 whitespace-nowrap text-right">
+                                    <td className="px-4 py-3 whitespace-nowrap text-right">
                                         <div className="flex justify-end gap-1.5">
                                             <button 
                                                 onClick={() => {
@@ -327,21 +327,21 @@ export const Investors: React.FC = () => {
             {isModalOpen && (
                 <div className="fixed inset-0 bg-[#1A4D43]/40 flex items-center justify-center z-[1000] p-4 backdrop-blur-md animate-in fade-in duration-300">
                     <div className="bg-white rounded-[2rem] max-w-lg w-full shadow-2xl overflow-hidden border border-white/20 transition-all transform scale-100 animate-in zoom-in-95 duration-300">
-                        <div className="bg-gradient-to-br from-[#1A4D43] to-[#2BBF9D] p-8 flex justify-between items-center relative overflow-hidden">
+                        <div className="bg-gradient-to-br from-[#1A4D43] to-[#2BBF9D] p-4 flex justify-between items-center relative overflow-hidden">
                             <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
-                            <h2 className="text-2xl font-black text-white flex items-center gap-3 relative z-10">
+                            <h2 className="text-xl font-black text-white flex items-center gap-3 relative z-10">
                                 <Users className="w-7 h-7" />
                                 {editingInvestor ? 'Edit Data Investor' : 'Tambah Investor'}
                             </h2>
                             <button 
                                 onClick={() => setIsModalOpen(false)}
-                                className="text-white/60 hover:text-white hover:bg-white/10 p-2.5 rounded-2xl transition-all relative z-10 active:scale-95"
+                                className="text-white/60 hover:text-white hover:bg-white/10 p-2.5 rounded-xl transition-all relative z-10 active:scale-95"
                             >
                                 <X className="w-6 h-6" />
                             </button>
                         </div>
                         
-                        <form onSubmit={handleSubmit} className="p-8 space-y-6">
+                        <form onSubmit={handleSubmit} className="p-4 space-y-4">
                             <div className="space-y-5">
                                 <div className="space-y-2">
                                     <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Nama Investor</label>
@@ -369,7 +369,7 @@ export const Investors: React.FC = () => {
                                     </select>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-6">
+                                <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
                                         <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Nilai Investasi (Rp)</label>
                                         <input 
@@ -410,13 +410,13 @@ export const Investors: React.FC = () => {
                                 <button 
                                     type="button" 
                                     onClick={() => setIsModalOpen(false)} 
-                                    className="flex-1 py-4 text-gray-400 hover:text-[#1A4D43] font-black uppercase tracking-widest text-xs transition-colors"
+                                    className="flex-1 py-3 text-gray-400 hover:text-[#1A4D43] font-black uppercase tracking-widest text-xs transition-colors"
                                 >
                                     Batal
                                 </button>
                                 <button 
                                     type="submit" 
-                                    className="flex-[2] premium-button-primary shadow-xl shadow-[#2BBF9D]/20 active:scale-95 transition-all py-4"
+                                    className="flex-[2] premium-button-primary shadow-xl shadow-[#2BBF9D]/20 active:scale-95 transition-all py-3"
                                 >
                                     Simpan Perubahan
                                 </button>

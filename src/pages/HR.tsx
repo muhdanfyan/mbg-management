@@ -105,16 +105,16 @@ export const HR: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Manajemen SDM</h1>
+          <h1 className="text-xl font-bold text-gray-900">Manajemen SDM</h1>
           <p className="text-gray-600 mt-1">Kelola karyawan dan rekrutmen</p>
         </div>
         <button 
@@ -129,12 +129,12 @@ export const HR: React.FC = () => {
         </button>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200">
+      <div className="bg-white rounded-lg border border-gray-200">
         <div className="border-b border-gray-200">
-          <div className="flex gap-4 px-6">
+          <div className="flex gap-4 px-4">
             <button
               onClick={() => setActiveTab('employees')}
-              className={`py-4 px-2 border-b-2 font-medium transition-colors ${
+              className={`py-3 px-2 border-b-2 font-medium transition-colors ${
                 activeTab === 'employees'
                   ? 'border-blue-600 text-blue-600'
                   : 'border-transparent text-gray-600 hover:text-gray-900'
@@ -144,7 +144,7 @@ export const HR: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveTab('recruitment')}
-              className={`py-4 px-2 border-b-2 font-medium transition-colors ${
+              className={`py-3 px-2 border-b-2 font-medium transition-colors ${
                 activeTab === 'recruitment'
                   ? 'border-blue-600 text-blue-600'
                   : 'border-transparent text-gray-600 hover:text-gray-900'
@@ -154,7 +154,7 @@ export const HR: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveTab('attendance')}
-              className={`py-4 px-2 border-b-2 font-medium transition-colors ${
+              className={`py-3 px-2 border-b-2 font-medium transition-colors ${
                 activeTab === 'attendance'
                   ? 'border-blue-600 text-blue-600'
                   : 'border-transparent text-gray-600 hover:text-gray-900'
@@ -164,7 +164,7 @@ export const HR: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveTab('payroll')}
-              className={`py-4 px-2 border-b-2 font-medium transition-colors ${
+              className={`py-3 px-2 border-b-2 font-medium transition-colors ${
                 activeTab === 'payroll'
                   ? 'border-blue-600 text-blue-600'
                   : 'border-transparent text-gray-600 hover:text-gray-900'
@@ -175,9 +175,9 @@ export const HR: React.FC = () => {
           </div>
         </div>
 
-        <div className="p-6">
+        <div className="p-4">
           {activeTab === 'employees' && (
-            <div className="space-y-6">
+            <div className="space-y-4">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                 <input
@@ -189,15 +189,15 @@ export const HR: React.FC = () => {
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {paginatedEmployees.map((employee: Employee) => (
-                  <div key={employee.id} className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-shadow">
+                  <div key={employee.id} className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-lg transition-shadow">
                     <div className="flex items-start gap-4 mb-4">
                       <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center text-blue-600 overflow-hidden border border-blue-100 flex-shrink-0">
                         {employee.photo ? (
                           <img src={getImageUrl(employee.photo)} alt={employee.name} className="w-full h-full object-cover" />
                         ) : (
-                          <UserCircle className="w-10 h-10 opacity-40" />
+                          <UserCircle className="w-8 h-8 opacity-40" />
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -263,9 +263,9 @@ export const HR: React.FC = () => {
           )}
 
           {activeTab === 'recruitment' && (
-            <div className="space-y-6">
+            <div className="space-y-4">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Job Vacancies</h3>
+                <h3 className="text-base font-semibold text-gray-900">Job Vacancies</h3>
                 <button 
                   onClick={() => {
                     setEditingVacancy(null);
@@ -276,7 +276,7 @@ export const HR: React.FC = () => {
                   + Post Vacancy
                 </button>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {vacancies.map((vacancy: Vacancy) => (
                   <div key={vacancy.id} className="bg-white border border-gray-200 rounded-lg p-4">
                     <div className="flex items-start justify-between mb-3">
@@ -323,21 +323,21 @@ export const HR: React.FC = () => {
           )}
 
           {activeTab === 'attendance' && (
-            <div className="space-y-8">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-green-50 rounded-xl p-6 border border-green-100">
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-green-50 rounded-lg p-4 border border-green-100">
                   <div className="text-green-600 mb-2 font-medium">On Time</div>
-                  <div className="text-3xl font-bold text-green-700">94.2%</div>
+                  <div className="text-2xl font-bold text-green-700">94.2%</div>
                   <div className="text-sm text-green-600 mt-1">Average this month</div>
                 </div>
-                <div className="bg-orange-50 rounded-xl p-6 border border-orange-100">
+                <div className="bg-orange-50 rounded-lg p-4 border border-orange-100">
                   <div className="text-orange-600 mb-2 font-medium">Late In</div>
-                  <div className="text-3xl font-bold text-orange-700">4.8%</div>
+                  <div className="text-2xl font-bold text-orange-700">4.8%</div>
                   <div className="text-sm text-orange-600 mt-1">Average this month</div>
                 </div>
-                <div className="bg-red-50 rounded-xl p-6 border border-red-100">
+                <div className="bg-red-50 rounded-lg p-4 border border-red-100">
                   <div className="text-red-600 mb-2 font-medium">Absent</div>
-                  <div className="text-3xl font-bold text-red-700">1.0%</div>
+                  <div className="text-2xl font-bold text-red-700">1.0%</div>
                   <div className="text-sm text-red-600 mt-1">Average this month</div>
                 </div>
               </div>
@@ -345,7 +345,7 @@ export const HR: React.FC = () => {
           )}
 
           {activeTab === 'payroll' && (
-            <div className="space-y-6">
+            <div className="space-y-4">
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
@@ -359,12 +359,12 @@ export const HR: React.FC = () => {
                   <tbody>
                     {employees.map((employee: Employee) => (
                       <tr key={employee.id} className="border-b border-gray-100 hover:bg-gray-50">
-                        <td className="py-4 px-4 font-medium text-gray-900">{employee.name}</td>
-                        <td className="py-4 px-4 text-sm text-gray-600">{employee.position_detail?.name || employee.position}</td>
-                        <td className="py-4 px-4 text-sm font-semibold text-blue-600">
+                        <td className="py-3 px-4 font-medium text-gray-900">{employee.name}</td>
+                        <td className="py-3 px-4 text-sm text-gray-600">{employee.position_detail?.name || employee.position}</td>
+                        <td className="py-3 px-4 text-sm font-semibold text-blue-600">
                           Rp {(employee.salary / 1000000).toFixed(1)}M
                         </td>
-                        <td className="py-4 px-4">
+                        <td className="py-3 px-4">
                           <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
                             Paid
                           </span>
@@ -382,8 +382,8 @@ export const HR: React.FC = () => {
       {/* Employee Modal */}
       {isEmployeeModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-lg w-full p-6">
-            <h2 className="text-xl font-bold mb-4">{editingEmployee ? 'Edit Employee' : 'Add New Employee'}</h2>
+          <div className="bg-white rounded-lg max-w-lg w-full p-4">
+            <h2 className="text-lg font-bold mb-4">{editingEmployee ? 'Edit Employee' : 'Add New Employee'}</h2>
             <form onSubmit={async (e: any) => {
               e.preventDefault();
               const formData = new FormData(e.target);
@@ -468,8 +468,8 @@ export const HR: React.FC = () => {
       {/* Vacancy Modal */}
       {isVacancyModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-lg w-full p-6">
-            <h2 className="text-xl font-bold mb-4">{editingVacancy ? 'Edit Vacancy' : 'Post New Vacancy'}</h2>
+          <div className="bg-white rounded-lg max-w-lg w-full p-4">
+            <h2 className="text-lg font-bold mb-4">{editingVacancy ? 'Edit Vacancy' : 'Post New Vacancy'}</h2>
             <form onSubmit={async (e: any) => {
               e.preventDefault();
               const formData = new FormData(e.target);

@@ -12,7 +12,7 @@ export const resolveGoogleDriveUrl = (url: string) => {
         const parts = url.split('/d/');
         if (parts.length > 1) {
             const id = parts[1].split('/')[0];
-            return `https://drive.google.com/thumbnail?id=${id}&sz=w1200`;
+            return `https://drive.google.com/uc?export=view&id=${id}`;
         }
     }
 
@@ -20,7 +20,7 @@ export const resolveGoogleDriveUrl = (url: string) => {
     if (url.includes('drive.google.com/open?id=')) {
         const urlParams = new URLSearchParams(url.split('?')[1]);
         const id = urlParams.get('id');
-        if (id) return `https://drive.google.com/thumbnail?id=${id}&sz=w1200`;
+        if (id) return `https://drive.google.com/uc?export=view&id=${id}`;
     }
 
     // Handle drive.google.com/file/d/ format
@@ -28,7 +28,7 @@ export const resolveGoogleDriveUrl = (url: string) => {
         const parts = url.split('/file/d/');
         if (parts.length > 1) {
             const id = parts[1].split('/')[0].split('?')[0].split('&')[0];
-            return `https://drive.google.com/thumbnail?id=${id}&sz=w1200`;
+            return `https://drive.google.com/uc?export=view&id=${id}`;
         }
     }
 

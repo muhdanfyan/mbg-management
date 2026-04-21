@@ -341,7 +341,7 @@ export const Locations: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2BBF9D]"></div>
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#2BBF9D]"></div>
       </div>
     );
   }
@@ -350,14 +350,14 @@ export const Locations: React.FC = () => {
     <div className="space-y-10 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-[#1A4D43] tracking-tight">Peta Lokasi & Distribusi</h1>
+          <h1 className="text-2xl font-bold text-[#1A4D43] tracking-tight">Peta Lokasi & Distribusi</h1>
           <p className="text-gray-500 mt-1 font-medium">Kelola lokasi dapur dan rute distribusi di Makassar</p>
         </div>
         <div className="flex gap-3">
           {hasRole(['Super Admin']) && (
             <button 
               onClick={handleSyncSppg}
-              className="bg-orange-600 text-white px-6 py-2.5 rounded-2xl font-bold text-sm shadow-xl shadow-orange-500/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
+              className="bg-orange-600 text-white px-4 py-2.5 rounded-xl font-bold text-sm shadow-xl shadow-orange-500/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
             >
               <Activity className="w-5 h-5" />
               Sync Data Sppg
@@ -371,7 +371,7 @@ export const Locations: React.FC = () => {
               setAddressValue('');
               setIsKitchenModalOpen(true);
             }}
-            className="premium-button-primary flex items-center gap-2 shadow-lg shadow-[#2BBF9D]/20 px-6 py-2.5"
+            className="premium-button-primary flex items-center gap-2 shadow-lg shadow-[#2BBF9D]/20 px-4 py-2.5"
           >
             <Plus className="w-5 h-5 font-bold" />
             Tambah Lokasi
@@ -379,12 +379,12 @@ export const Locations: React.FC = () => {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200">
+      <div className="bg-white rounded-lg border border-gray-200">
         <div className="border-b border-gray-200">
-          <div className="flex gap-4 px-6">
+          <div className="flex gap-4 px-4">
             <button
               onClick={() => setActiveTab('map')}
-              className={`py-4 px-2 border-b-2 font-medium transition-colors ${
+              className={`py-3 px-2 border-b-2 font-medium transition-colors ${
                 activeTab === 'map'
                   ? 'border-blue-600 text-blue-600'
                   : 'border-transparent text-gray-600 hover:text-gray-900'
@@ -394,7 +394,7 @@ export const Locations: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveTab('list')}
-              className={`py-4 px-2 border-b-2 font-medium transition-colors ${
+              className={`py-3 px-2 border-b-2 font-medium transition-colors ${
                 activeTab === 'list'
                   ? 'border-blue-600 text-blue-600'
                   : 'border-transparent text-gray-600 hover:text-gray-900'
@@ -404,7 +404,7 @@ export const Locations: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveTab('routes')}
-              className={`py-4 px-2 border-b-2 font-medium transition-colors ${
+              className={`py-3 px-2 border-b-2 font-medium transition-colors ${
                 activeTab === 'routes'
                   ? 'border-blue-600 text-blue-600'
                   : 'border-transparent text-gray-600 hover:text-gray-900'
@@ -415,7 +415,7 @@ export const Locations: React.FC = () => {
           </div>
         </div>
 
-        <div className="p-6">
+        <div className="p-4">
           <div className="flex gap-4 mb-6">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -489,7 +489,7 @@ export const Locations: React.FC = () => {
                 <tbody>
                   {paginatedKitchens.map((kitchen, index) => (
                     <tr key={kitchen.id} className="border-b border-gray-100 hover:bg-gray-50">
-                      <td className="py-4 px-4">
+                      <td className="py-3 px-4">
                         <div className="flex items-center gap-3">
                           <span className="text-xs text-gray-400">{(currentPage - 1) * itemsPerPage + index + 1}</span>
                           <div className="bg-blue-100 p-2 rounded-lg">
@@ -498,19 +498,19 @@ export const Locations: React.FC = () => {
                           <span className="font-medium text-gray-900">{kitchen.name}</span>
                         </div>
                       </td>
-                      <td className="py-4 px-4 text-sm text-gray-600">{kitchen.address}</td>
-                      <td className="py-4 px-4">
+                      <td className="py-3 px-4 text-sm text-gray-600">{kitchen.address}</td>
+                      <td className="py-3 px-4">
                         <span className="text-sm font-medium text-gray-900">{kitchen.region}</span>
                       </td>
-                      <td className="py-4 px-4">
+                      <td className="py-3 px-4">
                         <span className="text-sm text-gray-900">{kitchen.capacity} porsi/hari</span>
                       </td>
-                      <td className="py-4 px-4">
+                      <td className="py-3 px-4">
                         <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusBadge(kitchen.status)}`}>
                           {kitchen.status}
                         </span>
                       </td>
-                      <td className="py-4 px-4">
+                      <td className="py-3 px-4">
                         <div className="flex items-center gap-2">
                           <button 
                             onClick={() => {
@@ -587,7 +587,7 @@ export const Locations: React.FC = () => {
                 return (
                   <div
                     key={route.id}
-                    className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow"
+                    className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
                   >
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-start gap-4">
@@ -648,8 +648,8 @@ export const Locations: React.FC = () => {
       {/* Kitchen Modal */}
       {isKitchenModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] p-4">
-          <div className="bg-white rounded-xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
-            <h2 className="text-xl font-bold mb-4">{editingKitchen ? 'Edit Kitchen' : 'Add New Kitchen'}</h2>
+          <div className="bg-white rounded-lg max-w-2xl w-full p-4 max-h-[90vh] overflow-y-auto">
+            <h2 className="text-lg font-bold mb-4">{editingKitchen ? 'Edit Kitchen' : 'Add New Kitchen'}</h2>
             <form onSubmit={async (e: any) => {
               e.preventDefault();
               const formData = new FormData(e.target);
@@ -803,8 +803,8 @@ export const Locations: React.FC = () => {
       {/* Route Modal */}
       {isRouteModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] p-4">
-          <div className="bg-white rounded-xl max-w-lg w-full p-6">
-            <h2 className="text-xl font-bold mb-4">{editingRoute ? 'Edit Route' : 'Add New Route'}</h2>
+          <div className="bg-white rounded-lg max-w-lg w-full p-4">
+            <h2 className="text-lg font-bold mb-4">{editingRoute ? 'Edit Route' : 'Add New Route'}</h2>
             <form onSubmit={async (e: any) => {
               e.preventDefault();
               const formData = new FormData(e.target);
@@ -874,15 +874,15 @@ export const Locations: React.FC = () => {
       {/* Kitchen Detail Modal */}
       {isDetailModalOpen && viewingKitchen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[9999] p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden shadow-2xl flex flex-col scale-in-center shadow-blue-500/20">
+          <div className="bg-white rounded-xl max-w-5xl w-full max-h-[90vh] overflow-hidden shadow-2xl flex flex-col scale-in-center shadow-blue-500/20">
             {/* Header */}
-            <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
+            <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
               <div className="flex items-center gap-4">
-                <div className="bg-gradient-to-br from-[#1A4D43] to-[#2BBF9D] p-3 rounded-xl shadow-lg shadow-green-200">
+                <div className="bg-gradient-to-br from-[#1A4D43] to-[#2BBF9D] p-3 rounded-lg shadow-lg shadow-green-200">
                   <MapPin className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900 leading-tight">{viewingKitchen.name}</h2>
+                  <h2 className="text-xl font-bold text-gray-900 leading-tight">{viewingKitchen.name}</h2>
                   <p className="text-sm text-gray-500 font-medium">Siklus: <span className="text-[#2BBF9D] font-bold">10 Hari (Termin)</span> | Wilayah: <span className="font-bold">{viewingKitchen.region}</span></p>
                 </div>
               </div>
@@ -895,7 +895,7 @@ export const Locations: React.FC = () => {
             </div>
 
             {/* Tab Navigation */}
-            <div className="flex px-8 bg-white border-b border-gray-100 gap-8">
+            <div className="flex px-4 bg-white border-b border-gray-100 gap-4">
               {[
                 { id: 'finance', label: 'Keuangan', icon: CreditCard },
                 { id: 'data', label: 'Data Dapur', icon: Info },
@@ -908,7 +908,7 @@ export const Locations: React.FC = () => {
                   <button
                     key={tab.id}
                     onClick={() => setActiveDetailTab(tab.id as any)}
-                    className={`py-4 flex items-center gap-2 border-b-2 transition-all font-bold text-sm ${
+                    className={`py-3 flex items-center gap-2 border-b-2 transition-all font-bold text-sm ${
                       isActive 
                         ? 'border-[#2BBF9D] text-[#1A4D43]' 
                         : 'border-transparent text-gray-400 hover:text-gray-600'
@@ -922,45 +922,45 @@ export const Locations: React.FC = () => {
             </div>
 
             {/* Content Area */}
-            <div className="flex-1 overflow-y-auto p-8 custom-scrollbar bg-gray-50/30">
+            <div className="flex-1 overflow-y-auto p-4 custom-scrollbar bg-gray-50/30">
               {activeDetailTab === 'finance' && (
-                <div className="space-y-8 animate-in slide-in-from-bottom-2 duration-300">
+                <div className="space-y-4 animate-in slide-in-from-bottom-2 duration-300">
                   {/* Financial Summary Cards */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm border-l-4 border-l-blue-500">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm border-l-4 border-l-blue-500">
                       <div className="flex items-center gap-2 text-gray-400 text-[10px] font-black uppercase tracking-widest mb-2">
                         <DollarSign className="w-3 h-3" />
                         Target Porsi (BGN)
                       </div>
-                      <p className="text-3xl font-black text-gray-900">{viewingKitchen.portion_target?.toLocaleString() || 0} <span className="text-sm font-normal text-gray-400">/ hari</span></p>
+                      <p className="text-2xl font-black text-gray-900">{viewingKitchen.portion_target?.toLocaleString() || 0} <span className="text-sm font-normal text-gray-400">/ hari</span></p>
                     </div>
-                    <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm border-l-4 border-l-orange-500">
+                    <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm border-l-4 border-l-orange-500">
                       <div className="flex items-center gap-2 text-gray-400 text-[10px] font-black uppercase tracking-widest mb-2">
                         <Activity className="w-3 h-3" />
                         Status BEP
                       </div>
-                      <p className={`text-2xl font-black ${viewingKitchen.bep_status === 'POST-BEP' ? 'text-emerald-600' : 'text-orange-600'}`}>
+                      <p className={`text-xl font-black ${viewingKitchen.bep_status === 'POST-BEP' ? 'text-emerald-600' : 'text-orange-600'}`}>
                         {viewingKitchen.bep_status || 'PRE-BEP'}
                       </p>
                     </div>
-                    <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm border-l-4 border-l-emerald-500">
+                    <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm border-l-4 border-l-emerald-500">
                       <div className="flex items-center gap-2 text-gray-400 text-[10px] font-black uppercase tracking-widest mb-2">
                         <BarChart3 className="w-3 h-3" />
                         Total Akumulasi Laba
                       </div>
-                      <p className="text-2xl font-black text-emerald-700">Rp {(viewingKitchen.accumulated_profit || 0).toLocaleString()}</p>
+                      <p className="text-xl font-black text-emerald-700">Rp {(viewingKitchen.accumulated_profit || 0).toLocaleString()}</p>
                     </div>
                   </div>
 
                   {/* BEP Progress Bar */}
-                  <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-xl">
+                  <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-xl">
                     <div className="flex justify-between items-end mb-4">
                       <div>
-                        <h3 className="text-lg font-black text-[#1A4D43] mb-1">Kemajuan Balik Modal (BEP)</h3>
+                        <h3 className="text-base font-black text-[#1A4D43] mb-1">Kemajuan Balik Modal (BEP)</h3>
                         <p className="text-sm text-gray-500">Target Modal: <span className="font-bold text-gray-900">Rp {(viewingKitchen.initial_capital || 0).toLocaleString()}</span></p>
                       </div>
                       <div className="text-right">
-                        <span className="text-3xl font-black text-[#2BBF9D]">
+                        <span className="text-2xl font-black text-[#2BBF9D]">
                           {viewingKitchen.initial_capital > 0 
                             ? Math.min(100, Math.round((viewingKitchen.accumulated_profit / viewingKitchen.initial_capital) * 100))
                             : 0}%
@@ -975,11 +975,11 @@ export const Locations: React.FC = () => {
                       ></div>
                     </div>
                     <div className="mt-4 grid grid-cols-2 gap-4 text-sm font-bold">
-                      <div className="p-4 bg-gray-50 rounded-xl flex items-center justify-between">
+                      <div className="p-4 bg-gray-50 rounded-lg flex items-center justify-between">
                         <span className="text-gray-500">Jatah Investor:</span>
                         <span className="text-[#1A4D43] font-black">{(viewingKitchen.investor_share * 100).toFixed(0)}%</span>
                       </div>
-                      <div className="p-4 bg-gray-50 rounded-xl flex items-center justify-between">
+                      <div className="p-4 bg-gray-50 rounded-lg flex items-center justify-between">
                         <span className="text-gray-500">Jatah DPP/Pusat:</span>
                         <span className="text-[#1A4D43] font-black">{(viewingKitchen.dpp_share * 100).toFixed(0)}%</span>
                       </div>
@@ -989,15 +989,15 @@ export const Locations: React.FC = () => {
               )}
 
               {activeDetailTab === 'data' && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-in slide-in-from-right-2 duration-300">
-                  <div className="space-y-6">
-                    <h3 className="text-lg font-black text-[#1A4D43] flex items-center gap-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-in slide-in-from-right-2 duration-300">
+                  <div className="space-y-4">
+                    <h3 className="text-base font-black text-[#1A4D43] flex items-center gap-2">
                        <Building2 className="w-5 h-5" /> Penanggung Jawab & Lahan
                     </h3>
-                    <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4">
+                    <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm space-y-4">
                       <div>
                         <p className="text-[10px] text-gray-400 font-black uppercase tracking-[0.2em] mb-1">Nama PJ Dapur</p>
-                        <p className="text-lg font-black text-gray-900">{viewingKitchen.sppg_detail?.stakeholder?.pj?.name || '-'}</p>
+                        <p className="text-base font-black text-gray-900">{viewingKitchen.sppg_detail?.stakeholder?.pj?.name || '-'}</p>
                       </div>
                       <div>
                         <p className="text-[10px] text-gray-400 font-black uppercase tracking-[0.2em] mb-1">Kontak</p>
@@ -1005,25 +1005,25 @@ export const Locations: React.FC = () => {
                       </div>
                       <div className="pt-4 border-t border-gray-100">
                         <p className="text-[10px] text-gray-400 font-black uppercase tracking-[0.2em] mb-1">Pemilik Lahan</p>
-                        <p className="text-lg font-black text-gray-900">{viewingKitchen.sppg_detail?.stakeholder?.landlord?.name || '-'}</p>
+                        <p className="text-base font-black text-gray-900">{viewingKitchen.sppg_detail?.stakeholder?.landlord?.name || '-'}</p>
                       </div>
                     </div>
                   </div>
-                  <div className="space-y-6">
-                    <h3 className="text-lg font-black text-[#1A4D43] flex items-center gap-2">
+                  <div className="space-y-4">
+                    <h3 className="text-base font-black text-[#1A4D43] flex items-center gap-2">
                        <Info className="w-5 h-5 text-[#2BBF9D]" /> Spesifikasi Fisik
                     </h3>
                     <div className="grid grid-cols-2 gap-4">
-                      <div className="bg-white p-5 rounded-2xl border border-gray-100">
+                      <div className="bg-white p-5 rounded-xl border border-gray-100">
                         <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">Luas Lahan</p>
-                        <p className="text-xl font-black text-gray-900">{viewingKitchen.sppg_detail?.infrastructure?.land_area || 0} m²</p>
+                        <p className="text-lg font-black text-gray-900">{viewingKitchen.sppg_detail?.infrastructure?.land_area || 0} m²</p>
                       </div>
-                      <div className="bg-white p-5 rounded-2xl border border-gray-100">
+                      <div className="bg-white p-5 rounded-xl border border-gray-100">
                         <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">Luas Bangunan</p>
-                        <p className="text-xl font-black text-gray-900">{viewingKitchen.sppg_detail?.infrastructure?.building_area || 0} m²</p>
+                        <p className="text-lg font-black text-gray-900">{viewingKitchen.sppg_detail?.infrastructure?.building_area || 0} m²</p>
                       </div>
                     </div>
-                    <div className="bg-[#1A4D43] p-6 rounded-2xl text-white">
+                    <div className="bg-[#1A4D43] p-4 rounded-xl text-white">
                       <p className="text-[10px] text-white/50 font-black uppercase tracking-[0.3em] mb-2">Alat Dapur Terverifikasi</p>
                       <ul className="text-sm space-y-1 opacity-90 font-medium">
                         <li>• Kuali Industri & Kompor High Pressure</li>
@@ -1036,17 +1036,17 @@ export const Locations: React.FC = () => {
               )}
 
               {activeDetailTab === 'construction' && (
-                <div className="space-y-6 animate-in zoom-in-95 duration-300">
-                  <div className="flex items-center justify-between bg-white p-6 rounded-2xl border border-gray-100">
+                <div className="space-y-4 animate-in zoom-in-95 duration-300">
+                  <div className="flex items-center justify-between bg-white p-4 rounded-xl border border-gray-100">
                     <div>
-                      <h3 className="text-xl font-black text-gray-900">Kesiapan Infrastruktur</h3>
+                      <h3 className="text-lg font-black text-gray-900">Kesiapan Infrastruktur</h3>
                       <p className="text-sm text-gray-500">Checklist kelayakan operasional gedung</p>
                     </div>
-                    <div className={`px-4 py-2 rounded-xl text-sm font-black ${viewingKitchen.sppg_detail?.readiness?.is_ready_to_run ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-400'}`}>
+                    <div className={`px-4 py-2 rounded-lg text-sm font-black ${viewingKitchen.sppg_detail?.readiness?.is_ready_to_run ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-400'}`}>
                       {viewingKitchen.sppg_detail?.readiness?.is_ready_to_run ? 'READY - SIAP PAKAI' : 'PENDING - DALAM PROSES'}
                     </div>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {[
                       { label: 'Instalasi IPAL', status: viewingKitchen.sppg_detail?.readiness?.has_ipal },
                       { label: 'Sistem Sentral Gas', status: viewingKitchen.sppg_detail?.readiness?.has_gas },
@@ -1055,7 +1055,7 @@ export const Locations: React.FC = () => {
                       { label: 'Sistem Exhaust', status: viewingKitchen.sppg_detail?.readiness?.has_exhaust },
                       { label: 'Sertifikasi Halal', status: viewingKitchen.sppg_detail?.readiness?.has_halal_cert },
                     ].map((item, i) => (
-                      <div key={i} className="flex items-center justify-between p-5 bg-white rounded-2xl border border-gray-100 group hover:border-[#2BBF9D] transition-colors">
+                      <div key={i} className="flex items-center justify-between p-5 bg-white rounded-xl border border-gray-100 group hover:border-[#2BBF9D] transition-colors">
                         <span className="text-xs font-bold text-gray-600">{item.label}</span>
                         <div className={`p-1.5 rounded-full ${item.status ? 'bg-emerald-500 text-white' : 'bg-gray-100 text-gray-300'}`}>
                           {item.status ? <ShieldCheck className="w-4 h-4" /> : <X className="w-4 h-4" />}
@@ -1067,28 +1067,28 @@ export const Locations: React.FC = () => {
               )}
 
               {activeDetailTab === 'logistics' && (
-                <div className="space-y-8 animate-in slide-in-from-left-2 duration-300">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="bg-white p-6 rounded-2xl border border-gray-100 text-center">
-                       <Truck className="w-10 h-10 text-[#2BBF9D] mx-auto mb-3" />
+                <div className="space-y-4 animate-in slide-in-from-left-2 duration-300">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="bg-white p-4 rounded-xl border border-gray-100 text-center">
+                       <Truck className="w-8 h-8 text-[#2BBF9D] mx-auto mb-3" />
                        <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">Total Armada</p>
-                       <p className="text-3xl font-black text-gray-900">{viewingKitchen.sppg_detail?.fleets?.length || 0}</p>
+                       <p className="text-2xl font-black text-gray-900">{viewingKitchen.sppg_detail?.fleets?.length || 0}</p>
                     </div>
-                    <div className="md:col-span-2 bg-[#1A4D43] p-6 rounded-2xl text-white flex items-center justify-between">
+                    <div className="md:col-span-2 bg-[#1A4D43] p-4 rounded-xl text-white flex items-center justify-between">
                        <div>
                          <p className="text-white/50 text-[10px] font-black uppercase tracking-[0.2em] mb-1">Status Pengiriman</p>
-                         <h4 className="text-2xl font-black">All Routes Active</h4>
+                         <h4 className="text-xl font-black">All Routes Active</h4>
                        </div>
                        <div className="text-right">
-                         <button className="bg-[#2BBF9D] px-4 py-2 rounded-xl font-bold text-xs shadow-lg shadow-black/20">Manage Routes</button>
+                         <button className="bg-[#2BBF9D] px-4 py-2 rounded-lg font-bold text-xs shadow-lg shadow-black/20">Manage Routes</button>
                        </div>
                     </div>
                   </div>
-                  <div className="bg-white p-6 rounded-2xl border border-gray-100">
+                  <div className="bg-white p-4 rounded-xl border border-gray-100">
                     <h4 className="text-sm font-black text-gray-400 uppercase tracking-widest mb-4">Daftar Unit Kendaraan</h4>
                     <div className="space-y-3">
                       {viewingKitchen.sppg_detail?.fleets?.map((f: any, i: number) => (
-                        <div key={i} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+                        <div key={i} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                           <div className="flex items-center gap-3">
                             <div className="bg-white p-2 rounded-lg shadow-sm font-black text-xs text-[#1A4D43]">{i+1}</div>
                             <span className="font-bold text-gray-700">{f.fleet_type} - {f.vehicle_description}</span>
@@ -1103,17 +1103,17 @@ export const Locations: React.FC = () => {
             </div>
 
             {/* Footer */}
-            <div className="p-6 border-t border-gray-100 bg-gray-50/50 flex justify-between items-center">
+            <div className="p-4 border-t border-gray-100 bg-gray-50/50 flex justify-between items-center">
               <p className="text-[10px] text-gray-400 font-medium italic">Data Sinkron: {new Date().toLocaleDateString('id-ID')} | Power by Wahdah MBG Engine</p>
               <div className="flex gap-3">
                 <button 
                   onClick={() => setIsDetailModalOpen(false)}
-                  className="px-8 py-3 bg-gray-200 text-gray-700 rounded-xl font-black text-xs hover:bg-gray-300 transition-all uppercase tracking-widest"
+                  className="px-4 py-3 bg-gray-200 text-gray-700 rounded-lg font-black text-xs hover:bg-gray-300 transition-all uppercase tracking-widest"
                 >
                   Tutup
                 </button>
                 <button 
-                   className="px-8 py-3 bg-[#1A4D43] text-white rounded-xl font-black text-xs shadow-xl shadow-[#1A4D43]/20 hover:shadow-2xl hover:-translate-y-1 transition-all uppercase tracking-widest"
+                   className="px-4 py-3 bg-[#1A4D43] text-white rounded-lg font-black text-xs shadow-xl shadow-[#1A4D43]/20 hover:shadow-2xl hover:-translate-y-1 transition-all uppercase tracking-widest"
                 >
                   Cetak Laporan
                 </button>
