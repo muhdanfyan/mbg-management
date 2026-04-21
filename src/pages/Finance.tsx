@@ -294,24 +294,26 @@ export const Finance: React.FC = () => {
             <CreditCard className="w-5 h-5" />
             New Loan
           </button>
-          <button 
-            onClick={() => {
-              setEditingTrans(null);
-              setTransForm({
-                date: new Date().toISOString().split('T')[0],
-                type: 'expense',
-                category: '',
-                amount: 0,
-                status: 'pending'
-              });
-              setIsTransModalOpen(true);
-            }}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
-          >
-            <DollarSign className="w-5 h-5" />
-            New Transaction
-          </button>
-          {(profile?.role === 'Super Admin' || profile?.role === 'PIC Dapur') && (
+          {(profile?.role === 'Super Admin' || profile?.role === 'Finance') && (
+            <button 
+              onClick={() => {
+                setEditingTrans(null);
+                setTransForm({
+                  date: new Date().toISOString().split('T')[0],
+                  type: 'expense',
+                  category: '',
+                  amount: 0,
+                  status: 'pending'
+                });
+                setIsTransModalOpen(true);
+              }}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+            >
+              <DollarSign className="w-5 h-5" />
+              New Transaction
+            </button>
+          )}
+          {(profile?.role === 'Super Admin' || profile?.role === 'PIC Dapur' || profile?.role === 'Operator Koperasi') && (
             <button 
               onClick={() => {
                 setBgnForm({

@@ -39,13 +39,13 @@ const menuItems: MenuItem[] = [
     id: 'finance', 
     label: 'Keuangan', 
     icon: DollarSign, 
-    roles: ['Super Admin', 'Finance', 'PIC Dapur', 'Investor'], 
+    roles: ['Super Admin', 'Finance', 'PIC Dapur', 'Investor', 'Operator Koperasi'], 
     path: '/finance',
     children: [
-      { label: 'Investasi', path: '/finance?tab=investasi', roles: ['Super Admin', 'Finance', 'Investor'] },
-      { label: 'Sewa Dapur', path: '/finance?tab=sewa', roles: ['Super Admin', 'Finance', 'PIC Dapur'] },
-      { label: 'Selisih Bahan', path: '/finance?tab=margin', roles: ['Super Admin', 'Finance', 'PIC Dapur'] },
-      { label: 'Operasional', path: '/finance?tab=operasional', roles: ['Super Admin', 'Finance', 'PIC Dapur'] },
+      { label: 'Investasi', path: '/finance?tab=investasi', roles: ['Super Admin', 'Finance', 'Investor', 'Operator Koperasi'] },
+      { label: 'Sewa Dapur', path: '/finance?tab=sewa', roles: ['Super Admin', 'Finance', 'PIC Dapur', 'Operator Koperasi'] },
+      { label: 'Selisih Bahan', path: '/finance?tab=margin', roles: ['Super Admin', 'Finance', 'PIC Dapur', 'Operator Koperasi'] },
+      { label: 'Operasional', path: '/finance?tab=operasional', roles: ['Super Admin', 'Finance', 'PIC Dapur', 'Operator Koperasi'] },
     ]
   },
   { id: 'procurement', label: 'Procurement', icon: ShoppingCart, roles: ['Super Admin', 'Procurement', 'Operator Koperasi'], path: '/procurement' },
