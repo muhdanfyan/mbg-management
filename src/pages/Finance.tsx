@@ -1008,64 +1008,76 @@ export const Finance: React.FC = () => {
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {kitchens.filter(k => k.initial_capital > 0).map((kitchen: any) => {
-                  const target = kitchen.initial_capital * 1.5;
-                  const percentage = Math.min((kitchen.accumulated_profit / target) * 100, 100);
-                  const isCompleted = percentage >= 100;
+                {kitchens.filter(k => k.initial_capital > 0).length > 0 ? (
+                  kitchens.filter(k => k.initial_capital > 0).map((kitchen: any) => {
+                    const target = kitchen.initial_capital * 1.5;
+                    const percentage = Math.min((kitchen.accumulated_profit / target) * 100, 100);
+                    const isCompleted = percentage >= 100;
 
-                  return (
-                    <div key={kitchen.id} className={`bg-white p-6 rounded-2xl border transition-all duration-300 hover:shadow-lg ${isCompleted ? 'border-emerald-200' : 'border-gray-200'}`}>
-                      <div className="flex justify-between items-start mb-6">
-                        <div className="flex gap-4">
-                          <div className={`p-3 rounded-xl ${isCompleted ? 'bg-emerald-100' : 'bg-blue-100'}`}>
-                             <Building2 className={`w-6 h-6 ${isCompleted ? 'text-emerald-600' : 'text-blue-600'}`} />
-                          </div>
-                          <div>
-                            <h4 className="font-bold text-gray-900 text-lg uppercase">{kitchen.name}</h4>
-                            <div className="flex items-center gap-2 mt-1">
-                              <div className={`w-2 h-2 rounded-full ${isCompleted ? 'bg-emerald-500 animate-pulse' : 'bg-blue-500'}`} />
-                              <p className="text-xs font-semibold text-gray-500 uppercase tracking-tighter">
-                                {isCompleted ? 'Aset Milik Wahdah' : 'Tahap Pengembalian ROI'}
-                              </p>
+                    return (
+                      <div key={kitchen.id} className={`bg-white p-6 rounded-2xl border transition-all duration-300 hover:shadow-lg ${isCompleted ? 'border-emerald-200' : 'border-gray-200'}`}>
+                        <div className="flex justify-between items-start mb-6">
+                          <div className="flex gap-4">
+                            <div className={`p-3 rounded-xl ${isCompleted ? 'bg-emerald-100' : 'bg-blue-100'}`}>
+                               <Building2 className={`w-6 h-6 ${isCompleted ? 'text-emerald-600' : 'text-blue-600'}`} />
+                            </div>
+                            <div>
+                              <h4 className="font-bold text-gray-900 text-lg uppercase">{kitchen.name}</h4>
+                              <div className="flex items-center gap-2 mt-1">
+                                <div className={`w-2 h-2 rounded-full ${isCompleted ? 'bg-emerald-500 animate-pulse' : 'bg-blue-500'}`} />
+                                <p className="text-xs font-semibold text-gray-500 uppercase tracking-tighter">
+                                  {isCompleted ? 'Aset Milik Wahdah' : 'Tahap Pengembalian ROI'}
+                                </p>
+                              </div>
                             </div>
                           </div>
+                          <div className="text-right">
+                            <span className={`text-sm font-black px-3 py-1 rounded-full ${isCompleted ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700'}`}>
+                              {percentage.toFixed(1)}%
+                            </span>
+                          </div>
                         </div>
-                        <div className="text-right">
-                          <span className={`text-sm font-black px-3 py-1 rounded-full ${isCompleted ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700'}`}>
-                            {percentage.toFixed(1)}%
-                          </span>
+
+                        <div className="space-y-4">
+                          <div className="w-full bg-gray-100 rounded-full h-4 overflow-hidden shadow-inner">
+                            <div 
+                              className={`h-full transition-all duration-1000 ease-out ${isCompleted ? 'bg-gradient-to-r from-emerald-500 to-emerald-600' : 'bg-gradient-to-r from-blue-500 to-blue-600'}`} 
+                              style={{ width: `${percentage}%` }} 
+                            />
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="bg-gray-50 p-3 rounded-xl border border-gray-100">
+                              <p className="text-[10px] text-gray-400 font-bold uppercase mb-1">Akumulasi Realisasi</p>
+                              <p className="text-sm font-bold text-gray-900">Rp {kitchen.accumulated_profit.toLocaleString()}</p>
+                            </div>
+                            <div className="bg-gray-50 p-3 rounded-xl border border-gray-100">
+                              <p className="text-[10px] text-gray-400 font-bold uppercase mb-1">Target (Modal + 50%)</p>
+                              <p className="text-sm font-bold text-gray-900">Rp {target.toLocaleString()}</p>
+                            </div>
+                          </div>
+
+                          {isCompleted && (
+                            <div className="flex items-center gap-2 bg-emerald-50 p-3 rounded-xl border border-emerald-100 text-emerald-800">
+                              <CheckCircle className="w-4 h-4" />
+                              <span className="text-xs font-bold">Investasi Selesai - Beralih ke Bagi Hasil 60:20:20</span>
+                            </div>
+                          )}
                         </div>
                       </div>
-
-                      <div className="space-y-4">
-                        <div className="w-full bg-gray-100 rounded-full h-4 overflow-hidden shadow-inner">
-                          <div 
-                            className={`h-full transition-all duration-1000 ease-out ${isCompleted ? 'bg-gradient-to-r from-emerald-500 to-emerald-600' : 'bg-gradient-to-r from-blue-500 to-blue-600'}`} 
-                            style={{ width: `${percentage}%` }} 
-                          />
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="bg-gray-50 p-3 rounded-xl border border-gray-100">
-                            <p className="text-[10px] text-gray-400 font-bold uppercase mb-1">Akumulasi Realisasi</p>
-                            <p className="text-sm font-bold text-gray-900">Rp {kitchen.accumulated_profit.toLocaleString()}</p>
-                          </div>
-                          <div className="bg-gray-50 p-3 rounded-xl border border-gray-100">
-                            <p className="text-[10px] text-gray-400 font-bold uppercase mb-1">Target (Modal + 50%)</p>
-                            <p className="text-sm font-bold text-gray-900">Rp {target.toLocaleString()}</p>
-                          </div>
-                        </div>
-
-                        {isCompleted && (
-                          <div className="flex items-center gap-2 bg-emerald-50 p-3 rounded-xl border border-emerald-100 text-emerald-800">
-                            <CheckCircle className="w-4 h-4" />
-                            <span className="text-xs font-bold">Investasi Selesai - Beralih ke Bagi Hasil 60:20:20</span>
-                          </div>
-                        )}
-                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="col-span-full py-20 bg-white rounded-2xl border border-dashed border-gray-300 flex flex-col items-center justify-center text-center">
+                    <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+                      <PieChart className="w-10 h-10 text-gray-300" />
                     </div>
-                  );
-                })}
+                    <h4 className="text-lg font-bold text-gray-900 mb-2">Belum Ada Data Investasi</h4>
+                    <p className="text-sm text-gray-500 max-w-xs">
+                      Data investasi akan muncul di sini setelah Anda menginput <strong>Modal Awal</strong> pada masing-masing dapur di Manajemen Lokasi.
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           )}
