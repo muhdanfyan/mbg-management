@@ -104,7 +104,7 @@ func initDB() {
 	}
 
 	// Seed PIC Dapur Account (Assigned to Panakkukang)
-	hashedDapur, _ := bcrypt.GenerateFromPassword([]byte("mbg12345"), bcrypt.DefaultCost)
+	hashedDapur, _ := bcrypt.GenerateFromPassword([]byte("pass123"), bcrypt.DefaultCost)
 	kitchenID := uint(1)
 	dapurUser := models.User{
 		ID:         "2",
@@ -121,15 +121,15 @@ func initDB() {
 	if countDapur == 0 {
 		db.Create(&dapurUser)
 	} else {
-		// Update existing user to ensure kitchen_id is assigned
 		db.Model(&models.User{}).Where("email = ?", "pic.panakkukang@mbg.com").Updates(models.User{
+			Password:  string(hashedDapur),
 			KitchenID: &kitchenID,
-			FullName: "PIC Dapur Panakkukang",
+			FullName:  "PIC Dapur Panakkukang",
 		})
 	}
 
 	// Seed Investor Account
-	hashedInvestor, _ := bcrypt.GenerateFromPassword([]byte("mbg12345"), bcrypt.DefaultCost)
+	hashedInvestor, _ := bcrypt.GenerateFromPassword([]byte("pass123"), bcrypt.DefaultCost)
 	investorUser := models.User{
 		ID:         "3",
 		Email:      "investor@mbg.com",
@@ -143,10 +143,14 @@ func initDB() {
 	db.Model(&models.User{}).Where("email = ?", "investor@mbg.com").Count(&countInvestor)
 	if countInvestor == 0 {
 		db.Create(&investorUser)
+	} else {
+		db.Model(&models.User{}).Where("email = ?", "investor@mbg.com").Updates(models.User{
+			Password: string(hashedInvestor),
+		})
 	}
 
 	// Seed Operator Koperasi Account
-	hashedKoperasi, _ := bcrypt.GenerateFromPassword([]byte("mbg12345"), bcrypt.DefaultCost)
+	hashedKoperasi, _ := bcrypt.GenerateFromPassword([]byte("pass123"), bcrypt.DefaultCost)
 	koperasiUser := models.User{
 		ID:         "4",
 		Email:      "koperasi@mbg.com",
@@ -160,6 +164,10 @@ func initDB() {
 	db.Model(&models.User{}).Where("email = ?", "koperasi@mbg.com").Count(&countKoperasi)
 	if countKoperasi == 0 {
 		db.Create(&koperasiUser)
+	} else {
+		db.Model(&models.User{}).Where("email = ?", "koperasi@mbg.com").Updates(models.User{
+			Password: string(hashedKoperasi),
+		})
 	}
 }
 
