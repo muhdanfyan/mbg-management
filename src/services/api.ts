@@ -4,35 +4,32 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
         ? 'https://dev.mbgone.site/api'
         : 'https://api.mbgone.site/api';
 
-export const resolveGoogleDriveUrl = (url: string) => {
-    if (!url) return '';
+export const getGoogleDriveSources = (url: string): string[] => {
+    if (!url) return [];
+    let id = '';
     
-    // Handle lh3.googleusercontent.com/d/ format
     if (url.includes('lh3.googleusercontent.com/d/')) {
-        const parts = url.split('/d/');
-        if (parts.length > 1) {
-            const id = parts[1].split('/')[0];
-            return `https://drive.google.com/uc?export=view&id=${id}`;
-        }
+        id = url.split('/d/')[1].split('?')[0];
+    } else if (url.includes('drive.google.com/open?id=')) {
+        id = new URLSearchParams(url.split('?')[1]).get('id') || '';
+    } else if (url.includes('drive.google.com/file/d/')) {
+        id = url.split('/file/d/')[1].split('/')[0].split('?')[0];
     }
 
-    // Handle drive.google.com/open?id= format
-    if (url.includes('drive.google.com/open?id=')) {
-        const urlParams = new URLSearchParams(url.split('?')[1]);
-        const id = urlParams.get('id');
-        if (id) return `https://drive.google.com/uc?export=view&id=${id}`;
+    if (id) {
+        return [
+            `https://lh3.googleusercontent.com/d/${id}`, 
+            `https://drive.google.com/uc?id=${id}`,
+            `https://drive.google.com/thumbnail?id=${id}&sz=w1200`
+        ];
     }
 
-    // Handle drive.google.com/file/d/ format
-    if (url.includes('drive.google.com/file/d/')) {
-        const parts = url.split('/file/d/');
-        if (parts.length > 1) {
-            const id = parts[1].split('/')[0].split('?')[0].split('&')[0];
-            return `https://drive.google.com/uc?export=view&id=${id}`;
-        }
-    }
+    return [url];
+};
 
-    return url;
+export const resolveGoogleDriveUrl = (url: string) => {
+    const sources = getGoogleDriveSources(url);
+    return sources.length > 0 ? sources[0] : url;
 };
 
 export const formatDateID = (dateStr: string) => {

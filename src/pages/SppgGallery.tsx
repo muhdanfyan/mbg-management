@@ -1,8 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { ImageIcon, Building2, MapPin, X, ChevronRight, LayoutGrid, List, ArrowUpRight } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
-import { api, Sppg, getImageUrl, resolveGoogleDriveUrl } from '../services/api';
+import { api, Sppg, getImageUrl, resolveGoogleDriveUrl, getGoogleDriveSources } from '../services/api';
 import { Pagination } from '../components/UI/Pagination';
+
+const SafeImage = ({ url, alt, className }: { url: string, alt: string, className: string }) => {
+  const sources = getGoogleDriveSources(url);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  return (
+    <img
+      src={sources[currentIndex] || url}
+      alt={alt}
+      className={className}
+      loading="lazy"
+      onError={() => {
+         if (currentIndex < sources.length - 1) {
+             setCurrentIndex(prev => prev + 1);
+         }
+      }}
+    />
+  );
+};
 
 export const SppgGallery: React.FC = () => {
   const [sppgs, setSppgs] = useState<Sppg[]>([]);
@@ -92,12 +111,11 @@ export const SppgGallery: React.FC = () => {
             >
               <div className="aspect-video bg-gray-100 relative overflow-hidden">
                 {sppg.media && sppg.media.length > 0 ? (
-                    <img
-                      src={resolveGoogleDriveUrl(sppg.media[0].preview_url)}
-                    alt={sppg.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                    loading="lazy"
-                  />
+                    <SafeImage
+                      url={sppg.media[0].preview_url}
+                      alt={sppg.name}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
                 ) : (
                   <div className="flex items-center justify-center h-full">
                     <ImageIcon className="w-10 h-10 text-gray-300" />
@@ -210,11 +228,10 @@ export const SppgGallery: React.FC = () => {
                 <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4">
                   {selectedSppg.media.map((item: any, idx: number) => (
                     <div key={item.id} className="relative group rounded-xl overflow-hidden shadow-sm border border-gray-100 break-inside-avoid">
-                      <img
-                        src={resolveGoogleDriveUrl(item.preview_url)}
+                      <SafeImage
+                        url={item.preview_url}
                         alt={`Photo ${idx + 1}`}
                         className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-700"
-                        loading="lazy"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-end p-4">
                         <div className="w-full flex items-center justify-between">
