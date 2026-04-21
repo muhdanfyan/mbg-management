@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { Building2, ImageIcon, DollarSign, CheckCircle, Clock, Plus, Edit, Trash2, X } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
-import { api, Contract, ProgressUpdate, getImageUrl } from '../services/api';
+import { api, Contract, ProgressUpdate, getImageUrl, Sppg } from '../services/api';
 
 export const Construction: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'contracts' | 'updates'>('contracts');
   const [contracts, setContracts] = useState<Contract[]>([]);
   const [updates, setUpdates] = useState<ProgressUpdate[]>([]);
+  const [sppgsList, setSppgsList] = useState<Sppg[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [isContractModalOpen, setIsContractModalOpen] = useState(false);
@@ -19,12 +20,14 @@ export const Construction: React.FC = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [contractData, updateData] = await Promise.all([
+      const [contractData, updateData, sppgsData] = await Promise.all([
         api.get('/contracts'),
-        api.get('/progress-updates')
+        api.get('/progress-updates'),
+        api.get('/sppgs')
       ]);
       setContracts(contractData);
       setUpdates(updateData);
+      setSppgsList(sppgsData);
     } catch (error) {
       console.error('Failed to fetch construction data:', error);
     } finally {
@@ -200,15 +203,21 @@ export const Construction: React.FC = () => {
                       {(contract.status || 'active').replace('_', ' ')}
                     </span>
                     <div className="flex items-center gap-2">
-                      {contract.sppg_id && (
-                        <a 
-                          href={`/sppg-gallery?id=${contract.sppg_id}`}
-                          className="flex items-center gap-1 text-[10px] font-bold text-blue-600 hover:text-blue-800 bg-blue-50 px-2 py-1 rounded transition-colors"
-                        >
-                          <ImageIcon className="w-3 h-3" />
-                          GALERI
-                        </a>
-                      )}
+                      {contract.sppg_id && (() => {
+                        const matchingSppg = sppgsList.find(s => s.sppg_id === contract.sppg_id);
+                        const hasGallery = matchingSppg?.media && matchingSppg.media.length > 0;
+                        if (!hasGallery) return null;
+                        
+                        return (
+                          <a 
+                            href={`/sppg-gallery?id=${contract.sppg_id}`}
+                            className="flex items-center gap-1 text-[10px] font-bold text-blue-600 hover:text-blue-800 bg-blue-50 px-2 py-1 rounded transition-colors"
+                          >
+                            <ImageIcon className="w-3 h-3" />
+                            GALERI
+                          </a>
+                        );
+                      })()}
                       <span className={`px-3 py-1 rounded-full text-xs font-medium ${getPaymentStatusBadge(contract.payment_status)}`}>
                         {(contract.payment_status || 'pending').replace('_', ' ')}
                       </span>
@@ -363,8 +372,25 @@ export const Construction: React.FC = () => {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Progress (%)</label>
-                  <input name="progress" type="number" min="0" max="100" defaultValue={editingContract?.progress} required className="mt-1 w-full border rounded-lg p-2" />
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Progress Pembangunan</label>
+                  <div className="flex items-center gap-4">
+                    <input 
+                      name="progress" 
+                      type="range" 
+                      min="0" 
+                      max="100" 
+                      defaultValue={editingContract?.progress || 0} 
+                      onChange={(e) => {
+                         const val = e.target.value;
+                         e.target.nextElementSibling!.textContent = `${val}%`;
+                         e.target.nextElementSibling!.className = `flex-shrink-0 w-12 text-center text-lg font-black ${val === '100' ? 'text-green-600' : 'text-blue-600'}`;
+                      }}
+                      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600" 
+                    />
+                    <span className={`flex-shrink-0 w-12 text-center text-lg font-black ${editingContract?.progress === 100 ? 'text-green-600' : 'text-blue-600'}`}>
+                      {editingContract?.progress || 0}%
+                    </span>
+                  </div>
                 </div>
               </div>
               <div className="flex justify-end gap-3 mt-6">
@@ -427,8 +453,25 @@ export const Construction: React.FC = () => {
                     <input name="date" type="date" defaultValue={editingUpdate?.date} required className="mt-1 w-full border rounded-lg p-2" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Progress (%)</label>
-                    <input name="progress_percentage" type="number" min="0" max="100" defaultValue={editingUpdate?.progress_percentage} required className="mt-1 w-full border rounded-lg p-2" />
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Progress (%)</label>
+                    <div className="flex items-center gap-4">
+                      <input 
+                        name="progress_percentage" 
+                        type="range" 
+                        min="0" 
+                        max="100" 
+                        defaultValue={editingUpdate?.progress_percentage || 0} 
+                        onChange={(e) => {
+                           const val = e.target.value;
+                           e.target.nextElementSibling!.textContent = `${val}%`;
+                           e.target.nextElementSibling!.className = `flex-shrink-0 w-12 text-center text-lg font-black ${val === '100' ? 'text-green-600' : 'text-blue-600'}`;
+                        }}
+                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600 mt-1" 
+                      />
+                      <span className={`flex-shrink-0 w-12 text-center text-lg font-black ${editingUpdate?.progress_percentage === 100 ? 'text-green-600' : 'text-blue-600'}`}>
+                        {editingUpdate?.progress_percentage || 0}%
+                      </span>
+                    </div>
                   </div>
                 </div>
                 <div>

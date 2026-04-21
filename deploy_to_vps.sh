@@ -12,11 +12,13 @@ ssh -i mbg.pem -o StrictHostKeyChecking=no $VPS_USER@$VPS_IP "mkdir -p $REMOTE_D
 
 # Sync files using a list of necessary items
 echo "📦 Uploading project files..."
-# Improved scp to include src, public and config files while avoiding node_modules
 rsync -avz -e "ssh -i mbg.pem -o StrictHostKeyChecking=no" --exclude 'node_modules' --exclude '.git' --exclude '.env' . $VPS_USER@$VPS_IP:$REMOTE_DIR/
 
+echo "🔨 Compiling React UI on VPS (Node.js Build)..."
+ssh -i mbg.pem -o StrictHostKeyChecking=no $VPS_USER@$VPS_IP "cd $REMOTE_DIR && docker run --rm -v \$(pwd):/app -w /app node:20-alpine sh -c 'npm install && npm run build'"
+
 echo "🐳 Starting Docker containers on VPS..."
-ssh -i mbg.pem -o StrictHostKeyChecking=no $VPS_USER@$VPS_IP "cd $REMOTE_DIR && docker compose down && docker compose up -d --build"
+ssh -i mbg.pem -o StrictHostKeyChecking=no $VPS_USER@$VPS_IP "cd $REMOTE_DIR && docker compose build && docker compose down && docker compose up -d"
 
 # Final Step: Sync database seed
 echo "🗄️ Syncing database seed (demo users & financial corrections)..."
