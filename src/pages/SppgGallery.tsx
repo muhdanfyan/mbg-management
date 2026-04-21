@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ImageIcon, Building2, MapPin, X, ChevronRight, LayoutGrid, List, ArrowUpRight } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
-import { api, Sppg } from '../services/api';
+import { api, Sppg, getImageUrl, resolveGoogleDriveUrl } from '../services/api';
 import { Pagination } from '../components/UI/Pagination';
 
 export const SppgGallery: React.FC = () => {
@@ -44,35 +44,6 @@ export const SppgGallery: React.FC = () => {
     }
   };
 
-  const getGoogleImageUrl = (url: string) => {
-    if (!url) return url;
-
-    // Handle lh3.googleusercontent.com/d/ format
-    if (url.includes('lh3.googleusercontent.com/d/')) {
-      const parts = url.split('/d/');
-      if (parts.length > 1) {
-        const id = parts[1].split('/')[0];
-        return `https://drive.google.com/thumbnail?id=${id}&sz=w1200`;
-      }
-    }
-
-    // Handle drive.google.com/open?id= format
-    if (url.includes('drive.google.com/open?id=')) {
-      const id = new URL(url).searchParams.get('id');
-      if (id) return `https://drive.google.com/thumbnail?id=${id}&sz=w1200`;
-    }
-
-    // Handle drive.google.com/file/d/ format
-    if (url.includes('drive.google.com/file/d/')) {
-      const parts = url.split('/file/d/');
-      if (parts.length > 1) {
-        const id = parts[1].split('/')[0];
-        return `https://drive.google.com/thumbnail?id=${id}&sz=w1200`;
-      }
-    }
-
-    return url;
-  };
 
   // Pagination Logic
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -121,8 +92,8 @@ export const SppgGallery: React.FC = () => {
             >
               <div className="aspect-video bg-gray-100 relative overflow-hidden">
                 {sppg.media && sppg.media.length > 0 ? (
-                  <img
-                    src={getGoogleImageUrl(sppg.media[0].preview_url)}
+                    <img
+                      src={resolveGoogleDriveUrl(sppg.media[0].preview_url)}
                     alt={sppg.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     loading="lazy"
@@ -240,7 +211,7 @@ export const SppgGallery: React.FC = () => {
                   {selectedSppg.media.map((item: any, idx: number) => (
                     <div key={item.id} className="relative group rounded-2xl overflow-hidden shadow-sm border border-gray-100 break-inside-avoid">
                       <img
-                        src={getGoogleImageUrl(item.preview_url)}
+                        src={resolveGoogleDriveUrl(item.preview_url)}
                         alt={`Photo ${idx + 1}`}
                         className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-700"
                         loading="lazy"
@@ -251,7 +222,7 @@ export const SppgGallery: React.FC = () => {
                             PHOTO #{idx + 1}
                           </span>
                           <a
-                            href={getGoogleImageUrl(item.preview_url)}
+                            href={resolveGoogleDriveUrl(item.preview_url)}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="bg-white text-black p-2 rounded-full hover:scale-110 transition-transform"

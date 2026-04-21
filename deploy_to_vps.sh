@@ -3,19 +3,23 @@
 # Configuration
 VPS_USER="mbgone"
 VPS_IP="103.126.117.20"
-REMOTE_DIR="/home/mbgone/mbg-management/backend"
+REMOTE_DIR="/home/mbgone/mbg-management"
 
 echo "🚀 Preparing deployment to VPS..."
 
 # Create directory on VPS
 ssh -i mbg.pem -o StrictHostKeyChecking=no $VPS_USER@$VPS_IP "mkdir -p $REMOTE_DIR"
 
-# Sync files
-echo "📦 Uploading files..."
-scp -i mbg.pem -o StrictHostKeyChecking=no -r ./backend/* $VPS_USER@$VPS_IP:$REMOTE_DIR/
+# Sync files using a list of necessary items
+echo "📦 Uploading project files..."
+# Improved scp to include src, public and config files while avoiding node_modules
+rsync -avz -e "ssh -i mbg.pem -o StrictHostKeyChecking=no" --exclude 'node_modules' --exclude '.git' --exclude '.env' . $VPS_USER@$VPS_IP:$REMOTE_DIR/
 
-# Deploy using Docker Compose
 echo "🐳 Starting Docker containers on VPS..."
 ssh -i mbg.pem -o StrictHostKeyChecking=no $VPS_USER@$VPS_IP "cd $REMOTE_DIR && docker compose down && docker compose up -d --build"
 
-echo "✅ Deployment complete!"
+# Final Step: Sync database seed
+echo "🗄️ Syncing database seed (demo users & financial corrections)..."
+ssh -i mbg.pem -o StrictHostKeyChecking=no $VPS_USER@$VPS_IP "docker exec -i mbg_mysql mysql -uroot -prootpassword mbg_management_dev < $REMOTE_DIR/backend/seed.sql"
+
+echo "✅ Deployment & Seeding complete!"

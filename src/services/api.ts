@@ -1,17 +1,99 @@
 const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'http://localhost:8080/api'
-    : 'https://api.mbgone.site/api';
+    : window.location.hostname === 'dev.mbgone.site'
+        ? 'https://dev.mbgone.site/api'
+        : 'https://api.mbgone.site/api';
+
+export const resolveGoogleDriveUrl = (url: string) => {
+    if (!url) return '';
+    
+    // Handle lh3.googleusercontent.com/d/ format
+    if (url.includes('lh3.googleusercontent.com/d/')) {
+        const parts = url.split('/d/');
+        if (parts.length > 1) {
+            const id = parts[1].split('/')[0];
+            return `https://drive.google.com/thumbnail?id=${id}&sz=w1200`;
+        }
+    }
+
+    // Handle drive.google.com/open?id= format
+    if (url.includes('drive.google.com/open?id=')) {
+        const urlParams = new URLSearchParams(url.split('?')[1]);
+        const id = urlParams.get('id');
+        if (id) return `https://drive.google.com/thumbnail?id=${id}&sz=w1200`;
+    }
+
+    // Handle drive.google.com/file/d/ format
+    if (url.includes('drive.google.com/file/d/')) {
+        const parts = url.split('/file/d/');
+        if (parts.length > 1) {
+            const id = parts[1].split('/')[0].split('?')[0].split('&')[0];
+            return `https://drive.google.com/thumbnail?id=${id}&sz=w1200`;
+        }
+    }
+
+    return url;
+};
+
+export const formatDateID = (dateStr: string) => {
+    if (!dateStr) return '-';
+    try {
+        const date = new Date(dateStr);
+        return new Intl.DateTimeFormat('id-ID', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+        }).format(date);
+    } catch (e) {
+        return dateStr;
+    }
+};
+
+export const getImageUrl = (url: string) => {
+    if (!url) return '';
+    
+    // Resolve Google Drive URLs first
+    const resolvedUrl = resolveGoogleDriveUrl(url);
+    if (resolvedUrl.startsWith('http')) return resolvedUrl;
+    
+    if (url.startsWith('http')) return url;
+    
+    // If it's a relative path like /uploads/..., prefix with backend base URL
+    const baseUrl = API_BASE_URL.replace('/api', '');
+    return `${baseUrl}${url.startsWith('/') ? '' : '/'}${url}`;
+};
+
+const getHeaders = () => {
+    const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+    };
+    
+    const profileStr = localStorage.getItem('mbg_profile');
+    if (profileStr) {
+        try {
+            const profile = JSON.parse(profileStr);
+            if (profile.role) headers['X-User-Role'] = profile.role;
+            if (profile.kitchen_id) headers['X-Kitchen-ID'] = profile.kitchen_id.toString();
+        } catch (e) {
+            console.error('Failed to parse profile for headers', e);
+        }
+    }
+    
+    return headers;
+};
 
 export const api = {
     get: async (endpoint: string) => {
-        const response = await fetch(`${API_BASE_URL}${endpoint}`);
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+            headers: getHeaders()
+        });
         if (!response.ok) throw new Error('API request failed');
         return response.json();
     },
     post: async (endpoint: string, data: any) => {
         const response = await fetch(`${API_BASE_URL}${endpoint}`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: getHeaders(),
             body: JSON.stringify(data),
         });
         if (!response.ok) {
@@ -23,7 +105,7 @@ export const api = {
     put: async (endpoint: string, data: any) => {
         const response = await fetch(`${API_BASE_URL}${endpoint}`, {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
+            headers: getHeaders(),
             body: JSON.stringify(data),
         });
         if (!response.ok) {
@@ -35,6 +117,7 @@ export const api = {
     delete: async (endpoint: string) => {
         const response = await fetch(`${API_BASE_URL}${endpoint}`, {
             method: 'DELETE',
+            headers: getHeaders()
         });
         if (!response.ok) throw new Error('API request failed');
         return response.json();

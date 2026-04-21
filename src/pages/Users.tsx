@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { UserPlus, Search, Mail, Phone, Trash2, Edit2, CheckCircle, AlertCircle } from 'lucide-react';
-import { api, Profile } from '../services/api';
+import { api, Profile, getImageUrl } from '../services/api';
 
 export const Users: React.FC = () => {
   const [users, setUsers] = useState<Profile[]>([]);
@@ -98,7 +98,7 @@ export const Users: React.FC = () => {
                 <tr key={user.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <img src={user.avatar_url} alt="" className="w-10 h-10 rounded-full border border-gray-200" />
+                      <img src={getImageUrl(user.avatar_url)} alt="" className="w-10 h-10 rounded-full border border-gray-200 object-cover" />
                       <div>
                         <p className="font-medium text-gray-900">{user.full_name}</p>
                         <p className="text-xs text-gray-500">{user.email}</p>

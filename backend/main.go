@@ -358,13 +358,29 @@ func main() {
 
 		api.GET("/sppgs", func(c *gin.Context) {
 			sppgs := []models.Sppg{}
-			db.Preload("Media").
+			query := db.Preload("Media").
 				Preload("Infrastructure").
 				Preload("Stakeholder.Pj").
 				Preload("Stakeholder.Landlord").
 				Preload("Readiness").
-				Preload("Fleets").
-				Find(&sppgs)
+				Preload("Fleets")
+
+			role := c.GetHeader("X-User-Role")
+			kitchenID := c.GetHeader("X-Kitchen-ID")
+
+			// If categorized role and kitchen_id provided, filter by associated SppgID
+			if (role != "Super Admin" && role != "Manager") && kitchenID != "" && kitchenID != "0" {
+				var kitchen models.Dapur
+				if err := db.Select("sppg_id").Where("id = ?", kitchenID).First(&kitchen).Error; err == nil && kitchen.SppgID != "" {
+					query = query.Where("sppg_id = ?", kitchen.SppgID)
+				} else {
+					// If kitchen not found or has no SppgID, return empty list safely
+					c.JSON(http.StatusOK, []models.Sppg{})
+					return
+				}
+			}
+
+			query.Find(&sppgs)
 			c.JSON(http.StatusOK, sppgs)
 		})
 
@@ -1419,6 +1435,8 @@ func calculateSplits(d models.Dapur, r models.FinancialRecord) gin.H {
 		"dapur_id":           d.ID,
 		"dapur_name":         d.Name,
 		"type":               d.Type,
+		"period":             r.Period,
+		"record_status":      r.Status,
 		"bep_status":         d.BEPStatus,
 		"accumulated_profit": d.AccumulatedProfit,
 		"initial_capital":    d.InitialCapital,

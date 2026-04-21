@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { DollarSign, TrendingUp, TrendingDown, CreditCard, PieChart, ArrowUpRight, ArrowDownRight, CheckCircle, Clock, XCircle } from 'lucide-react';
 
-import { api, Transaction, Loan, FinancialSummary } from '../services/api';
+import { api, Transaction, Loan, FinancialSummary, formatDateID } from '../services/api';
 import { Pagination } from '../components/UI/Pagination';
 import { useAuth } from '../contexts/AuthContext';
 
 export const Finance: React.FC = () => {
   const { profile } = useAuth();
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'transactions' | 'loans' | 'expenses' | 'reports'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'transactions' | 'loans' | 'expenses' | 'reports' | 'investasi' | 'sewa' | 'margin' | 'operasional'>('dashboard');
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loans, setLoans] = useState<Loan[]>([]);
   const [summary, setSummary] = useState<FinancialSummary | null>(null);
@@ -15,6 +16,7 @@ export const Finance: React.FC = () => {
   const [kitchens, setKitchens] = useState<any[]>([]);
   const [selectedKitchenId, setSelectedKitchenId] = useState<number | null>(null);
   const [reportData, setReportData] = useState<any>(null);
+  const [kitchenSearchQuery, setKitchenSearchQuery] = useState('');
 
   const [isTransModalOpen, setIsTransModalOpen] = useState(false);
   const [isLoanModalOpen, setIsLoanModalOpen] = useState(false);
@@ -85,14 +87,27 @@ export const Finance: React.FC = () => {
     }
   };
 
-  React.useEffect(() => {
+  const location = useLocation();
+
+  useEffect(() => {
     fetchData();
-    // Check for query actions
-    const params = new URLSearchParams(window.location.search);
+  }, []);
+
+  useEffect(() => {
+    // Check for query actions & tabs
+    const params = new URLSearchParams(location.search);
+    const tab = params.get('tab');
+    if (tab) {
+      const validTabs = ['dashboard', 'transactions', 'loans', 'expenses', 'reports', 'investasi', 'sewa', 'margin', 'operasional'];
+      if (validTabs.includes(tab)) {
+        setActiveTab(tab as any);
+      }
+    }
+
     if (params.get('action') === 'lapor-bgn') {
       setIsBGNModalOpen(true);
     }
-  }, []);
+  }, [location.search]);
 
   const handleBGNSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -198,23 +213,11 @@ export const Finance: React.FC = () => {
     setIsLoanModalOpen(true);
   };
 
-  const expenseCategories = React.useMemo(() => {
-    const expenses = transactions.filter((t: Transaction) => t.type === 'expense');
-    const total = expenses.reduce((acc, curr) => acc + curr.amount, 0);
-    
-    const categories = expenses.reduce((acc: any, curr: Transaction) => {
-      acc[curr.category] = (acc[curr.category] || 0) + curr.amount;
-      return acc;
-    }, {});
 
-    const colors = ['blue', 'green', 'orange', 'purple'];
-    return Object.entries(categories).map(([category, amount]: [string, any], idx) => ({
-      category,
-      amount,
-      percentage: total > 0 ? Math.round((amount / total) * 100) : 0,
-      color: colors[idx % colors.length]
-    }));
-  }, [transactions]);
+  const filteredKitchens = kitchens.filter(k => 
+    k.name.toLowerCase().includes(kitchenSearchQuery.toLowerCase()) ||
+    k.id.toString().includes(kitchenSearchQuery)
+  );
 
   const totalIncome = summary?.total_income || 0;
   const totalExpense = summary?.total_expense || 0;
@@ -332,24 +335,28 @@ export const Finance: React.FC = () => {
       <div className="bg-white rounded-xl border border-gray-200">
         <div className="border-b border-gray-200">
           <div className="flex gap-4 px-6">
-            {['dashboard', 'transactions', 'loans', 'expenses', 'reports'].map((tab) => (
+            {['dashboard', 'investasi', 'sewa', 'margin', 'operasional', 'transactions', 'reports'].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab as any)}
-                className={`py-4 px-2 border-b-2 font-medium transition-colors capitalize ${
+                className={`py-4 px-2 border-b-2 font-medium transition-colors capitalize whitespace-nowrap ${
                   activeTab === tab
-                    ? 'border-blue-600 text-blue-600'
+                    ? 'border-[#1A4D43] text-[#1A4D43]'
                     : 'border-transparent text-gray-600 hover:text-gray-900'
                 }`}
               >
-                {tab}
+                {tab === 'investasi' ? 'Investasi' :
+                 tab === 'sewa' ? 'Sewa Dapur' :
+                 tab === 'margin' ? 'Selisih Bahan' :
+                 tab === 'operasional' ? 'Operasional' :
+                 tab}
               </button>
             ))}
           </div>
         </div>
 
         <div className="p-6">
-          {activeTab === 'dashboard' && (
+          {(activeTab === 'dashboard' || activeTab === 'investasi' || activeTab === 'sewa' || activeTab === 'margin' || activeTab === 'operasional') && (
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-xl p-6">
@@ -436,29 +443,40 @@ export const Finance: React.FC = () => {
                 </div>
 
                 <div className="bg-white border border-gray-200 rounded-xl p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Loan Repayment Progress</h3>
-                  <div className="space-y-4">
-                    {loans.map((loan: Loan) => {
-                      const percentage = loan.amount > 0 ? ((loan.amount - loan.remaining_balance) / loan.amount) * 100 : 0;
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Realisasi Bagi Hasil Investor</h3>
+                  <div className="space-y-6">
+                    {kitchens.filter(k => k.accumulated_profit > 0).slice(0, 3).map((kitchen: any) => {
+                      const target = kitchen.initial_capital * 1.5; // Contoh target 150% ROI
+                      const percentage = Math.min((kitchen.accumulated_profit / target) * 100, 100);
                       return (
-                        <div key={loan.id}>
+                        <div key={kitchen.id} className="relative">
                           <div className="flex items-center justify-between mb-2">
-                            <span className="text-sm text-gray-900 font-medium">{loan.lender}</span>
-                            <span className="text-xs text-gray-600">{percentage.toFixed(0)}% paid</span>
+                             <div>
+                                <span className="text-sm font-bold text-gray-900">{kitchen.name}</span>
+                                <p className="text-[10px] text-gray-400 uppercase">Target BEP + 50% Profit</p>
+                             </div>
+                             <span className="text-xs font-black text-[#1A4D43] bg-[#E6F3F0] px-2 py-0.5 rounded">
+                                {percentage.toFixed(1)}% RECOVERED
+                             </span>
                           </div>
-                          <div className="w-full bg-gray-200 rounded-full h-3 mb-1">
-                            <div
-                              className="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full"
-                              style={{ width: `${percentage}%` }}
-                            ></div>
+                          <div className="w-full bg-gray-100 rounded-full h-4 overflow-hidden border border-gray-200">
+                             <div 
+                                className="h-full bg-gradient-to-r from-[#2BBF9D] to-[#1A4D43] transition-all duration-1000"
+                                style={{ width: `${percentage}%` }}
+                             />
                           </div>
-                          <div className="flex items-center justify-between text-xs text-gray-600">
-                            <span>Remaining: Rp {(loan.remaining_balance / 1000000000).toFixed(1)}B</span>
-                            <span>Monthly: Rp {(loan.monthly_payment / 1000000).toFixed(0)}M</span>
+                          <div className="flex justify-between mt-1 items-baseline">
+                             <span className="text-[11px] text-gray-500">Nilai: Rp {(kitchen.accumulated_profit / 1000000).toFixed(1)}M</span>
+                             <span className="text-[11px] text-gray-500 font-medium">Target: Rp {(target / 1000000).toFixed(1)}M</span>
                           </div>
                         </div>
                       );
                     })}
+                    {kitchens.filter(k => k.accumulated_profit > 0).length === 0 && (
+                      <div className="text-center py-8 text-gray-400 italic text-sm">
+                        Belum ada data distribusi bagi hasil terekam.
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -489,7 +507,7 @@ export const Finance: React.FC = () => {
                         </div>
                         <div>
                           <h4 className="font-semibold text-gray-900">{transaction.category}</h4>
-                          <p className="text-sm text-gray-600">{transaction.date}</p>
+                          <p className="text-sm text-gray-600">{formatDateID(transaction.date)}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-6">
@@ -609,8 +627,8 @@ export const Finance: React.FC = () => {
 
                       <div className="pt-4 border-t border-gray-200">
                         <div className="flex items-center justify-between text-xs text-gray-600">
-                          <span>Start: {loan.start_date}</span>
-                          <span>End: {loan.end_date}</span>
+                          <span>Mulai: {formatDateID(loan.start_date)}</span>
+                          <span>Berakhir: {formatDateID(loan.end_date)}</span>
                         </div>
                       </div>
                     </div>
@@ -705,7 +723,7 @@ export const Finance: React.FC = () => {
                       <div className="flex items-center justify-between mb-3">
                         <div>
                           <p className="font-medium text-gray-900">{transaction.category}</p>
-                          <p className="text-sm text-gray-600">{transaction.date}</p>
+                          <p className="text-sm text-gray-600">{formatDateID(transaction.date)}</p>
                         </div>
                         <p className="text-lg font-bold text-orange-600">
                           Rp {(transaction.amount / 1000000).toFixed(0)}M
@@ -742,9 +760,19 @@ export const Finance: React.FC = () => {
             <div className="space-y-6">
               <div className="bg-white p-6 border border-gray-200 rounded-xl">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Laporan Bagi Hasil Per Dapur</h3>
-                <div className="flex gap-4">
+                <div className="flex flex-col md:flex-row gap-4">
+                  <div className="relative flex-1">
+                    <input
+                      type="text"
+                      placeholder="Cari Dapur berdasarkan nama..."
+                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                      value={kitchenSearchQuery}
+                      onChange={(e) => setKitchenSearchQuery(e.target.value)}
+                    />
+                    <Clock className="absolute left-3 top-2.5 w-5 h-5 text-gray-400" />
+                  </div>
                   <select 
-                    className="flex-1 border border-gray-300 rounded-lg px-4 py-2"
+                    className="w-full md:w-64 border border-gray-300 rounded-lg px-4 py-2 bg-white"
                     value={selectedKitchenId || ''}
                     onChange={(e) => {
                       const id = Number(e.target.value);
@@ -752,14 +780,14 @@ export const Finance: React.FC = () => {
                       fetchReport(id);
                     }}
                   >
-                    <option value="">Pilih Dapur...</option>
-                    {kitchens.map(k => (
+                    <option value="">Pilih Dapur Result...</option>
+                    {filteredKitchens.map(k => (
                       <option key={k.id} value={k.id}>{k.name}</option>
                     ))}
                   </select>
                   <button 
                     onClick={() => selectedKitchenId && fetchReport(selectedKitchenId)}
-                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
                   >
                     Refresh Laporan
                   </button>
@@ -783,15 +811,47 @@ export const Finance: React.FC = () => {
                       <p className="text-sm text-gray-500">Skema: {reportData.type}</p>
                     </div>
                     <div className="p-6 space-y-4">
+                      <div className="grid grid-cols-2 gap-4 pb-4 border-b border-gray-100">
+                        <div>
+                          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Tanggal Masuk Dana</p>
+                          <p className="text-sm font-bold text-gray-900">{reportData.period ? formatDateID(reportData.period) : '-'}</p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Status Laporan</p>
+                          <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                            reportData.record_status === 'APPROVED' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'
+                          }`}>
+                            {reportData.record_status || 'PENDING'}
+                          </span>
+                        </div>
+                      </div>
+
                       <div className="flex justify-between items-center text-sm">
                         <span className="text-gray-600">Pendapatan Sewa (Gross)</span>
-                        <span className="font-bold">Rp {reportData.rental_income.toLocaleString()}</span>
+                        <span className="font-bold text-gray-900">Rp {reportData.rental_income.toLocaleString()}</span>
                       </div>
                       <div className="flex justify-between items-center text-sm">
                         <span className="text-gray-600">Selisih Bahan Baku (Gross)</span>
-                        <span className="font-bold">Rp {reportData.selisih_bahan_baku.toLocaleString()}</span>
+                        <span className="font-bold text-gray-900">Rp {reportData.selisih_bahan_baku.toLocaleString()}</span>
                       </div>
-                      <div className="pt-4 border-t border-gray-100 flex justify-between items-center">
+                      
+                      {/* Tracking Tambahan Sesuai Muktamar */}
+                      <div className="pt-4 border-t border-gray-100 grid grid-cols-2 gap-4">
+                        <div className="flex flex-col">
+                          <span className="text-[10px] font-bold text-slate-400 uppercase">Transfer Investor</span>
+                          <span className="text-xs font-black text-slate-700">
+                            {reportData.record_status === 'APPROVED' ? 'Sudah Ditransfer' : 'Menunggu Approval'}
+                          </span>
+                        </div>
+                        <div className="flex flex-col text-right">
+                          <span className="text-[10px] font-bold text-slate-400 uppercase text-right">Estimasi Transfer</span>
+                          <span className="text-xs font-black text-slate-700">
+                             {reportData.period ? formatDateID(new Date(new Date(reportData.period).getTime() + (7 * 24 * 60 * 60 * 1000)).toISOString()) : '-'}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="pt-4 border-t-2 border-dashed border-gray-100 flex justify-between items-center">
                         <span className="font-bold text-gray-900">Total Sisa Bersih (Net)</span>
                         <span className="text-xl font-black text-blue-600">Rp {reportData.sisa_bersih.toLocaleString()}</span>
                       </div>

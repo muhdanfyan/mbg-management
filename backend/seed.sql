@@ -6,7 +6,13 @@ INSERT IGNORE INTO users (id, email, password, full_name, role, department, posi
 ('demo-3', 'finance@mbg.com', '$2a$10$T7NUZFakltdzg2xnh9xgQ.EkdaDG2CD2lGaNclFzUnAYBQE6qGLH.', 'Demo Finance', 'Finance', 'Finance', 'Accountant', '081234567893', 'https://i.pravatar.cc/150?u=4', NOW(), NOW()),
 ('demo-4', 'hrd@mbg.com', '$2a$10$T7NUZFakltdzg2xnh9xgQ.EkdaDG2CD2lGaNclFzUnAYBQE6qGLH.', 'Demo HRD', 'HRD', 'Human Resources', 'HR Specialist', '081234567894', 'https://i.pravatar.cc/150?u=5', NOW(), NOW()),
 ('demo-5', 'procurement@mbg.com', '$2a$10$T7NUZFakltdzg2xnh9xgQ.EkdaDG2CD2lGaNclFzUnAYBQE6qGLH.', 'Demo Procurement', 'Procurement', 'Procurement', 'Buyer', '081234567895', 'https://i.pravatar.cc/150?u=6', NOW(), NOW()),
-('demo-6', 'staff@mbg.com', '$2a$10$T7NUZFakltdzg2xnh9xgQ.EkdaDG2CD2lGaNclFzUnAYBQE6qGLH.', 'Demo Staff', 'Staff', 'Operations', 'Kitchen Staff', '081234567896', 'https://i.pravatar.cc/150?u=7', NOW(), NOW());
+('demo-6', 'staff@mbg.com', '$2a$10$T7NUZFakltdzg2xnh9xgQ.EkdaDG2CD2lGaNclFzUnAYBQE6qGLH.', 'Demo Staff', 'Staff', 'Operations', 'Kitchen Staff', '081234567896', 'https://i.pravatar.cc/150?u=7', NOW(), NOW()),
+('demo-7', 'pic.panakkukang@mbg.com', '$2a$10$T7NUZFakltdzg2xnh9xgQ.EkdaDG2CD2lGaNclFzUnAYBQE6qGLH.', 'PIC Panakkukang', 'PIC Dapur', 'Operations', 'Kitchen Manager', '081234567897', 'https://api.dicebear.com/7.x/avataaars/svg?seed=pic1', NOW(), NOW()),
+('demo-8', 'investor@mbg.com', '$2a$10$T7NUZFakltdzg2xnh9xgQ.EkdaDG2CD2lGaNclFzUnAYBQE6qGLH.', 'MBG Investor', 'Investor', 'Investment', 'Partner', '081234567898', 'https://api.dicebear.com/7.x/avataaars/svg?seed=inv1', NOW(), NOW()),
+('demo-9', 'koperasi@mbg.com', '$2a$10$T7NUZFakltdzg2xnh9xgQ.EkdaDG2CD2lGaNclFzUnAYBQE6qGLH.', 'Staff Koperasi', 'Operator Koperasi', 'Audit', 'Finance Staff', '081234567899', 'https://api.dicebear.com/7.x/avataaars/svg?seed=kop1', NOW(), NOW());
+
+-- Link PIC to Kitchen (Example manual link if needed, but the column kitchen_id exists in users)
+UPDATE users SET kitchen_id = 1 WHERE email = 'pic.panakkukang@mbg.com';
 
 -- Seed Koperasi
 INSERT IGNORE INTO koperasis (id, name, address, created_at, updated_at) VALUES
@@ -14,7 +20,7 @@ INSERT IGNORE INTO koperasis (id, name, address, created_at, updated_at) VALUES
 
 -- Seed Dapurs
 INSERT IGNORE INTO dapurs (id, name, type, address, lat, lng, capacity, status, region, investor_share, dpp_share, daily_rental_rate, portion_count, koperasi_id, created_at, updated_at) VALUES
-(1, 'Dapur Panakkukang', 'INVESTOR', 'Jl. Boulevard, Panakkukang', -5.1415, 119.4530, 500, 'active', 'Makassar', 0.60, 0.40, 6000000, 450, 1, NOW(), NOW()),
+(1, 'Dapur Panakkukang', 'INVESTOR', 'Jl. Boulevard, Panakkukang', -5.1415, 119.4530, 500, 'active', 'Makassar', 0.25, 0.75, 6000000, 450, 1, NOW(), NOW()),
 (2, 'Dapur Rappocini', 'BANGUN_SENDIRI', 'Jl. Sultan Alauddin, Rappocini', -5.1632, 119.4430, 450, 'active', 'Makassar', 0, 0, 6000000, 400, 1, NOW(), NOW());
 
 -- Seed Routes

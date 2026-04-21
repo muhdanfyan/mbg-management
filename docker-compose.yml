@@ -9,7 +9,7 @@ services:
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     ports:
-      - "127.0.0.1:3306:3306"
+      - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
 
@@ -18,8 +18,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: mbg_backend
-    expose:
-      - "8080"
+    restart: always
     depends_on:
       - db
     environment:
@@ -30,8 +29,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: mbg_backend_dev
-    expose:
-      - "8081"
+    restart: always
     environment:
       DB_DSN: "kassaone:${MYSQL_PASSWORD}@tcp(db:3306)/mbg_management_dev?charset=utf8mb4&parseTime=True&loc=Local"
       PORT: "8081"
@@ -46,7 +44,7 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile
+      - ./backend/Caddyfile:/etc/caddy/Caddyfile
       - caddy_data:/data
       - caddy_config:/config
     depends_on:

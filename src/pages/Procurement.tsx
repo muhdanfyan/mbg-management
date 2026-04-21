@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ShoppingCart, Package, FileText, Search, Filter, QrCode, TrendingUp, AlertCircle, Plus, Edit, Trash2, Activity } from 'lucide-react';
-import { api, Equipment, PurchaseOrder } from '../services/api';
+import { api, Equipment, PurchaseOrder, getImageUrl } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 
 export const Procurement: React.FC = () => {
@@ -229,8 +229,12 @@ export const Procurement: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredEquipment.map((item) => (
                 <div key={item.id} className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-shadow">
-                  <div className="aspect-video bg-gray-100 flex items-center justify-center">
-                    <Package className="w-12 h-12 text-gray-400" />
+                  <div className="aspect-video bg-gray-100 flex items-center justify-center overflow-hidden">
+                    {item.image ? (
+                      <img src={getImageUrl(item.image)} alt={item.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <Package className="w-12 h-12 text-gray-400" />
+                    )}
                   </div>
                   <div className="p-4">
                     <div className="flex justify-between items-start mb-2">

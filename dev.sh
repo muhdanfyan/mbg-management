@@ -23,7 +23,16 @@ fi
 
 # 2. Start Backend with Hot Reload (Air)
 echo "📡 Starting Backend (Air)..."
-(cd backend && go run github.com/air-verse/air@v1.61.0) &
+(
+    cd backend
+    if [ -f .env ]; then
+        # Load .env variables correctly even with quotes or special characters
+        set -a
+        source .env
+        set +a
+    fi
+    go run github.com/air-verse/air@v1.61.0
+) &
 
 # 3. Wait a moment for BE to initialize
 sleep 2

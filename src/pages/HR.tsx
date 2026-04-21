@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Search, Calendar, Edit, Trash2, UserCircle, Briefcase, Clock, CheckCircle, UserPlus } from 'lucide-react';
-import { api, Employee, Vacancy, Applicant } from '../services/api';
+import { api, Employee, Vacancy, Applicant, getImageUrl } from '../services/api';
 import { Pagination } from '../components/UI/Pagination';
 
 export const HR: React.FC = () => {
@@ -195,7 +195,7 @@ export const HR: React.FC = () => {
                     <div className="flex items-start gap-4 mb-4">
                       <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center text-blue-600 overflow-hidden border border-blue-100 flex-shrink-0">
                         {employee.photo ? (
-                          <img src={employee.photo} alt={employee.name} className="w-full h-full object-cover" />
+                          <img src={getImageUrl(employee.photo)} alt={employee.name} className="w-full h-full object-cover" />
                         ) : (
                           <UserCircle className="w-10 h-10 opacity-40" />
                         )}

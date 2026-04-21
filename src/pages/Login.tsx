@@ -9,7 +9,7 @@ const DEMO_USERS = [
   { email: 'hrd@mbg.com', password: 'pass123', role: 'HRD', description: 'HR module' },
   { email: 'procurement@mbg.com', password: 'pass123', role: 'Procurement', description: 'Procurement module' },
   { email: 'staff@mbg.com', password: 'pass123', role: 'Staff', description: 'Limited access' },
-  { email: 'dapur@mbg.com', password: 'mbg12345', role: 'PIC Dapur', description: 'Kitchen management' },
+  { email: 'pic.panakkukang@mbg.com', password: 'mbg12345', role: 'PIC Dapur', description: 'Kitchen management' },
   { email: 'investor@mbg.com', password: 'mbg12345', role: 'Investor', description: 'Investment monitoring' },
   { email: 'koperasi@mbg.com', password: 'mbg12345', role: 'Operator Koperasi', description: 'Audit & daily spending' },
 ];

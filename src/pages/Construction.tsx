@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Building2, ImageIcon, DollarSign, CheckCircle, Clock, Plus, Edit, Trash2, X } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
-import { api, Contract, ProgressUpdate } from '../services/api';
+import { api, Contract, ProgressUpdate, getImageUrl } from '../services/api';
 
 export const Construction: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'contracts' | 'updates'>('contracts');
@@ -238,7 +238,7 @@ export const Construction: React.FC = () => {
                   <div className="flex items-start gap-4">
                     <div className="aspect-square w-24 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
                       {update.photo_url ? (
-                        <img src={update.photo_url} alt="Progress" className="w-full h-full object-cover" />
+                        <img src={getImageUrl(update.photo_url)} alt="Progress" className="w-full h-full object-cover" />
                       ) : (
                         <ImageIcon className="w-8 h-8 text-gray-400" />
                       )}

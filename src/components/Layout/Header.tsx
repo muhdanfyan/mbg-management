@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Bell, LogOut, User, Settings, ChevronDown } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { getImageUrl } from '../../services/api';
 
 export const Header: React.FC = () => {
   const { profile, signOut } = useAuth();
@@ -79,8 +80,12 @@ export const Header: React.FC = () => {
             onClick={() => setShowDropdown(!showDropdown)}
             className="flex items-center gap-3 p-1.5 hover:bg-gray-50 rounded-2xl transition-all active:scale-95 group"
           >
-            <div className="w-9 h-9 bg-gradient-to-br from-[#1A4D43] to-[#2BBF9D] rounded-xl flex items-center justify-center shadow-lg shadow-[#2BBF9D]/20">
-              <User className="w-5 h-5 text-white" />
+            <div className="w-9 h-9 bg-gradient-to-br from-[#1A4D43] to-[#2BBF9D] rounded-xl flex items-center justify-center shadow-lg shadow-[#2BBF9D]/20 overflow-hidden">
+              {profile?.avatar_url ? (
+                <img src={getImageUrl(profile.avatar_url)} alt="Avatar" className="w-full h-full object-cover" />
+              ) : (
+                <User className="w-5 h-5 text-white" />
+              )}
             </div>
             <ChevronDown className="w-4 h-4 text-gray-400 group-hover:text-[#1A4D43] transition-colors" />
           </button>
