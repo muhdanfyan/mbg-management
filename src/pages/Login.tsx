@@ -9,9 +9,9 @@ const DEMO_USERS = [
   { email: 'hrd@mbg.com', password: 'pass123', role: 'HRD', description: 'HR module' },
   { email: 'procurement@mbg.com', password: 'pass123', role: 'Procurement', description: 'Procurement module' },
   { email: 'staff@mbg.com', password: 'pass123', role: 'Staff', description: 'Limited access' },
-  { email: 'pic.panakkukang@mbg.com', password: 'mbg12345', role: 'PIC Dapur', description: 'Kitchen management' },
-  { email: 'investor@mbg.com', password: 'mbg12345', role: 'Investor', description: 'Investment monitoring' },
-  { email: 'koperasi@mbg.com', password: 'mbg12345', role: 'Operator Koperasi', description: 'Audit & daily spending' },
+  { email: 'pic.panakkukang@mbg.com', password: 'pass123', role: 'PIC Dapur', description: 'Kitchen management' },
+  { email: 'investor@mbg.com', password: 'pass123', role: 'Investor', description: 'Investment monitoring' },
+  { email: 'koperasi@mbg.com', password: 'pass123', role: 'Operator Koperasi', description: 'Audit & daily spending' },
 ];
 
 export const Login: React.FC = () => {
@@ -168,7 +168,7 @@ export const Login: React.FC = () => {
 
             <div className="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <p className="text-sm text-blue-800">
-                <strong>Password Default:</strong> pass123 / mbg12345
+                <strong>Password Default:</strong> pass123
               </p>
             </div>
           </div>

@@ -46,9 +46,11 @@ func initDB() {
 	fmt.Println("Successfully connected to database")
 
 	// Auto Migration - Split into chunks to ensure new tables are created even if complex relations fail
-	_ = db.AutoMigrate(&models.User{}, &models.Koperasi{}, &models.Department{}, &models.Position{})
-	_ = db.AutoMigrate(&models.Sppg{}, &models.SppgMedia{}, &models.SppgInfrastructure{}, &models.SppgStakeholder{}, &models.SppgReadiness{}, &models.OperationalFleet{}, &models.Stakeholder{})
-	_ = db.AutoMigrate(&models.Dapur{}, &models.Route{}, &models.InvestorParticipant{}) // Probabilistic fail point
+	_ = db.AutoMigrate(&models.Department{}, &models.Position{}, &models.Koperasi{})
+	_ = db.AutoMigrate(&models.Dapur{}, &models.Sppg{})
+	_ = db.AutoMigrate(&models.User{}) // User depends on Dapur
+	_ = db.AutoMigrate(&models.SppgMedia{}, &models.SppgInfrastructure{}, &models.SppgStakeholder{}, &models.SppgReadiness{}, &models.OperationalFleet{}, &models.Stakeholder{})
+	_ = db.AutoMigrate(&models.Route{}, &models.InvestorParticipant{})
 	_ = db.AutoMigrate(&models.Employee{}, &models.Vacancy{}, &models.Applicant{})
 	_ = db.AutoMigrate(&models.Contract{}, &models.ProgressUpdate{})
 	_ = db.AutoMigrate(&models.Transaction{}, &models.Loan{}, &models.Equipment{}, &models.PurchaseOrder{}, &models.FinancialRecord{})
