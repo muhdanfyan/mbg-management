@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ImageIcon, Building2, MapPin, X, ChevronRight, LayoutGrid, List, ArrowUpRight, Search, Filter } from 'lucide-react';
+import { ImageIcon, Building2, MapPin, X, ChevronRight, LayoutGrid, List, ArrowUpRight, Search, Filter, Trash2, Plus } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import { api, Sppg, getImageUrl, resolveGoogleDriveUrl, getGoogleDriveSources } from '../services/api';
 import { Pagination } from '../components/UI/Pagination';
@@ -37,6 +37,48 @@ export const SppgGallery: React.FC = () => {
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+
+  // Manage Media State
+  const [isAddingMedia, setIsAddingMedia] = useState(false);
+  const [newMediaUrl, setNewMediaUrl] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
+
+  const handleAddMedia = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newMediaUrl.trim() || !selectedSppg) return;
+    try {
+      setIsUploading(true);
+      await api.post('/sppg-media', {
+         sppg_id: selectedSppg.sppg_id,
+         preview_url: newMediaUrl
+      });
+      const data = await fetchSppgs();
+      if (data) {
+        const found = data.find((s: Sppg) => s.sppg_id === selectedSppg.sppg_id);
+        if (found) setSelectedSppg(found);
+      }
+      setNewMediaUrl('');
+      setIsAddingMedia(false);
+    } catch(err) {
+      alert("Failed to add media");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleDeleteMedia = async (mediaId: number) => {
+    if (!window.confirm("Yakin ingin menghapus foto ini?")) return;
+    try {
+      await api.delete(`/sppg-media/${mediaId}`);
+      const data = await fetchSppgs();
+      if (data && selectedSppg) {
+        const found = data.find((s: Sppg) => s.sppg_id === selectedSppg.sppg_id);
+        if (found) setSelectedSppg(found);
+      }
+    } catch (err) {
+       alert("Gagal menghapus gambar");
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -276,6 +318,11 @@ export const SppgGallery: React.FC = () => {
                         alt={`Photo ${idx + 1}`}
                         className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-700"
                       />
+                      <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                         <button onClick={(e) => { e.stopPropagation(); handleDeleteMedia(item.id); }} className="bg-red-500 text-white p-2 rounded-full hover:scale-110 shadow-lg">
+                            <Trash2 className="w-4 h-4" />
+                         </button>
+                      </div>
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-end p-4">
                         <div className="w-full flex items-center justify-between">
                           <span className="text-white text-xs font-bold tracking-widest uppercase">
@@ -304,35 +351,70 @@ export const SppgGallery: React.FC = () => {
               )}
             </div>
             
-            <div className="p-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                 <div className="flex flex-col">
-                    <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Status Record</span>
-                    <span className="text-sm font-bold text-green-600">VERIFIED DATA</span>
-                 </div>
-                 <div className="w-px h-8 bg-gray-200"></div>
-                 <div className="flex flex-col">
-                    <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Total Media</span>
-                    <span className="text-sm font-bold text-gray-900">{selectedSppg.media?.length || 0} Files</span>
-                 </div>
-                 <div className="w-px h-8 bg-gray-200"></div>
-                   <a 
-                     href={`/construction?search=${selectedSppg.sppg_id}`}
-                     className="flex flex-col group"
-                   >
-                     <span className="text-[10px] text-blue-600 font-black uppercase tracking-widest flex items-center gap-1 group-hover:underline">
-                        Cek Status Pembangunan
-                        <ArrowUpRight className="w-2.5 h-2.5" />
-                     </span>
-                     <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Construction Module</span>
-                   </a>
+            <div className="p-4 bg-gray-50 border-t border-gray-100 flex flex-col gap-4">
+              {isAddingMedia && (
+                <form onSubmit={handleAddMedia} className="flex gap-2">
+                  <input 
+                     type="text" 
+                     placeholder="Masukkan Link Gambar atau Google Drive URL..." 
+                     className="flex-1 px-4 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-[#1A4D43]"
+                     value={newMediaUrl}
+                     onChange={(e) => setNewMediaUrl(e.target.value)}
+                     disabled={isUploading}
+                     required
+                  />
+                  <button type="submit" disabled={isUploading} className="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold text-sm hover:bg-blue-700">
+                    {isUploading ? 'Menyimpan...' : 'Simpan'}
+                  </button>
+                  <button type="button" onClick={() => setIsAddingMedia(false)} className="bg-gray-200 text-gray-700 px-6 py-2 rounded-xl font-bold text-sm hover:bg-gray-300">
+                    Batal
+                  </button>
+                </form>
+              )}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3 sm:gap-4 overflow-x-auto">
+                   <div className="flex flex-col shrink-0">
+                      <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Status Record</span>
+                      <span className="text-sm font-bold text-green-600">VERIFIED DATA</span>
+                   </div>
+                   <div className="w-px h-8 bg-gray-200 shrink-0"></div>
+                   <div className="flex flex-col shrink-0">
+                      <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Total Media</span>
+                      <span className="text-sm font-bold text-gray-900">{selectedSppg.media?.length || 0} Files</span>
+                   </div>
+                   <div className="w-px h-8 bg-gray-200 shrink-0"></div>
+                     <a 
+                       href={`/construction?search=${selectedSppg.sppg_id}`}
+                       className="flex flex-col group shrink-0"
+                     >
+                       <span className="text-[10px] text-blue-600 font-black uppercase tracking-widest flex items-center gap-1 group-hover:underline">
+                          Cek Status Pembangunan
+                          <ArrowUpRight className="w-2.5 h-2.5" />
+                       </span>
+                       <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Construction Module</span>
+                     </a>
+                </div>
+                <div className="flex items-center gap-2 shrink-0 ml-4">
+                  {!isAddingMedia && (
+                    <button
+                      onClick={() => setIsAddingMedia(true)}
+                      className="bg-white border-2 border-[#1A4D43] text-[#1A4D43] px-4 py-2.5 rounded-xl font-bold text-sm hover:bg-gray-50 transition-colors flex items-center gap-1 shrink-0"
+                    >
+                      <Plus className="w-4 h-4" /> Tambah Foto
+                    </button>
+                  )}
+                  <button
+                    onClick={() => {
+                        setSelectedSppg(null);
+                        setIsAddingMedia(false);
+                        setNewMediaUrl('');
+                    }}
+                    className="bg-[#1A4D43] text-white px-4 py-3 rounded-xl font-bold text-sm hover:shadow-lg hover:shadow-[#1A4D43]/20 transition-all shrink-0"
+                  >
+                    Close Gallery
+                  </button>
+                </div>
               </div>
-              <button
-                onClick={() => setSelectedSppg(null)}
-                className="bg-[#1A4D43] text-white px-4 py-3 rounded-xl font-bold text-sm hover:shadow-lg hover:shadow-[#1A4D43]/20 transition-all"
-              >
-                Close Gallery
-              </button>
             </div>
           </div>
         </div>

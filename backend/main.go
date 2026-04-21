@@ -396,6 +396,29 @@ func main() {
 
 		// --- CRUD Endpoints ---
 
+		api.POST("/sppg-media", func(c *gin.Context) {
+			var input models.SppgMedia
+			if err := c.ShouldBindJSON(&input); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				return
+			}
+			input.MediaType = "image"
+			if err := db.Create(&input).Error; err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
+			c.JSON(http.StatusOK, input)
+		})
+
+		api.DELETE("/sppg-media/:id", func(c *gin.Context) {
+			id := c.Param("id")
+			if err := db.Delete(&models.SppgMedia{}, id).Error; err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
+			c.JSON(http.StatusOK, gin.H{"message": "Media deleted"})
+		})
+
 		// Kitchens
 		api.POST("/kitchens", func(c *gin.Context) {
 			var k models.Dapur

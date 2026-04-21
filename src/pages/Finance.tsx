@@ -337,7 +337,11 @@ export const Finance: React.FC = () => {
       <div className="bg-white rounded-lg border border-gray-200">
         <div className="border-b border-gray-200">
           <div className="flex gap-4 px-4">
-            {['dashboard', 'investasi', 'sewa', 'margin', 'operasional', 'transactions', 'reports'].map((tab) => (
+            {['dashboard', 'investasi', 'sewa', 'margin', 'operasional', 'transactions', 'reports'].filter(tab => {
+              if (profile?.role === 'Operator Koperasi') return ['dashboard', 'margin', 'transactions', 'reports'].includes(tab);
+              if (profile?.role === 'PIC Dapur') return ['dashboard', 'operasional', 'transactions', 'reports'].includes(tab);
+              return true;
+            }).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab as any)}
