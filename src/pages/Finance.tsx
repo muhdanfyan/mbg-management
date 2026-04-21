@@ -358,7 +358,7 @@ export const Finance: React.FC = () => {
         </div>
 
         <div className="p-6">
-          {(activeTab === 'dashboard' || activeTab === 'investasi' || activeTab === 'sewa' || activeTab === 'margin' || activeTab === 'operasional') && (
+          {activeTab === 'dashboard' && (
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-xl p-6">
@@ -758,10 +758,16 @@ export const Finance: React.FC = () => {
             </div>
           )}
 
-          {activeTab === 'reports' && (
+          {(activeTab === 'reports' || activeTab === 'investasi' || activeTab === 'sewa' || activeTab === 'margin' || activeTab === 'operasional') && (
             <div className="space-y-6">
               <div className="bg-white p-6 border border-gray-200 rounded-xl">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Laporan Bagi Hasil Per Dapur</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  {activeTab === 'reports' ? 'Laporan Bagi Hasil Per Dapur' :
+                   activeTab === 'sewa' ? 'Laporan Sewa Dapur' :
+                   activeTab === 'margin' ? 'Laporan Selisih Bahan (60:20:20)' :
+                   activeTab === 'operasional' ? 'Laporan Operasional Dapur' :
+                   'Laporan Realisasi Bagi Hasil Investor'}
+                </h3>
                 <div className="flex flex-col md:flex-row gap-4">
                   <div className="relative flex-1">
                     <input
@@ -828,14 +834,18 @@ export const Finance: React.FC = () => {
                         </div>
                       </div>
 
-                      <div className="flex justify-between items-center text-sm">
-                        <span className="text-gray-600">Pendapatan Sewa (Gross)</span>
-                        <span className="font-bold text-gray-900">Rp {reportData.rental_income.toLocaleString()}</span>
-                      </div>
-                      <div className="flex justify-between items-center text-sm">
-                        <span className="text-gray-600">Selisih Bahan Baku (Gross)</span>
-                        <span className="font-bold text-gray-900">Rp {reportData.selisih_bahan_baku.toLocaleString()}</span>
-                      </div>
+                      {(activeTab === 'reports' || activeTab === 'sewa') && (
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="text-gray-600">Pendapatan Sewa (Gross)</span>
+                          <span className="font-bold text-gray-900">Rp {reportData.rental_income.toLocaleString()}</span>
+                        </div>
+                      )}
+                      {(activeTab === 'reports' || activeTab === 'margin' || activeTab === 'operasional') && (
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="text-gray-600">Selisih Bahan Baku (Gross)</span>
+                          <span className="font-bold text-gray-900">Rp {reportData.selisih_bahan_baku.toLocaleString()}</span>
+                        </div>
+                      )}
                       
                       {/* Tracking Tambahan Sesuai Muktamar */}
                       <div className="pt-4 border-t border-gray-100 grid grid-cols-2 gap-4">
@@ -867,57 +877,65 @@ export const Finance: React.FC = () => {
                        Rincian Pembagian (Split)
                     </h4>
                     <div className="space-y-6">
-                      {/* Rental Split */}
-                      <div className="space-y-2">
-                        <p className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nisbah / Margin (%)</p>
-                        <div className="grid grid-cols-1 gap-2">
-                           {reportData.investor_share > 0 && (
-                             <div className="flex justify-between p-3 bg-slate-50 rounded-lg">
-                               <span className="text-sm font-medium">Bagian Investor</span>
-                               <span className="font-bold">Rp {reportData.investor_share.toLocaleString()}</span>
-                             </div>
-                           )}
-                           <div className="flex justify-between p-3 bg-blue-50 rounded-lg border border-blue-100">
-                             <span className="text-sm font-medium text-blue-800">Bagian DPP Wahdah</span>
-                             <span className="font-bold text-blue-900">Rp {reportData.dpp_share_sewa.toLocaleString()}</span>
-                           </div>
-                           <div className="flex justify-between p-3 bg-indigo-50 rounded-lg border border-indigo-100">
-                             <span className="text-sm font-medium text-indigo-800">Bagian YWMP</span>
-                             <span className="font-bold text-indigo-900">Rp {reportData.ywmp_share_sewa.toLocaleString()}</span>
-                           </div>
+                      {/* Rental Split & Investor */}
+                      {(activeTab === 'reports' || activeTab === 'investasi' || activeTab === 'sewa') && (
+                        <div className="space-y-2">
+                          <p className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nisbah / Margin (%)</p>
+                          <div className="grid grid-cols-1 gap-2">
+                             {(activeTab === 'reports' || activeTab === 'investasi') && reportData.investor_share > 0 && (
+                               <div className="flex justify-between p-3 bg-slate-50 rounded-lg">
+                                 <span className="text-sm font-medium">Bagian Investor</span>
+                                 <span className="font-bold">Rp {reportData.investor_share.toLocaleString()}</span>
+                               </div>
+                             )}
+                             {(activeTab === 'reports' || activeTab === 'sewa') && (
+                               <>
+                                 <div className="flex justify-between p-3 bg-blue-50 rounded-lg border border-blue-100">
+                                   <span className="text-sm font-medium text-blue-800">Bagian DPP Wahdah</span>
+                                   <span className="font-bold text-blue-900">Rp {reportData.dpp_share_sewa.toLocaleString()}</span>
+                                 </div>
+                                 <div className="flex justify-between p-3 bg-indigo-50 rounded-lg border border-indigo-100">
+                                   <span className="text-sm font-medium text-indigo-800">Bagian YWMP</span>
+                                   <span className="font-bold text-indigo-900">Rp {reportData.ywmp_share_sewa.toLocaleString()}</span>
+                                 </div>
+                               </>
+                             )}
+                          </div>
                         </div>
-                      </div>
+                      )}
 
                       {/* Margin Split */}
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Bagi Hasil Selisih Bahan</p>
-                          <span className="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded">60:20:20 Split</span>
+                      {(activeTab === 'reports' || activeTab === 'margin') && (
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Bagi Hasil Selisih Bahan</p>
+                            <span className="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded">60:20:20 Split</span>
+                          </div>
+                          <div className="grid grid-cols-1 gap-2">
+                             <div className="flex justify-between p-3 bg-blue-50 rounded-lg border border-blue-100">
+                               <div>
+                                 <span className="text-sm font-medium text-blue-800">DPP Wahdah (60%)</span>
+                                 <p className="text-[10px] text-blue-600">Pusat Management</p>
+                               </div>
+                               <span className="font-bold text-blue-900">Rp {reportData.dpp_share_selisih.toLocaleString()}</span>
+                             </div>
+                             <div className="flex justify-between p-3 bg-emerald-50 rounded-lg border border-emerald-100">
+                               <div>
+                                 <span className="text-sm font-medium text-emerald-800">DPD (20%)</span>
+                                 <p className="text-[10px] text-emerald-600">Daerah Pelaksana</p>
+                               </div>
+                               <span className="font-bold text-emerald-900">Rp {reportData.dpd_share_selisih.toLocaleString()}</span>
+                             </div>
+                             <div className="flex justify-between p-3 bg-purple-50 rounded-lg border border-purple-100">
+                               <div>
+                                 <span className="text-sm font-medium text-purple-800">Koperasi (20%)</span>
+                                 <p className="text-[10px] text-purple-600">Penyedia Bahan Baku</p>
+                               </div>
+                               <span className="font-bold text-purple-900">Rp {reportData.kop_share_selisih.toLocaleString()}</span>
+                             </div>
+                          </div>
                         </div>
-                        <div className="grid grid-cols-1 gap-2">
-                           <div className="flex justify-between p-3 bg-blue-50 rounded-lg border border-blue-100">
-                             <div>
-                               <span className="text-sm font-medium text-blue-800">DPP Wahdah (60%)</span>
-                               <p className="text-[10px] text-blue-600">Pusat Management</p>
-                             </div>
-                             <span className="font-bold text-blue-900">Rp {reportData.dpp_share_selisih.toLocaleString()}</span>
-                           </div>
-                           <div className="flex justify-between p-3 bg-emerald-50 rounded-lg border border-emerald-100">
-                             <div>
-                               <span className="text-sm font-medium text-emerald-800">DPD (20%)</span>
-                               <p className="text-[10px] text-emerald-600">Daerah Pelaksana</p>
-                             </div>
-                             <span className="font-bold text-emerald-900">Rp {reportData.dpd_share_selisih.toLocaleString()}</span>
-                           </div>
-                           <div className="flex justify-between p-3 bg-purple-50 rounded-lg border border-purple-100">
-                             <div>
-                               <span className="text-sm font-medium text-purple-800">Koperasi (20%)</span>
-                               <p className="text-[10px] text-purple-600">Penyedia Bahan Baku</p>
-                             </div>
-                             <span className="font-bold text-purple-900">Rp {reportData.kop_share_selisih.toLocaleString()}</span>
-                           </div>
-                        </div>
-                      </div>
+                      )}
                     </div>
                   </div>
                 </div>
