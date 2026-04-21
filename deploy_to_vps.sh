@@ -20,6 +20,6 @@ ssh -i mbg.pem -o StrictHostKeyChecking=no $VPS_USER@$VPS_IP "cd $REMOTE_DIR && 
 
 # Final Step: Sync database seed
 echo "🗄️ Syncing database seed (demo users & financial corrections)..."
-ssh -i mbg.pem -o StrictHostKeyChecking=no $VPS_USER@$VPS_IP "docker exec -i mbg_mysql mysql -uroot -prootpassword mbg_management_dev < $REMOTE_DIR/backend/seed.sql"
+ssh -i mbg.pem -o StrictHostKeyChecking=no $VPS_USER@$VPS_IP "docker exec -i mbg_mysql mysql -uroot -pf2RZScqZe5JOmvd3xeBvQlkpo4Vutjm9 mbg_management_dev < $REMOTE_DIR/backend/seed.sql"
 
 echo "✅ Deployment & Seeding complete!"
