@@ -46,6 +46,7 @@ const menuItems: MenuItem[] = [
       { label: 'Sewa Dapur', path: '/finance?tab=sewa', roles: ['Super Admin', 'Finance'] },
       { label: 'Selisih Bahan', path: '/finance?tab=margin', roles: ['Super Admin', 'Finance', 'Operator Koperasi'] },
       { label: 'Operasional', path: '/finance?tab=operasional', roles: ['Super Admin', 'Finance', 'PIC Dapur'] },
+      { label: 'Pengeluaran', path: '/finance?tab=expenses', roles: ['Super Admin', 'Finance', 'Operator Koperasi'] },
     ]
   },
   { id: 'procurement', label: 'Procurement', icon: ShoppingCart, roles: ['Super Admin', 'Procurement', 'Operator Koperasi'], path: '/procurement' },

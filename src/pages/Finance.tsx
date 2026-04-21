@@ -91,7 +91,11 @@ export const Finance: React.FC = () => {
 
   useEffect(() => {
     fetchData();
-  }, []);
+    if (profile?.role === 'PIC Dapur' && profile?.kitchen_id) {
+      setSelectedKitchenId(profile.kitchen_id);
+      fetchReport(profile.kitchen_id);
+    }
+  }, [profile]);
 
   useEffect(() => {
     // Check for query actions & tabs
@@ -118,10 +122,12 @@ export const Finance: React.FC = () => {
         category: `Dana BGN (${bgnForm.period})`,
         amount: bgnForm.amount,
         status: 'pending',
-        notes: `Bukti: ${bgnForm.proof_ref}`
+        notes: `Bukti: ${bgnForm.proof_ref}`,
+        kitchen_id: profile?.kitchen_id // Ensure kitchen_id is passed
       });
       setIsBGNModalOpen(false);
       fetchData();
+      if (selectedKitchenId) fetchReport(selectedKitchenId);
       // Remove query param from URL
       window.history.replaceState({}, '', window.location.pathname);
     } catch (error: any) {
@@ -214,10 +220,15 @@ export const Finance: React.FC = () => {
   };
 
 
-  const filteredKitchens = kitchens.filter(k => 
-    k.name.toLowerCase().includes(kitchenSearchQuery.toLowerCase()) ||
-    k.id.toString().includes(kitchenSearchQuery)
-  );
+  const filteredKitchens = kitchens.filter(k => {
+    const matchesSearch = k.name.toLowerCase().includes(kitchenSearchQuery.toLowerCase()) ||
+                         k.id.toString().includes(kitchenSearchQuery);
+    
+    if (profile?.role === 'PIC Dapur') {
+       return k.id === profile.kitchen_id && matchesSearch;
+    }
+    return matchesSearch;
+  });
 
   const totalIncome = summary?.total_income || 0;
   const totalExpense = summary?.total_expense || 0;
@@ -337,8 +348,8 @@ export const Finance: React.FC = () => {
       <div className="bg-white rounded-lg border border-gray-200">
         <div className="border-b border-gray-200">
           <div className="flex gap-4 px-4">
-            {['dashboard', 'investasi', 'sewa', 'margin', 'operasional', 'transactions', 'reports'].filter(tab => {
-              if (profile?.role === 'Operator Koperasi') return ['dashboard', 'margin', 'transactions', 'reports'].includes(tab);
+            {['dashboard', 'investasi', 'sewa', 'margin', 'operasional', 'expenses', 'transactions', 'reports'].filter(tab => {
+              if (profile?.role === 'Operator Koperasi') return ['dashboard', 'margin', 'expenses', 'transactions', 'reports'].includes(tab);
               if (profile?.role === 'PIC Dapur') return ['dashboard', 'operasional', 'transactions', 'reports'].includes(tab);
               return true;
             }).map((tab) => (
@@ -1084,7 +1095,12 @@ export const Finance: React.FC = () => {
                  <p className="text-xs text-orange-700">Mencatat pengeluaran tetap bulanan termasuk Honor Kepala Dapur, Akuntan, dan Staff operasional.</p>
               </div>
               <div className="flex gap-3">
-                 <select className="w-full md:w-1/3 border border-gray-300 rounded-lg px-3 py-2 bg-white" value={selectedKitchenId || ''} onChange={(e) => { const id = Number(e.target.value); setSelectedKitchenId(id); fetchReport(id); }}>
+                 <select 
+                    className="w-full md:w-1/3 border border-gray-300 rounded-lg px-3 py-2 bg-white disabled:bg-gray-50" 
+                    value={selectedKitchenId || ''} 
+                    disabled={profile?.role === 'PIC Dapur'}
+                    onChange={(e) => { const id = Number(e.target.value); setSelectedKitchenId(id); fetchReport(id); }}
+                 >
                     <option value="">Pilih Dapur...</option>
                     {filteredKitchens.map(k => <option key={k.id} value={k.id}>{k.name}</option>)}
                  </select>
