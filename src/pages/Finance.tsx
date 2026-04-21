@@ -294,7 +294,7 @@ export const Finance: React.FC = () => {
             <CreditCard className="w-5 h-5" />
             New Loan
           </button>
-          {(profile?.role === 'Super Admin' || profile?.role === 'Finance') && (
+          {(profile?.role === 'Super Admin' || profile?.role === 'Finance' || profile?.role === 'Operator Koperasi') && (
             <button 
               onClick={() => {
                 setEditingTrans(null);
