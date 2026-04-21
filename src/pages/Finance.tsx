@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { DollarSign, TrendingUp, TrendingDown, CreditCard, PieChart, ArrowUpRight, ArrowDownRight, CheckCircle, Clock, XCircle } from 'lucide-react';
+import { DollarSign, TrendingUp, TrendingDown, CreditCard, PieChart, ArrowUpRight, ArrowDownRight, CheckCircle, Clock, XCircle, Building2 } from 'lucide-react';
 
 import { api, Transaction, Loan, FinancialSummary, formatDateID } from '../services/api';
 import { Pagination } from '../components/UI/Pagination';
@@ -988,36 +988,84 @@ export const Finance: React.FC = () => {
 
       
           {activeTab === 'investasi' && (
-            <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4">
-              <div className="bg-white p-4 border border-gray-200 rounded-lg">
-                <h3 className="text-lg font-bold text-gray-900 mb-2">Realisasi Investasi per Dapur</h3>
-                <p className="text-sm text-gray-500 mb-4">Pantau persentase Return on Investment (ROI) dari masing-masing dapur.</p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {kitchens.filter(k => k.accumulated_profit > 0).map((kitchen: any) => {
-                    const target = kitchen.initial_capital * 1.5;
-                    const percentage = Math.min((kitchen.accumulated_profit / target) * 100, 100);
-                    return (
-                      <div key={kitchen.id} className="bg-gray-50 p-4 rounded-lg border border-gray-100">
-                        <div className="flex justify-between mb-3">
-                           <div>
-                              <h4 className="font-bold text-gray-900">{kitchen.name}</h4>
-                              <p className="text-xs text-gray-500">Target BEP + 50% Profit</p>
-                           </div>
-                           <span className="text-[10px] font-black text-[#1A4D43] bg-[#E6F3F0] px-2 py-1 rounded-full h-fit">
-                              {percentage.toFixed(1)}% RECOVERED
-                           </span>
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
+              {/* ROI Policy Summary Card */}
+              <div className="bg-gradient-to-r from-[#1A4D43] to-[#2BBF9D] p-6 rounded-2xl text-white shadow-xl relative overflow-hidden">
+                <div className="relative z-10">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="p-2 bg-white/20 rounded-lg backdrop-blur-md">
+                      <TrendingUp className="w-6 h-6 text-white" />
+                    </div>
+                    <h3 className="text-xl font-bold">Skema Pengembalian Investasi</h3>
+                  </div>
+                  <p className="text-sm text-white/90 leading-relaxed max-w-2xl">
+                    Sesuai ketetapan <strong>Musyawarah Divisi Admisektra</strong>, bagi hasil pengelolaan dapur ditarik oleh Pusat sampai mencapai 
+                    <span className="mx-1 px-2 py-0.5 bg-yellow-400 text-[#1A4D43] font-bold rounded">BEP + 50% Profit</span> 
+                    dari modal awal. Setelah target ini tercapai, dapur sepenuhnya menjadi aset Wahdah Islamiyah dan beralih ke skema bagi hasil operasional 60:20:20.
+                  </p>
+                </div>
+                <div className="absolute top-[-20%] right-[-10%] w-64 h-64 bg-white/10 rounded-full blur-3xl" />
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {kitchens.filter(k => k.initial_capital > 0).map((kitchen: any) => {
+                  const target = kitchen.initial_capital * 1.5;
+                  const percentage = Math.min((kitchen.accumulated_profit / target) * 100, 100);
+                  const isCompleted = percentage >= 100;
+
+                  return (
+                    <div key={kitchen.id} className={`bg-white p-6 rounded-2xl border transition-all duration-300 hover:shadow-lg ${isCompleted ? 'border-emerald-200' : 'border-gray-200'}`}>
+                      <div className="flex justify-between items-start mb-6">
+                        <div className="flex gap-4">
+                          <div className={`p-3 rounded-xl ${isCompleted ? 'bg-emerald-100' : 'bg-blue-100'}`}>
+                             <Building2 className={`w-6 h-6 ${isCompleted ? 'text-emerald-600' : 'text-blue-600'}`} />
+                          </div>
+                          <div>
+                            <h4 className="font-bold text-gray-900 text-lg uppercase">{kitchen.name}</h4>
+                            <div className="flex items-center gap-2 mt-1">
+                              <div className={`w-2 h-2 rounded-full ${isCompleted ? 'bg-emerald-500 animate-pulse' : 'bg-blue-500'}`} />
+                              <p className="text-xs font-semibold text-gray-500 uppercase tracking-tighter">
+                                {isCompleted ? 'Aset Milik Wahdah' : 'Tahap Pengembalian ROI'}
+                              </p>
+                            </div>
+                          </div>
                         </div>
-                        <div className="w-full bg-white rounded-full h-3 mb-2 overflow-hidden border border-gray-200">
-                           <div className="h-full bg-gradient-to-r from-[#2BBF9D] to-[#1A4D43]" style={{ width: `${percentage}%` }} />
-                        </div>
-                        <div className="flex justify-between text-xs text-gray-500 font-medium">
-                           <span>Rlz: Rp {(kitchen.accumulated_profit / 1000000).toFixed(1)}M</span>
-                           <span>Trg: Rp {(target / 1000000).toFixed(1)}M</span>
+                        <div className="text-right">
+                          <span className={`text-sm font-black px-3 py-1 rounded-full ${isCompleted ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700'}`}>
+                            {percentage.toFixed(1)}%
+                          </span>
                         </div>
                       </div>
-                    );
-                  })}
-                </div>
+
+                      <div className="space-y-4">
+                        <div className="w-full bg-gray-100 rounded-full h-4 overflow-hidden shadow-inner">
+                          <div 
+                            className={`h-full transition-all duration-1000 ease-out ${isCompleted ? 'bg-gradient-to-r from-emerald-500 to-emerald-600' : 'bg-gradient-to-r from-blue-500 to-blue-600'}`} 
+                            style={{ width: `${percentage}%` }} 
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="bg-gray-50 p-3 rounded-xl border border-gray-100">
+                            <p className="text-[10px] text-gray-400 font-bold uppercase mb-1">Akumulasi Realisasi</p>
+                            <p className="text-sm font-bold text-gray-900">Rp {kitchen.accumulated_profit.toLocaleString()}</p>
+                          </div>
+                          <div className="bg-gray-50 p-3 rounded-xl border border-gray-100">
+                            <p className="text-[10px] text-gray-400 font-bold uppercase mb-1">Target (Modal + 50%)</p>
+                            <p className="text-sm font-bold text-gray-900">Rp {target.toLocaleString()}</p>
+                          </div>
+                        </div>
+
+                        {isCompleted && (
+                          <div className="flex items-center gap-2 bg-emerald-50 p-3 rounded-xl border border-emerald-100 text-emerald-800">
+                            <CheckCircle className="w-4 h-4" />
+                            <span className="text-xs font-bold">Investasi Selesai - Beralih ke Bagi Hasil 60:20:20</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
