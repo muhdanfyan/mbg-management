@@ -773,6 +773,7 @@ func main() {
 
 			// Compare hashed password
 			if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(login.Password)); err != nil {
+				fmt.Printf("Login failed for %s: %v (DB Pass: %s, Input Pass: %s)\n", login.Email, err, user.Password, login.Password)
 				c.JSON(401, gin.H{"error": "Invalid credentials"})
 				return
 			}
