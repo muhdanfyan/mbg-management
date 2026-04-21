@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ImageIcon, Building2, MapPin, X, ChevronRight, LayoutGrid, List, ArrowUpRight } from 'lucide-react';
+import { ImageIcon, Building2, MapPin, X, ChevronRight, LayoutGrid, List, ArrowUpRight, Search, Filter } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import { api, Sppg, getImageUrl, resolveGoogleDriveUrl, getGoogleDriveSources } from '../services/api';
 import { Pagination } from '../components/UI/Pagination';
@@ -29,6 +29,10 @@ export const SppgGallery: React.FC = () => {
   const [selectedSppg, setSelectedSppg] = useState<Sppg | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const location = useLocation();
+
+  // Filter & Search State
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterProgress, setFilterProgress] = useState('all');
 
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
@@ -64,11 +68,24 @@ export const SppgGallery: React.FC = () => {
   };
 
 
+  // Filtering Logic
+  const filteredSppgs = sppgs.filter(sppg => {
+    const matchesSearch = sppg.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          sppg.sppg_id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          (sppg.location || '').toLowerCase().includes(searchQuery.toLowerCase());
+                          
+    const matchesFilter = filterProgress === 'all' || 
+                          (filterProgress === '100' && sppg.progress === '100%') ||
+                          (filterProgress === 'ongoing' && sppg.progress !== '100%');
+                          
+    return matchesSearch && matchesFilter;
+  });
+
   // Pagination Logic
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const paginatedSppgs = sppgs.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(sppgs.length / itemsPerPage);
+  const paginatedSppgs = filteredSppgs.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredSppgs.length / itemsPerPage);
 
   if (loading) {
     return (
@@ -98,6 +115,32 @@ export const SppgGallery: React.FC = () => {
           >
             <List className="w-5 h-5" />
           </button>
+        </div>
+      </div>
+
+      {/* Search & Filter Bar */}
+      <div className="flex flex-col md:flex-row gap-4 mb-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Search SPPG (Name, ID, Location)..."
+            value={searchQuery}
+            onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1A4D43] focus:border-transparent outline-none"
+          />
+        </div>
+        <div className="relative md:w-64">
+          <Filter className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+          <select
+            value={filterProgress}
+            onChange={(e) => { setFilterProgress(e.target.value); setCurrentPage(1); }}
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1A4D43] focus:border-transparent outline-none appearance-none bg-white"
+          >
+            <option value="all">Semua Status</option>
+            <option value="ongoing">Sedang Pembangunan</option>
+            <option value="100">Selesai (100%)</option>
+          </select>
         </div>
       </div>
 
@@ -186,10 +229,10 @@ export const SppgGallery: React.FC = () => {
           </table>
         </div>
       )}
-      <div className="mt-12 pt-8 border-t border-gray-100 italic">
+      <div className="mt-8 pt-6 border-t border-gray-100 italic">
         <Pagination
           currentPage={currentPage}
-          totalItems={sppgs.length}
+          totalItems={filteredSppgs.length}
           itemsPerPage={itemsPerPage}
           onPageChange={setCurrentPage}
           onItemsPerPageChange={(val) => {
