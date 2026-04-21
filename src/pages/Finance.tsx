@@ -268,6 +268,28 @@ export const Finance: React.FC = () => {
     loanPage * loanItemsPerPage
   );
 
+  // Calculate Expense Categories Breakdown
+  const expenseTransactions = transactions.filter(t => t.type === 'expense' && t.status === 'approved');
+  const totalExp = expenseTransactions.reduce((sum, t) => sum + t.amount, 0);
+  
+  const getAmountByCategory = (pattern: string) => 
+    expenseTransactions.filter(t => t.category.toLowerCase().includes(pattern.toLowerCase()))
+      .reduce((sum, t) => sum + t.amount, 0);
+
+  const expenseCategories = [
+    { category: 'Bahan Baku', amount: getAmountByCategory('Bahan'), color: 'blue' },
+    { category: 'Operasional', amount: getAmountByCategory('Operasional'), color: 'green' },
+    { category: 'Gaji Staff', amount: getAmountByCategory('Gaji'), color: 'orange' },
+    { 
+      category: 'Lain-lain', 
+      amount: totalExp - (getAmountByCategory('Bahan') + getAmountByCategory('Operasional') + getAmountByCategory('Gaji')), 
+      color: 'purple' 
+    }
+  ].map(cat => ({
+    ...cat,
+    percentage: totalExp > 0 ? Math.round((cat.amount / totalExp) * 100) : 0
+  }));
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
