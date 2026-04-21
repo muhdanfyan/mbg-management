@@ -308,9 +308,13 @@ export const Finance: React.FC = () => {
         <div className="flex gap-3">
           <button 
             onClick={() => {
+              const dateStr = new Date().toISOString().split('T')[0].replace(/-/g, '');
+              const randomStr = Math.floor(1000 + Math.random() * 9000);
+              const autoNumber = `LN-${dateStr}-${randomStr}`;
+              
               setEditingLoan(null);
               setLoanForm({
-                number: '',
+                number: autoNumber,
                 lender: '',
                 amount: 0,
                 margin_rate: 0,
