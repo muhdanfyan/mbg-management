@@ -31,7 +31,7 @@ interface MenuItem {
 }
 
 const menuItems: MenuItem[] = [
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['Super Admin', 'Manager', 'Finance', 'HRD', 'Procurement', 'Staff', 'Investor', 'PIC Dapur'], path: '/' },
+  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['Super Admin', 'Manager', 'Finance', 'HRD', 'Procurement', 'Staff', 'Investor', 'PIC Dapur', 'Operator Koperasi'], path: '/' },
   { id: 'locations', label: 'Peta Lokasi', icon: Map, roles: ['Super Admin', 'Manager', 'PIC Dapur', 'Investor'], path: '/locations' },
   { id: 'construction', label: 'Pengawasan', icon: Building2, roles: ['Super Admin', 'Manager'], path: '/construction' },
   { id: 'sppg-gallery', label: 'Galeri Foto', icon: ImageIcon, roles: ['Super Admin', 'Manager', 'Staff', 'PIC Dapur'], path: '/sppg-gallery' },
@@ -42,10 +42,10 @@ const menuItems: MenuItem[] = [
     roles: ['Super Admin', 'Finance', 'PIC Dapur', 'Investor', 'Operator Koperasi'], 
     path: '/finance',
     children: [
-      { label: 'Investasi', path: '/finance?tab=investasi', roles: ['Super Admin', 'Finance', 'Investor', 'Operator Koperasi'] },
-      { label: 'Sewa Dapur', path: '/finance?tab=sewa', roles: ['Super Admin', 'Finance', 'PIC Dapur', 'Operator Koperasi'] },
-      { label: 'Selisih Bahan', path: '/finance?tab=margin', roles: ['Super Admin', 'Finance', 'PIC Dapur', 'Operator Koperasi'] },
-      { label: 'Operasional', path: '/finance?tab=operasional', roles: ['Super Admin', 'Finance', 'PIC Dapur', 'Operator Koperasi'] },
+      { label: 'Investasi', path: '/finance?tab=investasi', roles: ['Super Admin', 'Finance', 'Investor'] },
+      { label: 'Sewa Dapur', path: '/finance?tab=sewa', roles: ['Super Admin', 'Finance'] },
+      { label: 'Selisih Bahan', path: '/finance?tab=margin', roles: ['Super Admin', 'Finance', 'Operator Koperasi'] },
+      { label: 'Operasional', path: '/finance?tab=operasional', roles: ['Super Admin', 'Finance', 'PIC Dapur'] },
     ]
   },
   { id: 'procurement', label: 'Procurement', icon: ShoppingCart, roles: ['Super Admin', 'Procurement', 'Operator Koperasi'], path: '/procurement' },
