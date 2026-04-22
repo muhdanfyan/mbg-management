@@ -43,19 +43,23 @@ export const Procurement: React.FC = () => {
 
   const handleAuditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const pricePerPortion = auditForm.total_cost / (auditForm.portions || 1);
+    if (!auditForm.kitchen_id) {
+      alert('Pilih dapur terlebih dahulu');
+      return;
+    }
     
     try {
-      await api.post('/purchase-orders', {
-        number: `AUDIT-${Date.now()}`,
-        supplier: 'Audit Belanja Harian',
-        total_amount: auditForm.total_cost,
+      await api.post('/audit-spending', {
+        kitchen_id: auditForm.kitchen_id,
         date: auditForm.date,
-        status: 'delivered',
-        notes: `Porsi: ${auditForm.portions}, Per Porsi: Rp ${pricePerPortion.toLocaleString()}, Item: ${auditForm.items}`
+        total_cost: auditForm.total_cost,
+        portions: auditForm.portions,
+        items: auditForm.items
       });
+      
       setIsAuditModalOpen(false);
       fetchData();
+      alert('Audit Belanja berhasil disimpan dan laporan keuangan telah diperbarui!');
       // Remove query param from URL
       window.history.replaceState({}, '', window.location.pathname);
     } catch (error: any) {

@@ -1069,6 +1069,23 @@ export const Finance: React.FC = () => {
                               <span className="text-xs font-bold">Investasi Selesai - Beralih ke Bagi Hasil 60:20:20</span>
                             </div>
                           )}
+
+                          {target > 0 && !isCompleted && (
+                            <div className="mt-4 pt-4 border-t border-gray-50">
+                                <div className="flex items-center justify-between mb-2">
+                                    <div className="flex items-center gap-2">
+                                        <TrendingUp className="w-3.5 h-3.5 text-[#2BBF9D]" />
+                                        <span className="text-[10px] font-black text-[#1A4D43] uppercase tracking-widest">Proyeksi Selesai</span>
+                                    </div>
+                                    <span className="text-[10px] font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded-lg">
+                                        ± {Math.ceil((target - kitchen.accumulated_profit) / (Math.max(kitchen.accumulated_profit / 1, 5000000)))} Bulan Lagi
+                                    </span>
+                                </div>
+                                <p className="text-[9px] text-gray-400 font-medium italic">
+                                    *Estimasi berdasarkan pertumbuhan laba saat ini.
+                                </p>
+                            </div>
+                          )}
                         </div>
                       </div>
                     );

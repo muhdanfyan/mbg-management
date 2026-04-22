@@ -91,6 +91,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   const tabs = [
     { id: 'overview', label: 'Ringkasan', icon: LayoutGrid },
     { id: 'finance', label: 'Keuangan', icon: DollarSign },
+    { id: 'leadership', label: 'Pemaparan (DPP)', icon: PieChart, roles: ['Super Admin', 'Manager'] },
     { id: 'construction', label: 'Konstruksi', icon: Building2, roles: ['Super Admin', 'Manager', 'Finance', 'HRD', 'Staff', 'PIC Dapur'] },
     { id: 'logistics', label: 'Logistik', icon: Activity, roles: ['Super Admin', 'Manager', 'Procurement', 'PIC Dapur'] },
   ].filter(tab => !tab.roles || tab.roles.includes(profile?.role || ''));
@@ -354,6 +355,63 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                  </div>
               </div>
            </div>
+        </div>
+      )}
+
+      {activeTab === 'leadership' && (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="glass-card p-6 bg-gradient-to-br from-[#1A4D43] to-[#2BBF9D] text-white shadow-2xl">
+              <h3 className="text-sm font-black uppercase tracking-widest opacity-80 mb-2">Total Dividen Nasional</h3>
+              <div className="text-3xl font-black mb-4">Rp {(summary?.cash_flow * 0.4 || 0).toLocaleString()}</div>
+              <div className="flex items-center gap-2 text-xs font-bold bg-white/20 w-fit px-3 py-1 rounded-full">
+                <TrendingUp className="w-3 h-3" /> Akumulasi Seluruh Dapur
+              </div>
+            </div>
+            
+            <div className="glass-card p-6 border-l-4 border-amber-500">
+              <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Indeks Transparansi</h3>
+              <div className="text-2xl font-black text-[#1A4D43] mb-4">98.5% <span className="text-sm text-green-500 font-bold ml-1">Excellent</span></div>
+              <div className="space-y-2">
+                <div className="flex justify-between text-[10px] font-bold">
+                  <span className="text-gray-500">Pintu 1 (Operasional)</span>
+                  <span className="text-[#1A4D43]">Verified</span>
+                </div>
+                <div className="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden">
+                  <div className="bg-[#1A4D43] h-full" style={{ width: '100%' }}></div>
+                </div>
+                <div className="flex justify-between text-[10px] font-bold mt-2">
+                  <span className="text-gray-500">Pintu 2 (Bahan Baku)</span>
+                  <span className="text-[#2BBF9D]">95% Audited</span>
+                </div>
+                <div className="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden">
+                  <div className="bg-[#2BBF9D] h-full" style={{ width: '95%' }}></div>
+                </div>
+              </div>
+            </div>
+
+            <div className="glass-card p-6">
+              <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-4">Top 3 Performa Dapur</h3>
+              <div className="space-y-4">
+                {kitchens.slice(0, 3).map((k, i) => (
+                  <div key={k.id} className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <span className="w-6 h-6 rounded-full bg-[#1A4D43] text-white flex items-center justify-center text-[10px] font-black">{i+1}</span>
+                      <span className="text-sm font-bold text-[#1A4D43]">{k.name}</span>
+                    </div>
+                    <span className="text-xs font-black text-[#2BBF9D]">Rp {(k.accumulated_profit || 0).toLocaleString()}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="glass-card p-8 text-center bg-gray-50 border-dashed border-2 border-gray-200">
+            <PieChart className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-xl font-black text-[#1A4D43] mb-2">Simulasi Proyeksi Nasional</h3>
+            <p className="text-gray-500 max-w-xl mx-auto font-medium">Data ini diekstrapolasi dari performa rata-rata harian. Digunakan untuk presentasi estimasi ROI pimpinan dalam 5 tahun ke depan.</p>
+            <button className="mt-6 premium-button-primary">Buka Simulasi Materi Pemaparan</button>
+          </div>
         </div>
       )}
     </div>

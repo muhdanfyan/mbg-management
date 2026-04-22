@@ -682,6 +682,65 @@ func main() {
 			db.Create(&po)
 			c.JSON(http.StatusOK, po)
 		})
+
+		// Link Procurement to Finance: Audit Spending
+		api.POST("/audit-spending", func(c *gin.Context) {
+			var input struct {
+				KitchenID uint    `json:"kitchen_id"`
+				Date      string  `json:"date"`
+				TotalCost float64 `json:"total_cost"`
+				Portions  int     `json:"portions"`
+				Items     string  `json:"items"`
+			}
+			if err := c.ShouldBindJSON(&input); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				return
+			}
+
+			// 1. Save Audit Record
+			audit := models.AuditSpending{
+				KitchenID:     input.KitchenID,
+				Date:          input.Date,
+				InvoiceAmount: input.TotalCost,
+				Portions:      input.Portions,
+				Note:          input.Items,
+			}
+			if err := db.Create(&audit).Error; err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save audit: " + err.Error()})
+				return
+			}
+
+			// 2. Calculate Margin (Pintu 2 Logic)
+			// Target is Rp 10.000 per portion. Selisih = (Target * Portions) - Real Cost
+			margin := (float64(input.Portions) * 10000.0) - input.TotalCost
+
+			// 3. Update FinancialRecord (Aggregate for the month)
+			// Parse date to get period (YYYY-MM-01)
+			parsedDate, _ := time.Parse("2006-01-02", input.Date)
+			period := time.Date(parsedDate.Year(), parsedDate.Month(), 1, 0, 0, 0, 0, time.UTC)
+
+			var fin models.FinancialRecord
+			err := db.Where("dapur_id = ? AND period = ?", input.KitchenID, period).First(&fin).Error
+			if err != nil {
+				// Create new record for this period
+				fin = models.FinancialRecord{
+					DapurID:          input.KitchenID,
+					Period:           period,
+					SelisihBahanBaku: margin,
+					Status:           "PENDING",
+				}
+				db.Create(&fin)
+			} else {
+				// Update existing
+				db.Model(&fin).Update("selisih_bahan_baku", fin.SelisihBahanBaku+margin)
+			}
+
+			c.JSON(http.StatusOK, gin.H{
+				"message": "Audit saved and financial record updated",
+				"margin":  margin,
+				"period":  period.Format("2006-01"),
+			})
+		})
 		api.PUT("/purchase-orders/:id", func(c *gin.Context) {
 			id := c.Param("id")
 			var po models.PurchaseOrder
