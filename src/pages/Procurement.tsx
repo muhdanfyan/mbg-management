@@ -16,6 +16,8 @@ export const Procurement: React.FC = () => {
   const [isAuditModalOpen, setIsAuditModalOpen] = useState(false);
   const [editingEquipment, setEditingEquipment] = useState<Equipment | null>(null);
   const [editingPO, setEditingPO] = useState<PurchaseOrder | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [tempImageUrl, setTempImageUrl] = useState<string | null>(null);
 
   const [auditForm, setAuditForm] = useState({
     date: new Date().toISOString().split('T')[0],
@@ -98,6 +100,42 @@ export const Procurement: React.FC = () => {
     }
   };
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await fetch(`${window.location.origin.includes('localhost') ? 'http://localhost:8080' : ''}/api/upload`, {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await response.json();
+      if (data.url) {
+        setTempImageUrl(data.url);
+      }
+    } catch (error) {
+      console.error('Upload failed:', error);
+      alert('Gagal mengunggah gambar');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const categories = [
+    'Alat Memasak',
+    'Penyimpanan & Pendingin',
+    'Kebersihan & Sanitasi',
+    'Peralatan Makan',
+    'Elektronik Dapur',
+    'Furnitur Dapur',
+    'Bahan Baku (Bulk)',
+    'Lainnya'
+  ];
+
   const getStockStatusBadge = (status: string) => {
     const styles = {
       in_stock: 'bg-green-100 text-green-700',
@@ -140,6 +178,7 @@ export const Procurement: React.FC = () => {
           <button 
             onClick={() => {
               setEditingEquipment(null);
+              setTempImageUrl(null);
               setIsEquipmentModalOpen(true);
             }}
             className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
@@ -250,6 +289,7 @@ export const Procurement: React.FC = () => {
                         <button 
                           onClick={() => {
                             setEditingEquipment(item);
+                            setTempImageUrl(item.image);
                             setIsEquipmentModalOpen(true);
                           }}
                           className="p-1 hover:bg-gray-100 rounded"
@@ -382,6 +422,7 @@ export const Procurement: React.FC = () => {
                 stock: parseInt(formData.get('stock') as string),
                 stock_status: formData.get('stock_status'),
                 supplier: formData.get('supplier'),
+                image: formData.get('image') as string,
               };
               try {
                 if (editingEquipment) {
@@ -396,13 +437,32 @@ export const Procurement: React.FC = () => {
               }
             }}>
               <div className="space-y-4">
+                <div className="flex flex-col items-center justify-center p-4 border-2 border-dashed border-gray-200 rounded-xl bg-gray-50 hover:bg-gray-100 transition-all group relative overflow-hidden">
+                  {tempImageUrl ? (
+                    <img src={getImageUrl(tempImageUrl)} alt="Preview" className="w-full h-32 object-contain rounded-lg mb-2" />
+                  ) : (
+                    <Package className="w-12 h-12 text-gray-300 mb-2" />
+                  )}
+                  <label className="cursor-pointer flex flex-col items-center">
+                    <span className="text-xs font-bold text-blue-600 uppercase tracking-widest hover:text-blue-700">
+                      {uploading ? 'Mengunggah...' : tempImageUrl ? 'Ganti Foto' : 'Unggah Foto Alat'}
+                    </span>
+                    <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={uploading} />
+                  </label>
+                  <input type="hidden" name="image" value={tempImageUrl || ''} />
+                </div>
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Equipment Name</label>
                   <input name="name" defaultValue={editingEquipment?.name} required className="mt-1 w-full border rounded-lg p-2" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Category</label>
-                  <input name="category" defaultValue={editingEquipment?.category} required className="mt-1 w-full border rounded-lg p-2" />
+                  <select name="category" defaultValue={editingEquipment?.category || categories[0]} className="mt-1 w-full border rounded-lg p-2">
+                    {categories.map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>

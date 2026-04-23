@@ -14,8 +14,10 @@ import { MainLayout } from './components/Layout/MainLayout';
 import { Workflow } from './pages/Workflow';
 import { SppgGallery } from './pages/SppgGallery';
 import { SystemGuide } from './pages/SystemGuide';
+import { Profile } from './pages/Profile';
+import { Toaster } from 'react-hot-toast';
 
-type PageType = 'dashboard' | 'locations' | 'construction' | 'procurement' | 'hr' | 'finance' | 'users' | 'workflow' | 'investors' | 'sppg-gallery' | 'system-guide';
+type PageType = 'dashboard' | 'locations' | 'construction' | 'procurement' | 'hr' | 'finance' | 'users' | 'workflow' | 'investors' | 'sppg-gallery' | 'system-guide' | 'profile';
 
 const AppContent: React.FC = () => {
   const { user, loading } = useAuth();
@@ -64,6 +66,7 @@ const AppContent: React.FC = () => {
       investors: ['Dashboard', 'Monitoring Investor'],
       'sppg-gallery': ['Dashboard', 'Galeri Foto SPPG'],
       'system-guide': ['Dashboard', 'Panduan Sistem'],
+      profile: ['Dashboard', 'Profil Pengguna'],
     };
     return breadcrumbMap[currentPage] || ['Dashboard'];
   };
@@ -97,6 +100,8 @@ const AppContent: React.FC = () => {
           <Route path="/finance" element={<Finance />} />
         )}
 
+        <Route path="/profile" element={<Profile />} />
+
         {user.role === 'Super Admin' && (
           <Route path="/users" element={<Users />} />
         )}
@@ -118,6 +123,7 @@ function App() {
   return (
     <AuthProvider>
       <AppContent />
+      <Toaster position="top-right" />
     </AuthProvider>
   );
 }

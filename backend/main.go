@@ -682,65 +682,6 @@ func main() {
 			db.Create(&po)
 			c.JSON(http.StatusOK, po)
 		})
-
-		// Link Procurement to Finance: Audit Spending
-		api.POST("/audit-spending", func(c *gin.Context) {
-			var input struct {
-				KitchenID uint    `json:"kitchen_id"`
-				Date      string  `json:"date"`
-				TotalCost float64 `json:"total_cost"`
-				Portions  int     `json:"portions"`
-				Items     string  `json:"items"`
-			}
-			if err := c.ShouldBindJSON(&input); err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-				return
-			}
-
-			// 1. Save Audit Record
-			audit := models.AuditSpending{
-				KitchenID:     input.KitchenID,
-				Date:          input.Date,
-				InvoiceAmount: input.TotalCost,
-				Portions:      input.Portions,
-				Note:          input.Items,
-			}
-			if err := db.Create(&audit).Error; err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save audit: " + err.Error()})
-				return
-			}
-
-			// 2. Calculate Margin (Pintu 2 Logic)
-			// Target is Rp 10.000 per portion. Selisih = (Target * Portions) - Real Cost
-			margin := (float64(input.Portions) * 10000.0) - input.TotalCost
-
-			// 3. Update FinancialRecord (Aggregate for the month)
-			// Parse date to get period (YYYY-MM-01)
-			parsedDate, _ := time.Parse("2006-01-02", input.Date)
-			period := time.Date(parsedDate.Year(), parsedDate.Month(), 1, 0, 0, 0, 0, time.UTC)
-
-			var fin models.FinancialRecord
-			err := db.Where("dapur_id = ? AND period = ?", input.KitchenID, period).First(&fin).Error
-			if err != nil {
-				// Create new record for this period
-				fin = models.FinancialRecord{
-					DapurID:          input.KitchenID,
-					Period:           period,
-					SelisihBahanBaku: margin,
-					Status:           "PENDING",
-				}
-				db.Create(&fin)
-			} else {
-				// Update existing
-				db.Model(&fin).Update("selisih_bahan_baku", fin.SelisihBahanBaku+margin)
-			}
-
-			c.JSON(http.StatusOK, gin.H{
-				"message": "Audit saved and financial record updated",
-				"margin":  margin,
-				"period":  period.Format("2006-01"),
-			})
-		})
 		api.PUT("/purchase-orders/:id", func(c *gin.Context) {
 			id := c.Param("id")
 			var po models.PurchaseOrder
@@ -891,25 +832,61 @@ func main() {
 
 		// 2. Operator Koperasi: Submit Audit Spending (Market Audit)
 		api.POST("/audit-spending", RequireRole("Operator Koperasi", "Super Admin"), func(c *gin.Context) {
-			var audit models.AuditSpending
-			if err := c.ShouldBindJSON(&audit); err != nil {
+			var input struct {
+				KitchenID uint    `json:"kitchen_id"`
+				Date      string  `json:"date"`
+				TotalCost float64 `json:"total_cost"`
+				Portions  int     `json:"portions"`
+				Items     string  `json:"items"`
+			}
+			if err := c.ShouldBindJSON(&input); err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 				return
 			}
+
+			// 1. Save Audit Record
+			audit := models.AuditSpending{
+				KitchenID:     input.KitchenID,
+				Date:          input.Date,
+				InvoiceAmount: input.TotalCost,
+				Portions:      input.Portions,
+				Note:          input.Items,
+			}
 			if err := db.Create(&audit).Error; err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save audit: " + err.Error()})
 				return
 			}
 
-			// Update the latest FinancialRecord margin if exists
-			var fr models.FinancialRecord
-			if err := db.Where("dapur_id = ? AND status = ?", audit.KitchenID, "PENDING").Order("created_at desc").First(&fr).Error; err == nil {
-				budget := float64(audit.Portions) * 10000
-				realMargin := budget - audit.InvoiceAmount
-				db.Model(&fr).Update("selisih_bahan_baku", realMargin)
+			// 2. Calculate Margin (Pintu 2 Logic)
+			// Target is Rp 10.000 per portion. Selisih = (Target * Portions) - Real Cost
+			margin := (float64(input.Portions) * 10000.0) - input.TotalCost
+
+			// 3. Update FinancialRecord (Aggregate for the month)
+			// Parse date to get period (YYYY-MM-01)
+			parsedDate, _ := time.Parse("2006-01-02", input.Date)
+			period := time.Date(parsedDate.Year(), parsedDate.Month(), 1, 0, 0, 0, 0, time.UTC)
+
+			var fin models.FinancialRecord
+			err := db.Where("dapur_id = ? AND period = ?", input.KitchenID, period).First(&fin).Error
+			if err != nil {
+				// Create new record for this period
+				fin = models.FinancialRecord{
+					DapurID:          input.KitchenID,
+					Period:           period,
+					SelisihBahanBaku: margin,
+					Status:           "PENDING",
+				}
+				db.Create(&fin)
+			} else {
+				// Update existing
+				db.Model(&fin).Update("selisih_bahan_baku", fin.SelisihBahanBaku+margin)
 			}
 
-			c.JSON(http.StatusOK, audit)
+			c.JSON(http.StatusOK, gin.H{
+				"message": "Audit saved and financial record updated",
+				"margin":  margin,
+				"period":  period.Format("2006-01"),
+			})
 		})
 
 		// 3. Administrator: Approve Financial Record & Update BEP
@@ -965,6 +942,65 @@ func main() {
 				return
 			}
 			c.JSON(http.StatusOK, gin.H{"message": "SPPG Data synchronized successfully"})
+		})
+
+
+		// 4. PIC Dapur: Profile Management (Kitchen Data)
+		api.GET("/profile/kitchen", RequireRole("PIC Dapur", "Super Admin", "Manager"), func(c *gin.Context) {
+			kitchenID := c.GetHeader("X-Kitchen-ID")
+			if kitchenID == "" || kitchenID == "0" {
+				c.JSON(http.StatusNotFound, gin.H{"error": "No kitchen associated with this user"})
+				return
+			}
+			
+			var kitchen models.Dapur
+			if err := db.Preload("Koperasi").Preload("SppgDetail").First(&kitchen, kitchenID).Error; err != nil {
+				c.JSON(http.StatusNotFound, gin.H{"error": "Kitchen not found"})
+				return
+			}
+			c.JSON(http.StatusOK, kitchen)
+		})
+
+		api.PUT("/profile/kitchen", RequireRole("PIC Dapur", "Super Admin"), func(c *gin.Context) {
+			kitchenID := c.GetHeader("X-Kitchen-ID")
+			if kitchenID == "" || kitchenID == "0" {
+				c.JSON(http.StatusForbidden, gin.H{"error": "Unauthorized to update kitchen"})
+				return
+			}
+
+			var input struct {
+				Name     string  `json:"name"`
+				Address  string  `json:"address"`
+				Lat      float64 `json:"lat"`
+				Lng      float64 `json:"lng"`
+				Capacity int     `json:"capacity"`
+			}
+			if err := c.ShouldBindJSON(&input); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				return
+			}
+
+			var kitchen models.Dapur
+			if err := db.First(&kitchen, kitchenID).Error; err != nil {
+				c.JSON(http.StatusNotFound, gin.H{"error": "Kitchen not found"})
+				return
+			}
+
+			// Update fields
+			updates := map[string]interface{}{
+				"name":     input.Name,
+				"address":  input.Address,
+				"lat":      input.Lat,
+				"lng":      input.Lng,
+				"capacity": input.Capacity,
+			}
+			
+			if err := db.Model(&kitchen).Updates(updates).Error; err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update kitchen"})
+				return
+			}
+
+			c.JSON(http.StatusOK, kitchen)
 		})
 
 		// User Management

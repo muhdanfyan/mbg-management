@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Bell, LogOut, User, Settings, ChevronDown } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { getImageUrl } from '../../services/api';
 
@@ -7,6 +8,9 @@ export const Header: React.FC = () => {
   const { profile, signOut } = useAuth();
   const [showDropdown, setShowDropdown] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+
+
+  const navigate = useNavigate();
 
   const notifications = [
     { id: 1, text: 'New purchase order waiting approval', time: '5m ago', unread: true },
@@ -105,7 +109,13 @@ export const Header: React.FC = () => {
                   </span>
                 </div>
                 <div className="p-3">
-                  <button className="w-full flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-[#1A4D43] rounded-lg transition-all group">
+                  <button 
+                    onClick={() => {
+                      setShowDropdown(false);
+                      navigate('/profile');
+                    }}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-[#1A4D43] rounded-lg transition-all group"
+                  >
                     <div className="p-2 bg-gray-50 rounded-lg group-hover:bg-white transition-colors">
                       <User className="w-4 h-4" />
                     </div>
