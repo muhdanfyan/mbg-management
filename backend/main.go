@@ -169,6 +169,37 @@ func initDB() {
 			Password: string(hashedKoperasi),
 		})
 	}
+
+	// Batch Seed Kitchen PIC Accounts
+	var kitchens []models.Dapur
+	db.Find(&kitchens)
+	hashedPass, _ := bcrypt.GenerateFromPassword([]byte("pass123"), bcrypt.DefaultCost)
+	
+	for _, k := range kitchens {
+		email := fmt.Sprintf("pic.%s@mbg.com", strings.ToLower(strings.ReplaceAll(k.Name, " ", ".")))
+		var userCount int64
+		db.Model(&models.User{}).Where("email = ?", email).Count(&userCount)
+		
+		kid := k.ID
+		if userCount == 0 {
+			newUser := models.User{
+				ID:         fmt.Sprintf("k%d", k.ID),
+				Email:      email,
+				Password:   string(hashedPass),
+				FullName:   "PIC " + k.Name,
+				Role:       "PIC Dapur",
+				Department: "Operasional",
+				Position:   "PIC Wilayah",
+				KitchenID:  &kid,
+			}
+			db.Create(&newUser)
+		} else {
+			db.Model(&models.User{}).Where("email = ?", email).Updates(models.User{
+				KitchenID: &kid,
+				Password:  string(hashedPass),
+			})
+		}
+	}
 }
 
 // Middleware to check roles

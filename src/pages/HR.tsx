@@ -4,12 +4,14 @@ import { api, Employee, Vacancy, Applicant, getImageUrl } from '../services/api'
 import { Pagination } from '../components/UI/Pagination';
 
 export const HR: React.FC = () => {
+  const { profile } = useAuth();
   const [activeTab, setActiveTab] = useState<'employees' | 'recruitment' | 'attendance' | 'payroll'>('employees');
   const [searchTerm, setSearchTerm] = useState('');
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [vacancies, setVacancies] = useState<Vacancy[]>([]);
   const [departments, setDepartments] = useState<any[]>([]);
   const [positions, setPositions] = useState<any[]>([]);
+  const [kitchens, setKitchens] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Pagination State
@@ -24,16 +26,18 @@ export const HR: React.FC = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [empData, vacData, deptData, posData] = await Promise.all([
+      const [empData, vacData, deptData, posData, kitchensData] = await Promise.all([
         api.get('/employees'),
         api.get('/vacancies'),
         api.get('/departments'),
-        api.get('/positions')
+        api.get('/positions'),
+        api.get('/kitchens')
       ]);
       setEmployees(empData);
       setVacancies(vacData);
       setDepartments(deptData);
       setPositions(posData);
+      setKitchens(kitchensData);
     } catch (error) {
       console.error('Failed to fetch HR data:', error);
     } finally {
@@ -86,10 +90,14 @@ export const HR: React.FC = () => {
     return styles[status as keyof typeof styles] || styles.applied;
   };
 
-  const filteredEmployees = (employees || []).filter(emp =>
-    (emp.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (emp.position_detail?.name || emp.position || "").toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredEmployees = (employees || []).filter(emp => {
+    const matchesSearch = (emp.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (emp.position_detail?.name || emp.position || "").toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesKitchen = !profile?.kitchen_id || emp.kitchen_id === profile.kitchen_id;
+    
+    return matchesSearch && matchesKitchen;
+  });
 
   const totalEmployees = filteredEmployees.length;
   const paginatedEmployees = filteredEmployees.slice(
@@ -140,7 +148,7 @@ export const HR: React.FC = () => {
                   : 'border-transparent text-gray-600 hover:text-gray-900'
               }`}
             >
-              Employee Database
+              Database Karyawan
             </button>
             <button
               onClick={() => setActiveTab('recruitment')}
@@ -150,7 +158,7 @@ export const HR: React.FC = () => {
                   : 'border-transparent text-gray-600 hover:text-gray-900'
               }`}
             >
-              Recruitment
+              Rekrutmen
             </button>
             <button
               onClick={() => setActiveTab('attendance')}
@@ -160,7 +168,7 @@ export const HR: React.FC = () => {
                   : 'border-transparent text-gray-600 hover:text-gray-900'
               }`}
             >
-              Attendance
+              Kehadiran
             </button>
             <button
               onClick={() => setActiveTab('payroll')}
@@ -170,7 +178,7 @@ export const HR: React.FC = () => {
                   : 'border-transparent text-gray-600 hover:text-gray-900'
               }`}
             >
-              Payroll
+              Penggajian (Payroll)
             </button>
           </div>
         </div>
@@ -182,7 +190,7 @@ export const HR: React.FC = () => {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                 <input
                   type="text"
-                  placeholder="Search employees..."
+                  placeholder="Cari karyawan..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
@@ -212,17 +220,17 @@ export const HR: React.FC = () => {
                     </div>
                     <div className="grid grid-cols-2 gap-3 mb-6 p-3 bg-gray-50 rounded-lg border border-gray-100">
                       <div>
-                        <p className="text-[10px] text-gray-500 uppercase font-bold tracking-tight">Employee ID</p>
+                        <p className="text-[10px] text-gray-500 uppercase font-bold tracking-tight">ID Karyawan</p>
                         <p className="text-sm font-bold text-gray-900">{employee.number}</p>
                       </div>
                       <div>
-                        <p className="text-[10px] text-gray-500 uppercase font-bold tracking-tight">Department</p>
+                        <p className="text-[10px] text-gray-500 uppercase font-bold tracking-tight">Departemen</p>
                         <p className="text-sm font-bold text-gray-900">
                           {employee.department_detail?.name || employee.department}
                         </p>
                       </div>
                       <div className="col-span-2 pt-2 border-t border-gray-200 mt-1">
-                        <p className="text-[10px] text-gray-500 uppercase font-bold tracking-tight">Joined Since</p>
+                        <p className="text-[10px] text-gray-500 uppercase font-bold tracking-tight">Bergabung Sejak</p>
                         <div className="flex items-center gap-1.5 text-sm font-medium text-gray-700">
                           <Calendar className="w-3.5 h-3.5 text-blue-500" />
                           {employee.hire_date}
@@ -243,7 +251,7 @@ export const HR: React.FC = () => {
                         onClick={() => handleDeleteEmployee(employee.id)}
                         className="px-4 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition-colors text-sm"
                       >
-                        Delete
+                        Hapus
                       </button>
                     </div>
                   </div>
@@ -265,7 +273,7 @@ export const HR: React.FC = () => {
           {activeTab === 'recruitment' && (
             <div className="space-y-4">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-base font-semibold text-gray-900">Job Vacancies</h3>
+                <h3 className="text-base font-semibold text-gray-900">Lowongan Pekerjaan</h3>
                 <button 
                   onClick={() => {
                     setEditingVacancy(null);
@@ -273,7 +281,7 @@ export const HR: React.FC = () => {
                   }}
                   className="bg-blue-50 text-blue-600 px-3 py-1 rounded-lg hover:bg-blue-100 text-sm font-medium"
                 >
-                  + Post Vacancy
+                  + Pasang Lowongan
                 </button>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -303,8 +311,8 @@ export const HR: React.FC = () => {
                       </div>
                     </div>
                     <div className="flex items-center justify-between text-sm">
-                        <p className="text-xs text-gray-500 mb-1">Deadline: {vacancy.deadline}</p>
-                        <p className="text-xs text-blue-600 font-medium">{vacancy.applicants_list?.length || 0} Applicants</p>
+                        <p className="text-xs text-gray-500 mb-1">Batas Waktu: {vacancy.deadline}</p>
+                        <p className="text-xs text-blue-600 font-medium">{vacancy.applicants_list?.length || 0} Pelamar</p>
                     </div>
                   </div>
                 ))}
@@ -326,19 +334,19 @@ export const HR: React.FC = () => {
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-green-50 rounded-lg p-4 border border-green-100">
-                  <div className="text-green-600 mb-2 font-medium">On Time</div>
+                  <div className="text-green-600 mb-2 font-medium">Tepat Waktu</div>
                   <div className="text-2xl font-bold text-green-700">94.2%</div>
-                  <div className="text-sm text-green-600 mt-1">Average this month</div>
+                  <div className="text-sm text-green-600 mt-1">Rata-rata bulan ini</div>
                 </div>
                 <div className="bg-orange-50 rounded-lg p-4 border border-orange-100">
-                  <div className="text-orange-600 mb-2 font-medium">Late In</div>
+                  <div className="text-orange-600 mb-2 font-medium">Terlambat</div>
                   <div className="text-2xl font-bold text-orange-700">4.8%</div>
-                  <div className="text-sm text-orange-600 mt-1">Average this month</div>
+                  <div className="text-sm text-orange-600 mt-1">Rata-rata bulan ini</div>
                 </div>
                 <div className="bg-red-50 rounded-lg p-4 border border-red-100">
-                  <div className="text-red-600 mb-2 font-medium">Absent</div>
+                  <div className="text-red-600 mb-2 font-medium">Absen</div>
                   <div className="text-2xl font-bold text-red-700">1.0%</div>
-                  <div className="text-sm text-red-600 mt-1">Average this month</div>
+                  <div className="text-sm text-red-600 mt-1">Rata-rata bulan ini</div>
                 </div>
               </div>
             </div>
@@ -350,9 +358,9 @@ export const HR: React.FC = () => {
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-gray-200">
-                      <th className="text-left py-3 px-4 font-semibold text-gray-900">Employee</th>
-                      <th className="text-left py-3 px-4 font-semibold text-gray-900">Position</th>
-                      <th className="text-left py-3 px-4 font-semibold text-gray-900">Net Salary</th>
+                      <th className="text-left py-3 px-4 font-semibold text-gray-900">Karyawan</th>
+                      <th className="text-left py-3 px-4 font-semibold text-gray-900">Jabatan</th>
+                      <th className="text-left py-3 px-4 font-semibold text-gray-900">Gaji Bersih</th>
                       <th className="text-left py-3 px-4 font-semibold text-gray-900">Status</th>
                     </tr>
                   </thead>
@@ -366,7 +374,7 @@ export const HR: React.FC = () => {
                         </td>
                         <td className="py-3 px-4">
                           <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
-                            Paid
+                            Dibayar
                           </span>
                         </td>
                       </tr>
@@ -383,13 +391,14 @@ export const HR: React.FC = () => {
       {isEmployeeModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg max-w-lg w-full p-4">
-            <h2 className="text-lg font-bold mb-4">{editingEmployee ? 'Edit Employee' : 'Add New Employee'}</h2>
+            <h2 className="text-lg font-bold mb-4">{editingEmployee ? 'Edit Karyawan' : 'Tambah Karyawan Baru'}</h2>
             <form onSubmit={async (e: any) => {
               e.preventDefault();
               const formData = new FormData(e.target);
               const data = {
                 number: editingEmployee ? editingEmployee.number : "",
                 name: formData.get('name'),
+                kitchen_id: parseInt(formData.get('kitchen_id') as string),
                 department_id: parseInt(formData.get('department_id') as string),
                 position_id: parseInt(formData.get('position_id') as string),
                 hire_date: formData.get('hire_date'),
@@ -410,29 +419,29 @@ export const HR: React.FC = () => {
             }}>
                <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Employee ID Number</label>
+                  <label className="block text-sm font-medium text-gray-700">Nomor Induk Karyawan</label>
                   <div className="mt-1 w-full bg-gray-50 border rounded-lg p-2 text-gray-500 font-mono text-sm">
-                    {editingEmployee ? editingEmployee.number : 'EMP-YYYY-XXX (Auto-generated)'}
+                    {editingEmployee ? editingEmployee.number : 'EMP-YYYY-XXX (Otomatis)'}
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Full Name</label>
+                  <label className="block text-sm font-medium text-gray-700">Nama Lengkap</label>
                   <input name="name" defaultValue={editingEmployee?.name} required className="mt-1 w-full border rounded-lg p-2" />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Department</label>
+                    <label className="block text-sm font-medium text-gray-700">Departemen</label>
                     <select name="department_id" defaultValue={editingEmployee?.department_id} required className="mt-1 w-full border rounded-lg p-2">
-                       <option value="">Select Dept</option>
+                       <option value="">Pilih Dept</option>
                        {(departments || []).map(d => (
                          <option key={d.id} value={d.id}>{d.name}</option>
                        ))}
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Position</label>
+                    <label className="block text-sm font-medium text-gray-700">Jabatan</label>
                     <select name="position_id" defaultValue={editingEmployee?.position_id} required className="mt-1 w-full border rounded-lg p-2">
-                       <option value="">Select Position</option>
+                       <option value="">Pilih Jabatan</option>
                        {(positions || []).map(p => (
                          <option key={p.id} value={p.id}>{p.name}</option>
                        ))}
@@ -440,11 +449,20 @@ export const HR: React.FC = () => {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Salary (IDR)</label>
+                  <label className="block text-sm font-medium text-gray-700">Target Dapur (Penempatan)</label>
+                  <select name="kitchen_id" defaultValue={editingEmployee?.kitchen_id || profile?.kitchen_id || ''} required className="mt-1 w-full border rounded-lg p-2">
+                     <option value="">Pilih Dapur</option>
+                     {(kitchens || []).map(k => (
+                       <option key={k.id} value={k.id}>{k.name}</option>
+                     ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Gaji (IDR)</label>
                   <input name="salary" type="number" defaultValue={editingEmployee?.salary} required className="mt-1 w-full border rounded-lg p-2" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Hire Date</label>
+                  <label className="block text-sm font-medium text-gray-700">Tanggal Masuk</label>
                   <input name="hire_date" type="date" defaultValue={editingEmployee?.hire_date} required className="mt-1 w-full border rounded-lg p-2" />
                 </div>
                 <div>
@@ -457,8 +475,8 @@ export const HR: React.FC = () => {
                 </div>
               </div>
               <div className="flex justify-end gap-3 mt-6">
-                <button type="button" onClick={() => setIsEmployeeModalOpen(false)} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Cancel</button>
-                <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Save</button>
+                <button type="button" onClick={() => setIsEmployeeModalOpen(false)} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Batal</button>
+                <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Simpan</button>
               </div>
             </form>
           </div>

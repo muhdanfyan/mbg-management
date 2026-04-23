@@ -184,6 +184,7 @@ export interface Employee {
     id: number;
     number: string;
     name: string;
+    kitchen_id?: number;
     position_id: number;
     position: string; // Legacy
     position_detail?: Position;

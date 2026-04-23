@@ -35,7 +35,8 @@ export const Finance: React.FC = () => {
     type: 'expense',
     category: '',
     amount: 0,
-    status: 'pending'
+    status: 'pending',
+    kitchen_id: profile?.kitchen_id || null
   });
 
   const [bgnForm, setBgnForm] = useState({
@@ -198,7 +199,8 @@ export const Finance: React.FC = () => {
       type: t.type,
       category: t.category,
       amount: t.amount,
-      status: t.status
+      status: t.status,
+      kitchen_id: t.kitchen_id
     });
     setIsTransModalOpen(true);
   };
@@ -302,8 +304,12 @@ export const Finance: React.FC = () => {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-gray-900">Financial Management</h1>
-          <p className="text-gray-600 mt-1">Monitor cash flow, expenses, and funding</p>
+          <h1 className="text-xl font-bold text-gray-900">Manajemen Keuangan</h1>
+          <p className="text-sm text-gray-600 mt-1">Pantau arus kas, pengeluaran, dan pendanaan MBG</p>
+          <div className="flex items-center gap-4 mt-2 text-[10px] font-bold uppercase tracking-widest text-gray-400">
+             <span className="flex items-center gap-1"><TrendingDown className="w-3 h-3 text-red-400" /> Pengeluaran: Biaya operasional</span>
+             <span className="flex items-center gap-1"><CreditCard className="w-3 h-3 text-blue-400" /> Pinjaman: Dana talangan/hutang</span>
+          </div>
         </div>
         <div className="flex gap-3">
           <button 
@@ -329,7 +335,7 @@ export const Finance: React.FC = () => {
             className="bg-white border border-blue-600 text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-50 transition-colors flex items-center gap-2"
           >
             <CreditCard className="w-5 h-5" />
-            New Loan
+            Pinjaman Baru
           </button>
           {(profile?.role === 'Super Admin' || profile?.role === 'Finance' || profile?.role === 'Operator Koperasi') && (
             <button 
@@ -347,7 +353,7 @@ export const Finance: React.FC = () => {
               className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
             >
               <DollarSign className="w-5 h-5" />
-              New Transaction
+              Transaksi Baru
             </button>
           )}
           {(profile?.role === 'Super Admin' || profile?.role === 'PIC Dapur' || profile?.role === 'Operator Koperasi') && (
@@ -409,11 +415,11 @@ export const Finance: React.FC = () => {
                     </div>
                     <ArrowUpRight className="w-5 h-5 text-green-600" />
                   </div>
-                  <p className="text-sm text-green-700 font-medium mb-1">Total Income</p>
+                  <p className="text-sm text-green-700 font-medium mb-1">Total Pendapatan</p>
                   <p className="text-xl font-bold text-green-900">
-                    Rp {(totalIncome / 1000000000).toFixed(1)}B
+                    Rp {(totalIncome / 1000000000).toFixed(1)}M
                   </p>
-                  <p className="text-xs text-green-600 mt-2">+15% from last month</p>
+                  <p className="text-xs text-green-600 mt-2">+15% dari bulan lalu</p>
                 </div>
 
                 <div className="bg-gradient-to-br from-red-50 to-red-100 border border-red-200 rounded-lg p-4">
@@ -423,11 +429,11 @@ export const Finance: React.FC = () => {
                     </div>
                     <ArrowDownRight className="w-5 h-5 text-red-600" />
                   </div>
-                  <p className="text-sm text-red-700 font-medium mb-1">Total Expenses</p>
+                  <p className="text-sm text-red-700 font-medium mb-1">Total Pengeluaran</p>
                   <p className="text-xl font-bold text-red-900">
-                    Rp {(totalExpense / 1000000000).toFixed(1)}B
+                    Rp {(totalExpense / 1000000000).toFixed(1)}M
                   </p>
-                  <p className="text-xs text-red-600 mt-2">+8% from last month</p>
+                  <p className="text-xs text-red-600 mt-2">+8% dari bulan lalu</p>
                 </div>
 
                 <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-4">
@@ -437,11 +443,11 @@ export const Finance: React.FC = () => {
                     </div>
                     <ArrowUpRight className="w-5 h-5 text-blue-600" />
                   </div>
-                  <p className="text-sm text-blue-700 font-medium mb-1">Net Cash Flow</p>
+                  <p className="text-sm text-blue-700 font-medium mb-1">Arus Kas Bersih</p>
                   <p className="text-xl font-bold text-blue-900">
-                    Rp {(cashFlow / 1000000000).toFixed(1)}B
+                    Rp {(cashFlow / 1000000000).toFixed(1)}M
                   </p>
-                  <p className="text-xs text-blue-600 mt-2">Positive flow</p>
+                  <p className="text-xs text-blue-600 mt-2">Aliran positif</p>
                 </div>
               </div>
 
@@ -1287,7 +1293,7 @@ export const Finance: React.FC = () => {
       {isTransModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg max-w-md w-full p-4">
-            <h2 className="text-lg font-bold mb-4">{editingTrans ? 'Edit Transaction' : 'New Transaction'}</h2>
+            <h2 className="text-lg font-bold mb-4">{editingTrans ? 'Edit Transaksi' : 'Transaksi Baru'}</h2>
             <form onSubmit={handleTransSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
@@ -1301,14 +1307,14 @@ export const Finance: React.FC = () => {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Tipe</label>
                   <select 
                     value={transForm.type}
                     onChange={e => setTransForm({...transForm, type: e.target.value})}
                     className="w-full border border-gray-300 rounded-lg px-3 py-2"
                   >
-                    <option value="income">Income</option>
-                    <option value="expense">Expense</option>
+                    <option value="income">Pendapatan</option>
+                    <option value="expense">Pengeluaran</option>
                   </select>
                 </div>
                 <div>
@@ -1325,18 +1331,31 @@ export const Finance: React.FC = () => {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Target Dapur (Opsional)</label>
+                <select 
+                  value={transForm.kitchen_id || ''}
+                  onChange={e => setTransForm({...transForm, kitchen_id: e.target.value ? Number(e.target.value) : null})}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                >
+                  <option value="">Semua Dapur / Umum</option>
+                  {kitchens.map(k => (
+                    <option key={k.id} value={k.id}>{k.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
                 <input 
                   type="text" 
                   required
-                  placeholder="e.g. Operational, Food Supplies"
+                  placeholder="Contoh: Operasional, Bahan Baku, dll"
                   value={transForm.category}
                   onChange={e => setTransForm({...transForm, category: e.target.value})}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Amount (IDR)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Jumlah (IDR)</label>
                 <input 
                   type="number" 
                   required
@@ -1351,13 +1370,13 @@ export const Finance: React.FC = () => {
                   onClick={() => setIsTransModalOpen(false)}
                   className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium"
                 >
-                  Cancel
+                  Batal
                 </button>
                 <button 
                   type="submit"
                   className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
                 >
-                  Save Transaction
+                  Simpan Transaksi
                 </button>
               </div>
             </form>
@@ -1369,7 +1388,7 @@ export const Finance: React.FC = () => {
       {isLoanModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg max-w-lg w-full p-4">
-            <h2 className="text-lg font-bold mb-4">{editingLoan ? 'Edit Loan' : 'New Loan'}</h2>
+            <h2 className="text-lg font-bold mb-4">{editingLoan ? 'Edit Pinjaman' : 'Pinjaman Baru'}</h2>
             <form onSubmit={handleLoanSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -1479,13 +1498,13 @@ export const Finance: React.FC = () => {
                   onClick={() => setIsLoanModalOpen(false)}
                   className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium"
                 >
-                  Cancel
+                  Batal
                 </button>
                 <button 
                   type="submit"
                   className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
                 >
-                  Save Loan
+                  Simpan Pinjaman
                 </button>
               </div>
             </form>

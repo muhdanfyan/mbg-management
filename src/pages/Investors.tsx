@@ -113,8 +113,8 @@ export const Investors: React.FC = () => {
         <div className="space-y-10 animate-in fade-in duration-500">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-[#1A4D43] tracking-tight">Monitoring Investor</h1>
-                    <p className="text-gray-500 mt-1 font-medium">Status investasi Satuan Pelayanan Pemenuhan Gizi Wahdah Islamiyah</p>
+                    <h1 className="text-2xl font-bold text-[#1A4D43] tracking-tight">Monitoring & ROI Investor</h1>
+                    <p className="text-gray-500 mt-1 font-medium">Pantau bagi hasil dan status BEP (Break Even Point) setiap dapur</p>
                 </div>
                 <div className="flex gap-3">
                     <button 
@@ -176,12 +176,12 @@ export const Investors: React.FC = () => {
                 <div className="glass-card p-4 group hover:shadow-xl transition-all bg-gradient-to-br from-[#1A4D43] to-[#2BBF9D]">
                     <div className="flex items-center gap-3 text-white">
                         <div className="bg-white/20 p-3 rounded-xl">
-                            <Briefcase className="w-6 h-6" />
+                            <PieChart className="w-6 h-6" />
                         </div>
                         <div className="whitespace-nowrap">
-                            <p className="text-[10px] font-black text-white/60 uppercase tracking-widest mb-0.5">Target Funding</p>
+                            <p className="text-[10px] font-black text-white/60 uppercase tracking-widest mb-0.5">Skema Bagi Hasil</p>
                             <h3 className="text-lg font-black tracking-tight">
-                                100% Locked
+                                75:25 <span className="text-[10px] font-medium opacity-70">Pre-BEP</span>
                             </h3>
                         </div>
                     </div>
@@ -214,11 +214,11 @@ export const Investors: React.FC = () => {
                              <tr>
                                 <th className="px-4 py-3 text-[10px] font-black text-gray-400 uppercase tracking-[0.1em]">NO</th>
                                 <th className="px-4 py-3 text-[10px] font-black text-gray-400 uppercase tracking-[0.1em]">ID SPPG (DAPUR)</th>
-                                <th className="px-4 py-3 text-[10px] font-black text-gray-400 uppercase tracking-[0.1em]">STATUS FUNDING</th>
-                                <th className="px-4 py-3 text-[10px] font-black text-gray-400 uppercase tracking-[0.1em] text-right">TOTAL INVESTOR</th>
+                                <th className="px-4 py-3 text-[10px] font-black text-gray-400 uppercase tracking-[0.1em]">MODAL & BEP</th>
+                                <th className="px-4 py-3 text-[10px] font-black text-gray-400 uppercase tracking-[0.1em] text-right">INVESTASI</th>
                                 <th className="px-4 py-3 text-[10px] font-black text-gray-400 uppercase tracking-[0.1em]">PESERTA</th>
-                                <th className="px-4 py-3 text-[10px] font-black text-gray-400 uppercase tracking-[0.1em] text-center">%</th>
-                                <th className="px-4 py-3 text-[10px] font-black text-gray-400 uppercase tracking-[0.1em]">EST. DIVIDEN</th>
+                                <th className="px-4 py-3 text-[10px] font-black text-gray-400 uppercase tracking-[0.1em] text-center">% SAHAM</th>
+                                <th className="px-4 py-3 text-[10px] font-black text-gray-400 uppercase tracking-[0.1em]">RASIO (PRE:POST)</th>
                                 <th className="px-4 py-3 text-[10px] font-black text-gray-400 uppercase tracking-[0.1em] text-right">AKSI</th>
                             </tr>
                         </thead>
@@ -238,25 +238,21 @@ export const Investors: React.FC = () => {
                                         </div>
                                     </td>
                                      <td className="px-4 py-3">
-                                        {/* Kitchen Funding Progress */}
-                                        <div className="w-full max-w-[100px]">
+                                        <div className="w-full max-w-[120px]">
                                             <div className="flex justify-between text-[8px] font-bold mb-1">
-                                                <span className="text-gray-400">Captured</span>
-                                                <span className={`${
-                                                    participants.filter(pt => pt.kitchen_id === p.kitchen_id).reduce((s, x) => s + x.share_percentage, 0) >= 100 
-                                                    ? 'text-red-500' : 'text-[#2BBF9D]'
-                                                }`}>
-                                                    {participants.filter(pt => pt.kitchen_id === p.kitchen_id).reduce((s, x) => s + x.share_percentage, 0)}%
+                                                <span className="text-gray-400">BEP Progress</span>
+                                                <span className="text-[#2BBF9D]">
+                                                    {p.kitchen?.initial_capital ? Math.min(100, Math.round(((p.kitchen?.accumulated_profit || 0) / p.kitchen.initial_capital) * 100)) : 0}%
                                                 </span>
                                             </div>
                                             <div className="w-full bg-gray-100 rounded-full h-1 border border-gray-50 overflow-hidden">
                                                 <div 
-                                                    className={`h-full rounded-full transition-all duration-1000 ${
-                                                        participants.filter(pt => pt.kitchen_id === p.kitchen_id).reduce((s, x) => s + x.share_percentage, 0) >= 100 
-                                                        ? 'bg-red-500' : 'bg-[#2BBF9D]'
-                                                    }`}
-                                                    style={{ width: `${Math.min(100, participants.filter(pt => pt.kitchen_id === p.kitchen_id).reduce((s, x) => s + x.share_percentage, 0))}%` }}
+                                                    className="h-full rounded-full transition-all duration-1000 bg-[#2BBF9D]"
+                                                    style={{ width: `${p.kitchen?.initial_capital ? Math.min(100, ((p.kitchen?.accumulated_profit || 0) / p.kitchen.initial_capital) * 100) : 0}%` }}
                                                 ></div>
+                                            </div>
+                                            <div className="text-[7px] text-gray-400 mt-1 font-medium">
+                                                Modal: Rp {(p.kitchen?.initial_capital || 0).toLocaleString()}
                                             </div>
                                         </div>
                                     </td>
@@ -274,12 +270,14 @@ export const Investors: React.FC = () => {
                                             <span className="text-[7px] text-gray-400 font-bold">{p.saham_ratio}</span>
                                         </div>
                                     </td>
-                                    <td className="px-4 py-3 whitespace-nowrap">
-                                        <div className="flex flex-col">
-                                            <span className="text-[10px] font-black text-blue-600">
-                                                Rp {(p.investment_amount * 0.05).toLocaleString('id-ID')}*
+                                    <td className="px-4 py-3 whitespace-nowrap text-center">
+                                        <div className="flex flex-col items-center">
+                                            <span className="text-[10px] font-black text-[#1A4D43] bg-gray-50 px-2 py-0.5 rounded">
+                                                {p.saham_ratio || '75 : 25'}
                                             </span>
-                                            <span className="text-[7px] text-gray-400 font-bold uppercase tracking-widest italic">Est. 5% ROI/mo</span>
+                                            <span className="text-[7px] text-gray-400 font-bold uppercase mt-1">
+                                                {p.kitchen?.bep_status === 'after_bep' ? 'Post-BEP Active' : 'Pre-BEP Active'}
+                                            </span>
                                         </div>
                                     </td>
                                     <td className="px-4 py-3 whitespace-nowrap text-right">
@@ -396,13 +394,18 @@ export const Investors: React.FC = () => {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Saham Ratio / Split</label>
-                                    <input 
+                                    <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Saham Ratio (Pre-BEP : Post-BEP)</label>
+                                    <select 
                                         name="saham_ratio" 
-                                        defaultValue={editingInvestor?.saham_ratio} 
-                                        placeholder="E.g. 75% : 25%"
-                                        className="premium-input w-full" 
-                                    />
+                                        defaultValue={editingInvestor?.saham_ratio || '75 : 25'} 
+                                        className="premium-input w-full bg-white cursor-pointer"
+                                    >
+                                        <option value="75 : 25">75% : 25% (Standard)</option>
+                                        <option value="60 : 40">60% : 40% (Alternative)</option>
+                                        <option value="50 : 50">50% : 50% (Equal)</option>
+                                        <option value="100 : 0">100% : 0% (Full ROI)</option>
+                                    </select>
+                                    <p className="text-[10px] text-gray-400 italic">Rasio bagi hasil antara Investor : DPP.</p>
                                 </div>
                             </div>
 

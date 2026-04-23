@@ -390,7 +390,7 @@ export const Locations: React.FC = () => {
                   : 'border-transparent text-gray-600 hover:text-gray-900'
               }`}
             >
-              Map View
+              Tampilan Peta
             </button>
             <button
               onClick={() => setActiveTab('list')}
@@ -400,7 +400,7 @@ export const Locations: React.FC = () => {
                   : 'border-transparent text-gray-600 hover:text-gray-900'
               }`}
             >
-              Kitchen List
+              Daftar Dapur
             </button>
             <button
               onClick={() => setActiveTab('routes')}
@@ -410,7 +410,7 @@ export const Locations: React.FC = () => {
                   : 'border-transparent text-gray-600 hover:text-gray-900'
               }`}
             >
-              Distribution Routes
+              Rute Distribusi
             </button>
           </div>
         </div>
@@ -421,7 +421,7 @@ export const Locations: React.FC = () => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 type="text"
-                placeholder="Search kitchens..."
+                placeholder="Cari dapur..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
@@ -461,11 +461,60 @@ export const Locations: React.FC = () => {
                 <AutoFitBounds kitchensList={filteredKitchens} />
                 {filteredKitchens.map(kitchen => (
                   <Marker key={kitchen.id} position={[kitchen.lat, kitchen.lng]}>
-                    <Popup>
-                      <div className="font-bold">{kitchen.name}</div>
-                      <div>{kitchen.address}</div>
-                      <div>Kapasitas: {kitchen.capacity} porsi/hari</div>
-                      <div>Status: {kitchen.status}</div>
+                    <Popup maxWidth={300} minWidth={250}>
+                      <div className="p-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="bg-blue-100 p-1.5 rounded-lg">
+                            <Building2 className="w-4 h-4 text-blue-600" />
+                          </div>
+                          <h3 className="font-bold text-gray-900 text-sm leading-tight">{kitchen.name}</h3>
+                        </div>
+                        
+                        <div className="space-y-2 mb-3">
+                          <div className="flex items-start gap-2 text-xs text-gray-600">
+                            <MapPin className="w-3.5 h-3.5 text-gray-400 mt-0.5 shrink-0" />
+                            <span>{kitchen.address}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-xs text-gray-600 font-medium">
+                            <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
+                            Kapasitas: <span className="text-gray-900 font-bold">{kitchen.capacity}</span> porsi/hari
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${getStatusBadge(kitchen.status)}`}>
+                              {kitchen.status === 'active' ? 'Aktif' : kitchen.status === 'construction' ? 'Konstruksi' : 'Tidak Aktif'}
+                            </span>
+                            <span className="text-[10px] text-gray-400 font-medium">BEP: {kitchen.bep_status || 'PRE-BEP'}</span>
+                          </div>
+                        </div>
+
+                        <div className="flex gap-2 pt-2 border-t border-gray-100">
+                          <button 
+                            onClick={() => {
+                              setViewingKitchen(kitchen);
+                              setIsDetailModalOpen(true);
+                            }}
+                            className="flex-1 bg-gray-50 hover:bg-gray-100 text-[#1A4D43] py-1.5 rounded-lg text-xs font-bold transition-all border border-gray-100 flex items-center justify-center gap-1.5"
+                          >
+                            <Info className="w-3.5 h-3.5" />
+                            Detail
+                          </button>
+                          {hasRole(['Super Admin', 'Admin']) && (
+                            <button 
+                              onClick={() => {
+                                setEditingKitchen(kitchen);
+                                setPickerPos({ lat: kitchen.lat, lng: kitchen.lng });
+                                setDetectedRegion(kitchen.region);
+                                setAddressValue(kitchen.address);
+                                setIsKitchenModalOpen(true);
+                              }}
+                              className="flex-1 bg-[#2BBF9D] hover:bg-[#25A98B] text-white py-1.5 rounded-lg text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-1.5"
+                            >
+                              <Edit className="w-3.5 h-3.5" />
+                              Edit
+                            </button>
+                          )}
+                        </div>
+                      </div>
                     </Popup>
                   </Marker>
                 ))}
@@ -480,10 +529,10 @@ export const Locations: React.FC = () => {
                   <tr className="border-b border-gray-200">
                     <th className="text-left py-3 px-4 font-semibold text-gray-900">Nama Dapur</th>
                     <th className="text-left py-3 px-4 font-semibold text-gray-900">Alamat</th>
-                    <th className="text-left py-3 px-4 font-semibold text-gray-900">Region</th>
+                    <th className="text-left py-3 px-4 font-semibold text-gray-900">Wilayah</th>
                     <th className="text-left py-3 px-4 font-semibold text-gray-900">Kapasitas</th>
                     <th className="text-left py-3 px-4 font-semibold text-gray-900">Status</th>
-                    <th className="text-left py-3 px-4 font-semibold text-gray-900">Actions</th>
+                    <th className="text-left py-3 px-4 font-semibold text-gray-900">Aksi</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -507,7 +556,7 @@ export const Locations: React.FC = () => {
                       </td>
                       <td className="py-3 px-4">
                         <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusBadge(kitchen.status)}`}>
-                          {kitchen.status}
+                          {kitchen.status === 'active' ? 'Aktif' : kitchen.status === 'construction' ? 'Konstruksi' : 'Tidak Aktif'}
                         </span>
                       </td>
                       <td className="py-3 px-4">
@@ -601,7 +650,7 @@ export const Locations: React.FC = () => {
                       </div>
                       <div className="flex items-center gap-3">
                         <span className={`px-3 py-1 rounded-full text-xs font-medium ${getRouteStatusBadge(route.status)}`}>
-                          {route.status.replace('_', ' ')}
+                          {route.status === 'scheduled' ? 'Terjadwal' : route.status === 'in_transit' ? 'Dalam Perjalanan' : 'Selesai'}
                         </span>
                         <button 
                           onClick={() => {
@@ -649,7 +698,7 @@ export const Locations: React.FC = () => {
       {isKitchenModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] p-4">
           <div className="bg-white rounded-lg max-w-2xl w-full p-4 max-h-[90vh] overflow-y-auto">
-            <h2 className="text-lg font-bold mb-4">{editingKitchen ? 'Edit Kitchen' : 'Add New Kitchen'}</h2>
+            <h2 className="text-lg font-bold mb-4">{editingKitchen ? 'Edit Dapur' : 'Tambah Dapur Baru'}</h2>
             <form onSubmit={async (e: any) => {
               e.preventDefault();
               const formData = new FormData(e.target);
@@ -681,11 +730,11 @@ export const Locations: React.FC = () => {
             }}>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Name</label>
+                  <label className="block text-sm font-medium text-gray-700">Nama</label>
                   <input name="name" defaultValue={editingKitchen?.name} required className="mt-1 w-full border rounded-lg p-2" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Type</label>
+                  <label className="block text-sm font-medium text-gray-700">Tipe</label>
                   <select name="type" defaultValue={editingKitchen?.type || 'INVESTOR'} className="mt-1 w-full border rounded-lg p-2">
                     <option value="INVESTOR">INVESTOR</option>
                     <option value="BANGUN_SENDIRI">BANGUN SENDIRI (BSI)</option>
@@ -693,16 +742,16 @@ export const Locations: React.FC = () => {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Investor Share (0.0 - 1.0)</label>
+                    <label className="block text-sm font-medium text-gray-700">Jatah Investor (0.0 - 1.0)</label>
                     <input name="investor_share" type="number" step="0.01" defaultValue={editingKitchen?.investor_share || 0.75} required className="mt-1 w-full border rounded-lg p-2" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">DPP Share (0.0 - 1.0)</label>
+                    <label className="block text-sm font-medium text-gray-700">Jatah DPP (0.0 - 1.0)</label>
                     <input name="dpp_share" type="number" step="0.01" defaultValue={editingKitchen?.dpp_share || 0.25} required className="mt-1 w-full border rounded-lg p-2" />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Address</label>
+                  <label className="block text-sm font-medium text-gray-700">Alamat</label>
                   <input 
                     name="address" 
                     value={addressValue}
@@ -741,16 +790,16 @@ export const Locations: React.FC = () => {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Capacity (portions/day)</label>
+                  <label className="block text-sm font-medium text-gray-700">Kapasitas (porsi/hari)</label>
                   <input name="capacity" type="number" defaultValue={editingKitchen?.capacity} required className="mt-1 w-full border rounded-lg p-2" />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Status</label>
                     <select name="status" defaultValue={editingKitchen?.status || 'active'} className="mt-1 w-full border rounded-lg p-2">
-                      <option value="active">Active</option>
-                      <option value="construction">Construction</option>
-                      <option value="inactive">Inactive</option>
+                      <option value="active">Aktif</option>
+                      <option value="construction">Konstruksi</option>
+                      <option value="inactive">Tidak Aktif</option>
                     </select>
                   </div>
                   <div>
@@ -792,8 +841,8 @@ export const Locations: React.FC = () => {
                 </div>
               </div>
               <div className="flex justify-end gap-3 mt-6">
-                <button type="button" onClick={() => setIsKitchenModalOpen(false)} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Cancel</button>
-                <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Save</button>
+                <button type="button" onClick={() => setIsKitchenModalOpen(false)} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Batal</button>
+                <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Simpan</button>
               </div>
             </form>
           </div>
@@ -804,7 +853,7 @@ export const Locations: React.FC = () => {
       {isRouteModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] p-4">
           <div className="bg-white rounded-lg max-w-lg w-full p-4">
-            <h2 className="text-lg font-bold mb-4">{editingRoute ? 'Edit Route' : 'Add New Route'}</h2>
+            <h2 className="text-lg font-bold mb-4">{editingRoute ? 'Edit Rute' : 'Tambah Rute Baru'}</h2>
             <form onSubmit={async (e: any) => {
               e.preventDefault();
               const formData = new FormData(e.target);
@@ -830,30 +879,30 @@ export const Locations: React.FC = () => {
             }}>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Source Kitchen</label>
+                  <label className="block text-sm font-medium text-gray-700">Dapur Asal</label>
                   <select name="kitchen_id" defaultValue={editingRoute?.kitchen_id || kitchens[0]?.id} required className="mt-1 w-full border rounded-lg p-2">
                     {kitchens.map(k => <option key={k.id} value={k.id}>{k.name}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Route Name</label>
+                  <label className="block text-sm font-medium text-gray-700">Nama Rute</label>
                   <input name="route_name" defaultValue={editingRoute?.route_name} required className="mt-1 w-full border rounded-lg p-2" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Vehicle</label>
+                  <label className="block text-sm font-medium text-gray-700">Kendaraan</label>
                   <input name="vehicle" defaultValue={editingRoute?.vehicle} required className="mt-1 w-full border rounded-lg p-2" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Driver</label>
+                  <label className="block text-sm font-medium text-gray-700">Sopir</label>
                   <input name="driver" defaultValue={editingRoute?.driver} required className="mt-1 w-full border rounded-lg p-2" />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Status</label>
                     <select name="status" defaultValue={editingRoute?.status || 'scheduled'} className="mt-1 w-full border rounded-lg p-2">
-                      <option value="scheduled">Scheduled</option>
-                      <option value="in_transit">In Transit</option>
-                      <option value="completed">Completed</option>
+                      <option value="scheduled">Terjadwal</option>
+                      <option value="in_transit">Dalam Perjalanan</option>
+                      <option value="completed">Selesai</option>
                     </select>
                   </div>
                   <div>
@@ -863,8 +912,8 @@ export const Locations: React.FC = () => {
                 </div>
               </div>
               <div className="flex justify-end gap-3 mt-6">
-                <button type="button" onClick={() => setIsRouteModalOpen(false)} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Cancel</button>
-                <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Save</button>
+                <button type="button" onClick={() => setIsRouteModalOpen(false)} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Batal</button>
+                <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Simpan</button>
               </div>
             </form>
           </div>
