@@ -11,6 +11,8 @@ type Sppg struct {
 	SppgID    string           `gorm:"uniqueIndex;type:varchar(50)" json:"sppg_id"` // Contoh: VMEUI185
 	Name      string           `gorm:"not null" json:"name"`
 	Location       string             `gorm:"type:text" json:"location"`
+	Province       string             `json:"province"`
+	City           string             `json:"city"`
 	Progress       string             `json:"progress"`                                         // Contoh: "100.00%"
 	Media          []SppgMedia        `gorm:"foreignKey:SppgID;references:SppgID" json:"media"` // Relasi One-to-Many
 	Infrastructure *SppgInfrastructure `gorm:"foreignKey:SppgID;references:SppgID" json:"infrastructure"`

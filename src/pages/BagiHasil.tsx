@@ -14,7 +14,9 @@ import {
     HandCoins,
     BarChart3,
     Plus,
-    UploadCloud
+    UploadCloud,
+    Download,
+    X
 } from 'lucide-react';
 import { api, Kitchen, RentalRecord, ProfitDistribution, PayoutDetail } from '../services/api';
 import { Pagination } from '../components/UI/Pagination';

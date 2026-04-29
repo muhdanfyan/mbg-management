@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Building2, ImageIcon, DollarSign, CheckCircle, Clock, Plus, Edit, Trash2, X } from 'lucide-react';
+import { Building2, ImageIcon, DollarSign, CheckCircle, Clock, Plus, Edit, Trash2, X, Search } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import { api, Contract, ProgressUpdate, getImageUrl, Sppg } from '../services/api';
+import { SearchableSelect } from '../components/UI/SearchableSelect';
 
 export const Construction: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'contracts' | 'updates'>('contracts');
@@ -81,6 +82,25 @@ export const Construction: React.FC = () => {
     return styles[status as keyof typeof styles] || styles.pending;
   };
 
+  const [searchTerm, setSearchTerm] = useState(searchFilter);
+
+  const filteredContracts = contracts.filter(c => {
+    const search = searchTerm.toLowerCase();
+    return !search || 
+           c.sppg_id.toLowerCase().includes(search) || 
+           c.project_name.toLowerCase().includes(search) || 
+           c.vendor_name.toLowerCase().includes(search);
+  });
+
+  const filteredUpdates = updates.filter(u => {
+    const search = searchTerm.toLowerCase();
+    const contract = contracts.find(c => c.id === u.contract_id);
+    return !search || 
+           u.task_name.toLowerCase().includes(search) || 
+           u.description.toLowerCase().includes(search) ||
+           (contract && contract.project_name.toLowerCase().includes(search));
+  });
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -90,43 +110,43 @@ export const Construction: React.FC = () => {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 animate-in fade-in duration-500">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-gray-900">Konstruksi Proyek</h1>
-          <p className="text-gray-600 mt-1">Pantau progress pembangunan dan renovasi dapur MBG</p>
+          <h1 className="text-xl font-bold text-gray-900 tracking-tight">Pengawasan Konstruksi</h1>
+          <p className="text-gray-500 mt-1 text-sm font-medium">Pantau progress pembangunan dan renovasi dapur MBG</p>
         </div>
         <button 
           onClick={() => {
             setEditingContract(null);
             setIsContractModalOpen(true);
           }}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+          className="bg-blue-600 text-white px-4 py-2.5 rounded-xl font-bold text-sm shadow-xl shadow-blue-500/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
         >
           <Building2 className="w-5 h-5" />
           Tambah Kontrak
         </button>
       </div>
 
-      <div className="bg-white rounded-lg border border-gray-200">
-        <div className="border-b border-gray-200">
-          <div className="flex gap-4 px-4">
+      <div className="bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden">
+        <div className="border-b border-gray-100 bg-gray-50/30 p-2">
+          <div className="flex flex-wrap gap-2 px-2">
             <button
               onClick={() => setActiveTab('contracts')}
-              className={`py-3 px-2 border-b-2 font-medium transition-colors ${
+              className={`py-2 px-4 rounded-xl font-bold text-xs transition-all ${
                 activeTab === 'contracts'
-                  ? 'border-blue-600 text-blue-600'
-                  : 'border-transparent text-gray-600 hover:text-gray-900'
+                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
+                  : 'text-gray-500 hover:bg-gray-100'
               }`}
             >
               Manajemen Kontrak
             </button>
             <button
               onClick={() => setActiveTab('updates')}
-              className={`py-3 px-2 border-b-2 font-medium transition-colors ${
+              className={`py-2 px-4 rounded-xl font-bold text-xs transition-all ${
                 activeTab === 'updates'
-                  ? 'border-blue-600 text-blue-600'
-                  : 'border-transparent text-gray-600 hover:text-gray-900'
+                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
+                  : 'text-gray-500 hover:bg-gray-100'
               }`}
             >
               Update Progress
@@ -134,25 +154,43 @@ export const Construction: React.FC = () => {
           </div>
         </div>
 
-        <div className="p-4">
+        <div className="p-6">
+          {/* Search Bar UI */}
+          <div className="relative mb-6 group">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5 group-focus-within:text-blue-600 transition-colors" />
+            <input 
+              type="text"
+              placeholder="Cari proyek, vendor, atau ID SPPG..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setSearchParams({ search: e.target.value });
+              }}
+              className="w-full pl-12 pr-4 py-3 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-600 transition-all font-medium text-gray-900"
+            />
+            {searchTerm && (
+              <button 
+                onClick={() => {
+                  setSearchTerm('');
+                  setSearchParams({});
+                }}
+                className="absolute right-4 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-200 rounded-full text-gray-400"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+
           {activeTab === 'contracts' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {searchFilter && (
-                <div className="col-span-full bg-blue-50 border border-blue-100 p-3 rounded-lg flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2 text-sm text-blue-700">
-                    <span className="font-bold">Filter Aktif:</span> Menampilkan kontrak untuk SPPG ID "{searchFilter}"
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {filteredContracts.length === 0 ? (
+                <div className="col-span-full py-20 text-center">
+                  <div className="bg-gray-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Search className="w-10 h-10 text-gray-300" />
                   </div>
-                  <button 
-                    onClick={() => setSearchParams({})}
-                    className="p-1 hover:bg-blue-100 rounded-full text-blue-600"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
+                  <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px]">Data tidak ditemukan</p>
                 </div>
-              )}
-              {contracts
-                .filter(c => !searchFilter || (c.sppg_id === searchFilter || c.project_name.toLowerCase().includes(searchFilter.toLowerCase())))
-                .map((contract) => (
+              ) : filteredContracts.map((contract) => (
                 <div key={contract.id} className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-lg transition-shadow">
                   <div className="flex justify-between items-start mb-4">
                     <div>
@@ -240,13 +278,21 @@ export const Construction: React.FC = () => {
                     setEditingUpdate(null);
                     setIsUpdateModalOpen(true);
                   }}
-                  className="bg-blue-50 text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-100 transition-colors text-sm font-medium flex items-center gap-2"
+                  className="bg-blue-50 text-blue-600 px-4 py-2.5 rounded-xl hover:bg-blue-100 transition-colors text-sm font-bold flex items-center gap-2"
                 >
                   <Plus className="w-4 h-4" />
                   Tambah Update Progress
                 </button>
               </div>
-              {updates.map((update) => (
+
+              {filteredUpdates.length === 0 ? (
+                <div className="py-20 text-center">
+                  <div className="bg-gray-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Search className="w-10 h-10 text-gray-300" />
+                  </div>
+                  <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px]">Data tidak ditemukan</p>
+                </div>
+              ) : filteredUpdates.map((update) => (
                 <div key={update.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
                   <div className="flex items-start gap-4">
                     <div className="aspect-square w-24 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
@@ -349,13 +395,21 @@ export const Construction: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Tautkan ke SPPG (Galeri Foto)</label>
-                  <select name="sppg_id" defaultValue={editingContract?.sppg_id} className="mt-1 w-full border rounded-lg p-2 bg-blue-50 border-blue-200 focus:ring-2 focus:ring-blue-500 outline-none">
-                    <option value="">Pilih SPPG untuk sinkronisasi foto</option>
-                    {sppgsList.map(s => (
-                      <option key={s.sppg_id} value={s.sppg_id}>{s.sppg_id} - {s.location || 'Tanpa Lokasi'}</option>
-                    ))}
-                  </select>
+                  <SearchableSelect 
+                    label="Tautkan ke SPPG (Galeri Foto)"
+                    name="sppg_id"
+                    value={editingContract?.sppg_id || ''}
+                    placeholder="Pilih SPPG untuk sinkronisasi foto"
+                    options={[
+                      { value: '', label: 'Pilih SPPG untuk sinkronisasi foto' },
+                      ...sppgsList.map(s => ({ value: s.sppg_id, label: `${s.sppg_id} - ${s.location || 'Tanpa Lokasi'}` }))
+                    ]}
+                    onChange={(val) => {
+                      // This is inside a form, but we need to handle state if needed.
+                      // For now, since it's a native form submit in the parent, 
+                      // SearchableSelect has a hidden input.
+                    }}
+                  />
                   <p className="text-[10px] text-blue-600 mt-1 italic font-medium">Foto progress akan otomatis terhubung dengan galeri SPPG yang dipilih.</p>
                 </div>
 
@@ -475,13 +529,17 @@ export const Construction: React.FC = () => {
             }}>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Proyek / Kontrak</label>
-                  <select name="contract_id" defaultValue={editingUpdate?.contract_id} required className="mt-1 w-full border rounded-lg p-2">
-                    <option value="">Pilih proyek</option>
-                    {contracts.map(c => (
-                      <option key={c.id} value={c.id}>{c.project_name}</option>
-                    ))}
-                  </select>
+                  <SearchableSelect 
+                    label="Proyek / Kontrak"
+                    name="contract_id"
+                    value={editingUpdate?.contract_id || ''}
+                    placeholder="Pilih proyek"
+                    options={[
+                      { value: '', label: 'Pilih proyek' },
+                      ...contracts.map(c => ({ value: c.id, label: c.project_name }))
+                    ]}
+                    onChange={(val) => {}}
+                  />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Nama Tugas</label>

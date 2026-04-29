@@ -53,7 +53,7 @@ func initDB() {
 	_ = db.AutoMigrate(&models.Route{}, &models.InvestorParticipant{})
 	_ = db.AutoMigrate(&models.Employee{}, &models.Vacancy{}, &models.Applicant{})
 	_ = db.AutoMigrate(&models.Contract{}, &models.ProgressUpdate{})
-	_ = db.AutoMigrate(&models.Transaction{}, &models.Loan{}, &models.Equipment{}, &models.PurchaseOrder{}, &models.FinancialRecord{})
+	_ = db.AutoMigrate(&models.Transaction{}, &models.Loan{}, &models.Equipment{}, &models.PurchaseOrder{}, &models.FinancialRecord{}, &models.TransactionCategory{})
 	
 	// New Financial/Sharing Modules (Critical for current task)
 	err = db.AutoMigrate(&models.RentalRecord{}, &models.ProfitDistribution{}, &models.PayoutDetail{}, &models.Remittance{}, &models.AuditSpending{})
@@ -76,6 +76,22 @@ func initDB() {
 		positions := []string{"Manager", "Supervisor", "Staff", "Field Officer", "Driver", "Security"}
 		for _, name := range positions {
 			db.Create(&models.Position{Name: name})
+		}
+	}
+	
+	var catCount int64
+	if err := db.Model(&models.TransactionCategory{}).Count(&catCount).Error; err == nil && catCount == 0 {
+		cats := []models.TransactionCategory{
+			{Name: "Bahan Baku", Type: "expense"},
+			{Name: "Operasional", Type: "expense"},
+			{Name: "Gaji Staff", Type: "expense"},
+			{Name: "Sewa Dapur", Type: "expense"},
+			{Name: "Investasi", Type: "income"},
+			{Name: "Dana BGN", Type: "income"},
+			{Name: "Lain-lain", Type: "both"},
+		}
+		for _, cat := range cats {
+			db.Create(&cat)
 		}
 	}
 
@@ -176,25 +192,49 @@ func initDB() {
 	hashedPass, _ := bcrypt.GenerateFromPassword([]byte("pass123"), bcrypt.DefaultCost)
 	
 	for _, k := range kitchens {
-		email := fmt.Sprintf("pic.%s@mbg.com", strings.ToLower(strings.ReplaceAll(k.Name, " ", ".")))
-		var userCount int64
-		db.Model(&models.User{}).Where("email = ?", email).Count(&userCount)
+		slug := strings.ToLower(strings.ReplaceAll(k.Name, " ", "."))
+		picEmail := fmt.Sprintf("pic.%s@mbg.com", slug)
+		kopEmail := fmt.Sprintf("kop.%s@mbg.com", slug)
 		
 		kid := k.ID
-		if userCount == 0 {
-			newUser := models.User{
+		
+		// Seed PIC Dapur
+		var picCount int64
+		db.Model(&models.User{}).Where("email = ?", picEmail).Count(&picCount)
+		if picCount == 0 {
+			db.Create(&models.User{
 				ID:         fmt.Sprintf("k%d", k.ID),
-				Email:      email,
+				Email:      picEmail,
 				Password:   string(hashedPass),
 				FullName:   "PIC " + k.Name,
 				Role:       "PIC Dapur",
 				Department: "Operasional",
 				Position:   "PIC Wilayah",
 				KitchenID:  &kid,
-			}
-			db.Create(&newUser)
+			})
 		} else {
-			db.Model(&models.User{}).Where("email = ?", email).Updates(models.User{
+			db.Model(&models.User{}).Where("email = ?", picEmail).Updates(models.User{
+				KitchenID: &kid,
+				Password:  string(hashedPass),
+			})
+		}
+
+		// Seed Operator Koperasi
+		var kopCount int64
+		db.Model(&models.User{}).Where("email = ?", kopEmail).Count(&kopCount)
+		if kopCount == 0 {
+			db.Create(&models.User{
+				ID:         fmt.Sprintf("kop%d", k.ID),
+				Email:      kopEmail,
+				Password:   string(hashedPass),
+				FullName:   "Koperasi " + k.Name,
+				Role:       "Operator Koperasi",
+				Department: "Logistik & Audit",
+				Position:   "Koperasi Lead",
+				KitchenID:  &kid,
+			})
+		} else {
+			db.Model(&models.User{}).Where("email = ?", kopEmail).Updates(models.User{
 				KitchenID: &kid,
 				Password:  string(hashedPass),
 			})
@@ -280,15 +320,29 @@ func main() {
 	// --- API Groups ---
 	api := r.Group("/api")
 	{
-		api.POST("/upload", func(c *gin.Context) {
+		api.POST("/upload", RequireRole("Super Admin", "Manager", "Procurement"), func(c *gin.Context) {
 			file, err := c.FormFile("file")
 			if err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{"error": "No file uploaded"})
 				return
 			}
 
+			// Security: Validate file extension
+			ext := strings.ToLower(filepath.Ext(file.Filename))
+			allowedExtensions := map[string]bool{
+				".jpg":  true,
+				".jpeg": true,
+				".png":  true,
+				".webp": true,
+				".pdf":  true, // Allowed for documents
+			}
+
+			if !allowedExtensions[ext] {
+				c.JSON(http.StatusForbidden, gin.H{"error": "File type not allowed. Only images and PDFs are permitted."})
+				return
+			}
+
 			// Sanitize filename and add prefix to avoid collisions
-			ext := filepath.Ext(file.Filename)
 			filename := fmt.Sprintf("%d%s", time.Now().UnixNano(), ext)
 			dst := filepath.Join("uploads", filename)
 
@@ -322,6 +376,12 @@ func main() {
 			c.JSON(http.StatusOK, kitchens)
 		})
 
+		api.GET("/koperasis", func(c *gin.Context) {
+			var k []models.Koperasi
+			db.Find(&k)
+			c.JSON(http.StatusOK, k)
+		})
+
 		api.GET("/contracts", func(c *gin.Context) {
 			contracts := []models.Contract{}
 			ScopedDB(c).Order("created_at desc").Find(&contracts)
@@ -330,7 +390,7 @@ func main() {
 
 		api.GET("/employees", func(c *gin.Context) {
 			var emps []models.Employee
-			db.Preload("Position").Preload("Department").Find(&emps)
+			db.Preload("Position").Preload("Department").Preload("Kitchen").Find(&emps)
 			c.JSON(http.StatusOK, emps)
 		})
 
@@ -377,6 +437,12 @@ func main() {
 			var l []models.Loan
 			ScopedDB(c).Find(&l)
 			c.JSON(http.StatusOK, l)
+		})
+		
+		api.GET("/transaction-categories", func(c *gin.Context) {
+			var cats []models.TransactionCategory
+			db.Find(&cats)
+			c.JSON(http.StatusOK, cats)
 		})
 
 		api.GET("/equipment", func(c *gin.Context) {
@@ -516,24 +582,36 @@ func main() {
 
 		// HR - Employees
 		api.POST("/employees", func(c *gin.Context) {
-			var e models.Employee
-			if err := c.ShouldBindJSON(&e); err != nil {
+			var emp models.Employee
+			if err := c.ShouldBindJSON(&emp); err != nil {
 				c.JSON(400, gin.H{"error": err.Error()})
 				return
 			}
-			db.Create(&e)
-			c.JSON(http.StatusOK, e)
+			if err := db.Create(&emp).Error; err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create employee: " + err.Error()})
+				return
+			}
+			c.JSON(http.StatusOK, emp)
 		})
 		api.PUT("/employees/:id", func(c *gin.Context) {
 			id := c.Param("id")
-			var e models.Employee
-			if err := db.First(&e, id).Error; err != nil {
+			var emp models.Employee
+			if err := db.First(&emp, id).Error; err != nil {
 				c.JSON(404, gin.H{"error": "Employee not found"})
 				return
 			}
-			c.ShouldBindJSON(&e)
-			db.Save(&e)
-			c.JSON(http.StatusOK, e)
+			
+			var updateData map[string]interface{}
+			if err := c.ShouldBindJSON(&updateData); err != nil {
+				c.JSON(400, gin.H{"error": err.Error()})
+				return
+			}
+
+			if err := db.Model(&emp).Updates(updateData).Error; err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update employee: " + err.Error()})
+				return
+			}
+			c.JSON(http.StatusOK, emp)
 		})
 		api.DELETE("/employees/:id", func(c *gin.Context) {
 			id := c.Param("id")
@@ -585,13 +663,16 @@ func main() {
 
 		// HR - Vacancies
 		api.POST("/vacancies", func(c *gin.Context) {
-			var v models.Vacancy
-			if err := c.ShouldBindJSON(&v); err != nil {
+			var vacancy models.Vacancy
+			if err := c.ShouldBindJSON(&vacancy); err != nil {
 				c.JSON(400, gin.H{"error": err.Error()})
 				return
 			}
-			db.Create(&v)
-			c.JSON(http.StatusOK, v)
+			if err := db.Create(&vacancy).Error; err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create vacancy: " + err.Error()})
+				return
+			}
+			c.JSON(http.StatusOK, vacancy)
 		})
 		api.PUT("/vacancies/:id", func(c *gin.Context) {
 			id := c.Param("id")
@@ -777,6 +858,36 @@ func main() {
 			c.ShouldBindJSON(&l)
 			db.Save(&l)
 			c.JSON(http.StatusOK, l)
+		})
+
+		// Transaction Categories CRUD
+		api.POST("/transaction-categories", func(c *gin.Context) {
+			var cat models.TransactionCategory
+			if err := c.ShouldBindJSON(&cat); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				return
+			}
+			db.Create(&cat)
+			c.JSON(http.StatusOK, cat)
+		})
+		api.PUT("/transaction-categories/:id", func(c *gin.Context) {
+			id := c.Param("id")
+			var cat models.TransactionCategory
+			if err := db.First(&cat, id).Error; err != nil {
+				c.JSON(http.StatusNotFound, gin.H{"error": "Category not found"})
+				return
+			}
+			c.ShouldBindJSON(&cat)
+			if err := db.Save(&cat).Error; err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update category: " + err.Error()})
+				return
+			}
+			c.JSON(http.StatusOK, cat)
+		})
+		api.DELETE("/transaction-categories/:id", func(c *gin.Context) {
+			id := c.Param("id")
+			db.Delete(&models.TransactionCategory{}, id)
+			c.JSON(http.StatusOK, gin.H{"message": "Category deleted"})
 		})
 		api.DELETE("/loans/:id", func(c *gin.Context) {
 			id := c.Param("id")

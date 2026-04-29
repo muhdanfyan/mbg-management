@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { MapPin, Search, Filter, Edit, Trash2, Navigation, Clock, Plus, Info, ShieldCheck, Truck, CreditCard, X, Building2, DollarSign, Activity, BarChart3 } from 'lucide-react';
+import { MapPin, Search, Filter, Edit, Trash2, Navigation, Clock, Plus, Info, ShieldCheck, Truck, CreditCard, X, Building2, DollarSign, Activity, BarChart3, PieChart } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap, ZoomControl } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
-import { api, Kitchen, Route } from '../services/api';
+import { api, Kitchen, Route, Sppg, Koperasi } from '../services/api';
+import { SearchableSelect } from '../components/UI/SearchableSelect';
 import { Pagination } from '../components/UI/Pagination';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -138,6 +139,8 @@ export const Locations: React.FC = () => {
   const [viewingKitchen, setViewingKitchen] = useState<Kitchen | null>(null);
   const [kitchens, setKitchens] = useState<Kitchen[]>([]);
   const [routes, setRoutes] = useState<Route[]>([]);
+  const [koperasis, setKoperasis] = useState<Koperasi[]>([]);
+  const [sppgs, setSppgs] = useState<Sppg[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'map' | 'list' | 'routes'>('map');
   const [searchTerm, setSearchTerm] = useState('');
@@ -235,16 +238,22 @@ export const Locations: React.FC = () => {
 
   const [addressValue, setAddressValue] = useState('');
 
-
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [kitchensData, routesData] = await Promise.all([
+      console.log('Fetching locations data...');
+      const [kitchensData, routesData, koperasisData, sppgsData] = await Promise.all([
         api.get('/kitchens'),
-        api.get('/routes')
+        api.get('/routes'),
+        api.get('/koperasis'),
+        api.get('/sppgs')
       ]);
+      
       setKitchens(kitchensData);
       setRoutes(routesData);
+      setKoperasis(koperasisData);
+      setSppgs(sppgsData);
+      console.log('Locations data fetched successfully');
     } catch (error) {
       console.error('Failed to fetch locations data:', error);
     } finally {
@@ -287,9 +296,11 @@ export const Locations: React.FC = () => {
   };
 
   const filteredKitchens = kitchens.filter(kitchen => {
-    const matchesSearch = kitchen.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         kitchen.address.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesRegion = selectedRegion === 'all' || kitchen.region.toUpperCase().includes(selectedRegion.toUpperCase());
+    const matchesSearch = (kitchen.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (kitchen.address || '').toLowerCase().includes(searchTerm.toLowerCase());
+    const kitchenRegion = (kitchen.region || '').toUpperCase();
+    const filterRegion = selectedRegion.toUpperCase();
+    const matchesRegion = selectedRegion === 'all' || kitchenRegion.includes(filterRegion);
     return matchesSearch && matchesRegion;
   });
 
@@ -696,74 +707,203 @@ export const Locations: React.FC = () => {
 
       {/* Kitchen Modal */}
       {isKitchenModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] p-4">
-          <div className="bg-white rounded-lg max-w-2xl w-full p-4 max-h-[90vh] overflow-y-auto">
-            <h2 className="text-lg font-bold mb-4">{editingKitchen ? 'Edit Dapur' : 'Tambah Dapur Baru'}</h2>
-            <form onSubmit={async (e: any) => {
-              e.preventDefault();
-              const formData = new FormData(e.target);
-              const data = {
-                name: formData.get('name'),
-                type: formData.get('type'),
-                address: formData.get('address'),
-                lat: pickerPos.lat,
-                lng: pickerPos.lng,
-                capacity: parseInt(formData.get('capacity') as string) || 0,
-                status: formData.get('status'),
-                region: `${formData.get('regency') || 'Unknown'}, ${detectedProvince || 'Nasional'}`,
-                investor_share: parseFloat(formData.get('investor_share') as string) || 0,
-                dpp_share: parseFloat(formData.get('dpp_share') as string) || 0,
-              };
-
-              try {
-                if (editingKitchen) {
-                  await api.put(`/kitchens/${editingKitchen.id}`, data);
-                } else {
-                  await api.post('/kitchens', data);
-                }
-                setIsKitchenModalOpen(false);
-                fetchData();
-              } catch (error: any) {
-                console.error('Save error:', error);
-                alert(`Failed to save kitchen: ${error.message || 'Unknown error'}`);
-              }
-            }}>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Nama</label>
-                  <input name="name" defaultValue={editingKitchen?.name} required className="mt-1 w-full border rounded-lg p-2" />
+        <div className="fixed inset-0 bg-[#1A4D43]/60 flex items-center justify-center z-[9999] p-4 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="bg-white rounded-[2.5rem] max-w-2xl w-full shadow-2xl overflow-hidden border border-white/20 transition-all transform scale-100 animate-in zoom-in-95 duration-300">
+            {/* Header with Decorative Elements */}
+            <div className="bg-gradient-to-br from-[#1A4D43] via-[#1E6B5E] to-[#2BBF9D] p-6 flex justify-between items-center relative overflow-hidden">
+                <div className="absolute -right-10 -top-10 w-48 h-48 bg-white/10 rounded-full blur-3xl"></div>
+                <div className="absolute -left-10 -bottom-10 w-32 h-32 bg-[#2BBF9D]/20 rounded-full blur-2xl"></div>
+                
+                <div className="relative z-10">
+                    <h2 className="text-2xl font-black text-white flex items-center gap-3">
+                        <div className="bg-white/20 p-2 rounded-xl backdrop-blur-md">
+                            <Building2 className="w-6 h-6 text-white" />
+                        </div>
+                        {editingKitchen ? 'Edit Profil Dapur' : 'Registrasi Dapur Baru'}
+                    </h2>
+                    <p className="text-white/70 text-[10px] font-bold uppercase tracking-[0.2em] mt-1 ml-11">
+                        {editingKitchen ? 'Memperbarui data titik operasional' : 'Pendataan titik operasional SPPG baru'}
+                    </p>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Tipe</label>
-                  <select name="type" defaultValue={editingKitchen?.type || 'INVESTOR'} className="mt-1 w-full border rounded-lg p-2">
+
+                <button 
+                    onClick={() => setIsKitchenModalOpen(false)}
+                    className="text-white/60 hover:text-white hover:bg-white/10 p-3 rounded-2xl transition-all relative z-10 active:scale-90"
+                >
+                    <X className="w-7 h-7" />
+                </button>
+            </div>
+
+            <form 
+              onSubmit={async (e: any) => {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                const data = {
+                  name: formData.get('name'),
+                  type: formData.get('type'),
+                  address: formData.get('address'),
+                  lat: pickerPos.lat,
+                  lng: pickerPos.lng,
+                  capacity: parseInt(formData.get('capacity') as string) || 0,
+                  status: formData.get('status'),
+                  region: `${formData.get('regency') || 'Unknown'}, ${detectedProvince || 'Nasional'}`,
+                  investor_share: (parseFloat(formData.get('investor_share') as string) || 0) / 100,
+                  dpp_share: (parseFloat(formData.get('dpp_share') as string) || 0) / 100,
+                  koperasi_id: formData.get('koperasi_id') ? parseInt(formData.get('koperasi_id') as string) : null,
+                  sppg_id: formData.get('sppg_id') || '',
+                };
+
+                try {
+                  if (editingKitchen) {
+                    await api.put(`/kitchens/${editingKitchen.id}`, data);
+                  } else {
+                    await api.post('/kitchens', data);
+                  }
+                  setIsKitchenModalOpen(false);
+                  fetchData();
+                } catch (error: any) {
+                  console.error('Save error:', error);
+                  alert(`Failed to save kitchen: ${error.message || 'Unknown error'}`);
+                }
+              }}
+              className="p-8 max-h-[75vh] overflow-y-auto space-y-8 premium-scrollbar"
+            >
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Nama Dapur</label>
+                  <input name="name" defaultValue={editingKitchen?.name} required placeholder="E.g. Dapur Panakkukang" className="premium-input w-full" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Tipe Kepemilikan</label>
+                  <select name="type" defaultValue={editingKitchen?.type || 'INVESTOR'} className="premium-input w-full bg-white">
                     <option value="INVESTOR">INVESTOR</option>
                     <option value="BANGUN_SENDIRI">BANGUN SENDIRI (BSI)</option>
                   </select>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Jatah Investor (0.0 - 1.0)</label>
-                    <input name="investor_share" type="number" step="0.01" defaultValue={editingKitchen?.investor_share || 0.75} required className="mt-1 w-full border rounded-lg p-2" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Jatah DPP (0.0 - 1.0)</label>
-                    <input name="dpp_share" type="number" step="0.01" defaultValue={editingKitchen?.dpp_share || 0.25} required className="mt-1 w-full border rounded-lg p-2" />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Alamat</label>
-                  <input 
-                    name="address" 
-                    value={addressValue}
-                    onChange={(e) => setAddressValue(e.target.value)}
-                    required 
-                    className="mt-1 w-full border rounded-lg p-2" 
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <SearchableSelect 
+                    label="Koperasi Penanggung Jawab"
+                    name="koperasi_id"
+                    value={editingKitchen?.koperasi_id || ''}
+                    options={[
+                      { value: '', label: 'Tanpa Koperasi (Mandiri)' },
+                      ...koperasis.map(kop => ({ value: kop.id, label: kop.name }))
+                    ]}
+                    onChange={() => {}}
                   />
                 </div>
-                
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">Pilih Lokasi di Peta</label>
-                  <div className="h-64 w-full relative rounded-lg border overflow-hidden">
+                  <SearchableSelect 
+                    label="Link Unit SPPG (SppgID)"
+                    name="sppg_id"
+                    value={editingKitchen?.sppg_id || ''}
+                    placeholder="Pilih Unit SPPG..."
+                    options={[
+                      { value: '', label: 'Belum Terhubung SPPG' },
+                      ...sppgs.map(s => ({ value: s.sppg_id, label: `${s.sppg_id} - ${s.name}` }))
+                    ]}
+                    onChange={() => {}}
+                  />
+                </div>
+              </div>
+
+              {/* Dynamic Share Ratio Section */}
+              <div className="bg-[#F8FAF9] rounded-[2rem] p-6 border border-gray-100 space-y-6 relative overflow-hidden">
+                <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-xs font-black text-[#1A4D43] uppercase tracking-widest flex items-center gap-2">
+                        <PieChart className="w-4 h-4 text-[#2BBF9D]" />
+                        Pembagian Jatah Unit (Persentase %)
+                    </h3>
+                    <div className="px-3 py-1 bg-white rounded-full border border-gray-100 shadow-sm">
+                        <span className="text-[10px] font-black text-[#2BBF9D]">Dinamis (Total 100%)</span>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-gray-500 ml-1">Jatah Investor (%)</label>
+                    <div className="relative">
+                      <input 
+                        name="investor_share" 
+                        type="number" 
+                        step="0.1" 
+                        max="100"
+                        id="investor_share_input"
+                        defaultValue={(editingKitchen?.investor_share || 0.75) * 100} 
+                        required 
+                        onChange={(e) => {
+                          const val = parseFloat(e.target.value) || 0;
+                          const dppVal = Math.max(0, (100 - val)).toFixed(1);
+                          const dppInput = document.getElementById('dpp_share_input') as HTMLInputElement;
+                          if (dppInput) dppInput.value = dppVal;
+                          
+                          const barEl = document.getElementById('share_ratio_bar');
+                          if (barEl) barEl.style.width = val + '%';
+                        }}
+                        className="premium-input w-full bg-white font-black text-lg text-[#1A4D43] pr-10" 
+                      />
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">%</div>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-gray-500 ml-1">Jatah DPP (%)</label>
+                    <div className="relative">
+                      <input 
+                        name="dpp_share" 
+                        type="number" 
+                        step="0.1" 
+                        max="100"
+                        id="dpp_share_input"
+                        defaultValue={(editingKitchen?.dpp_share || 0.25) * 100} 
+                        required 
+                        readOnly
+                        className="premium-input w-full bg-gray-50/50 font-black text-lg text-[#2BBF9D] cursor-not-allowed pr-10" 
+                      />
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">%</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Visual Progress Bar for Ratio */}
+                <div className="space-y-2">
+                    <div className="flex justify-between text-[8px] font-black uppercase tracking-widest text-gray-400 px-1">
+                        <span>Investor</span>
+                        <span>DPP (Pusat)</span>
+                    </div>
+                    <div className="w-full h-3 bg-[#E2F8F3] rounded-full overflow-hidden shadow-inner flex">
+                        <div 
+                            id="share_ratio_bar"
+                            className="h-full bg-gradient-to-r from-[#1A4D43] to-[#1E6B5E] transition-all duration-700 ease-out"
+                            style={{ width: `${(editingKitchen?.investor_share || 0.75) * 100}%` }}
+                        ></div>
+                        <div className="h-full flex-1 bg-[#2BBF9D]"></div>
+                    </div>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Alamat Lengkap</label>
+                  <div className="relative group">
+                      <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#2BBF9D] transition-colors">
+                          <MapPin className="w-4 h-4" />
+                      </div>
+                      <input 
+                        name="address" 
+                        value={addressValue}
+                        onChange={(e) => setAddressValue(e.target.value)}
+                        required 
+                        className="premium-input w-full pl-12" 
+                      />
+                  </div>
+                </div>
+                
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Penentuan Titik Map</label>
+                  <div className="h-72 w-full relative rounded-[2rem] border border-gray-100 overflow-hidden shadow-inner">
                     <MapContainer 
                       center={[editingKitchen?.lat || -5.14, editingKitchen?.lng || 119.43]} 
                       zoom={13} 
@@ -779,70 +919,65 @@ export const Locations: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Latitude</label>
-                    <input name="lat" type="number" step="any" value={pickerPos.lat} onChange={(e) => setPickerPos({ ...pickerPos, lat: parseFloat(e.target.value) })} required className="mt-1 w-full border rounded-lg p-2 bg-gray-50" />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Latitude</label>
+                    <input name="lat" type="number" step="any" value={pickerPos.lat} onChange={(e) => setPickerPos({ ...pickerPos, lat: parseFloat(e.target.value) })} required className="premium-input w-full bg-gray-50/50" />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Longitude</label>
-                    <input name="lng" type="number" step="any" value={pickerPos.lng} onChange={(e) => setPickerPos({ ...pickerPos, lng: parseFloat(e.target.value) })} required className="mt-1 w-full border rounded-lg p-2 bg-gray-50" />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Kapasitas (porsi/hari)</label>
-                  <input name="capacity" type="number" defaultValue={editingKitchen?.capacity} required className="mt-1 w-full border rounded-lg p-2" />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Status</label>
-                    <select name="status" defaultValue={editingKitchen?.status || 'active'} className="mt-1 w-full border rounded-lg p-2">
-                      <option value="active">Aktif</option>
-                      <option value="construction">Konstruksi</option>
-                      <option value="inactive">Tidak Aktif</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Provinsi</label>
-                    <select 
-                      name="province_name" 
-                      value={selectedProvinceId} 
-                      onChange={(e) => {
-                        const id = e.target.value;
-                        setSelectedProvinceId(id);
-                        const prov = provinces.find(p => p.id === id);
-                        if (prov) setDetectedProvince(prov.name);
-                      }} 
-                      required 
-                      className="mt-1 w-full border rounded-lg p-2" 
-                    >
-                      <option value="">Pilih Provinsi</option>
-                      {provinces.map(prov => (
-                        <option key={prov.id} value={prov.id}>{prov.name}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Kabupaten/Kota</label>
-                    <select 
-                      name="regency" 
-                      value={detectedRegion} 
-                      onChange={(e) => setDetectedRegion(e.target.value)} 
-                      required 
-                      className="mt-1 w-full border rounded-lg p-2" 
-                      disabled={!selectedProvinceId}
-                    >
-                      <option value="">Pilih Kabupaten/Kota</option>
-                      {regencies.map(reg => (
-                        <option key={reg.id} value={reg.name}>{reg.name}</option>
-                      ))}
-                    </select>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Longitude</label>
+                    <input name="lng" type="number" step="any" value={pickerPos.lng} onChange={(e) => setPickerPos({ ...pickerPos, lng: parseFloat(e.target.value) })} required className="premium-input w-full bg-gray-50/50" />
                   </div>
                 </div>
               </div>
-              <div className="flex justify-end gap-3 mt-6">
-                <button type="button" onClick={() => setIsKitchenModalOpen(false)} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Batal</button>
-                <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Simpan</button>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Kapasitas (Porsi/Hari)</label>
+                  <input name="capacity" type="number" defaultValue={editingKitchen?.capacity} required className="premium-input w-full" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Status Operasional</label>
+                  <select name="status" defaultValue={editingKitchen?.status || 'active'} className="premium-input w-full bg-white">
+                    <option value="active">Aktif</option>
+                    <option value="construction">Konstruksi</option>
+                    <option value="inactive">Tidak Aktif</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <SearchableSelect 
+                    label="Provinsi"
+                    name="province_name"
+                    value={selectedProvinceId}
+                    placeholder="Pilih Provinsi"
+                    options={provinces.map(prov => ({ value: prov.id, label: prov.name }))}
+                    onChange={(val) => {
+                      const id = val.toString();
+                      setSelectedProvinceId(id);
+                      const prov = provinces.find(p => p.id === id);
+                      if (prov) setDetectedProvince(prov.name);
+                    }}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <SearchableSelect 
+                  label="Kabupaten/Kota"
+                  name="regency"
+                  value={detectedRegion}
+                  placeholder="Pilih Kabupaten/Kota"
+                  options={regencies.map(reg => ({ value: reg.name, label: reg.name }))}
+                  onChange={(val) => setDetectedRegion(val.toString())}
+                  className={!selectedProvinceId ? "opacity-50 pointer-events-none" : ""}
+                />
+              </div>
+
+              <div className="flex gap-4 pt-4 sticky bottom-0 bg-white pb-4">
+                <button type="button" onClick={() => setIsKitchenModalOpen(false)} className="flex-1 py-4 text-gray-400 hover:text-[#1A4D43] font-black uppercase tracking-widest text-[10px] transition-all active:scale-95">Batal</button>
+                <button type="submit" className="flex-[2] bg-gradient-to-r from-[#1A4D43] to-[#2BBF9D] text-white py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] shadow-2xl shadow-[#2BBF9D]/30 hover:shadow-[#2BBF9D]/50 hover:-translate-y-1 transition-all active:scale-95">
+                  {editingKitchen ? 'Simpan Perubahan' : 'Registrasi Dapur'}
+                </button>
               </div>
             </form>
           </div>

@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { DollarSign, TrendingUp, TrendingDown, CreditCard, PieChart, ArrowUpRight, ArrowDownRight, CheckCircle, Clock, XCircle, Building2 } from 'lucide-react';
+import { DollarSign, TrendingUp, TrendingDown, CreditCard, PieChart, ArrowUpRight, ArrowDownRight, CheckCircle, Clock, XCircle, Building2, Plus, Trash2 } from 'lucide-react';
 
 import { api, Transaction, Loan, FinancialSummary, formatDateID } from '../services/api';
+// Force reload Finance to pick up Plus icon
+import { SearchableSelect } from '../components/UI/SearchableSelect';
 import { Pagination } from '../components/UI/Pagination';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -21,8 +23,10 @@ export const Finance: React.FC = () => {
   const [isTransModalOpen, setIsTransModalOpen] = useState(false);
   const [isLoanModalOpen, setIsLoanModalOpen] = useState(false);
   const [isBGNModalOpen, setIsBGNModalOpen] = useState(false);
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [editingTrans, setEditingTrans] = useState<Transaction | null>(null);
   const [editingLoan, setEditingLoan] = useState<Loan | null>(null);
+  const [categories, setCategories] = useState<any[]>([]);
 
   // Pagination State
   const [transPage, setTransPage] = useState(1);
@@ -62,16 +66,18 @@ export const Finance: React.FC = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [transData, loansData, summaryData, kitchensData] = await Promise.all([
+      const [transData, loansData, summaryData, kitchensData, catData] = await Promise.all([
         api.get('/transactions'),
         api.get('/loans'),
         api.get('/dashboard/summary'),
-        api.get('/kitchens')
+        api.get('/kitchens'),
+        api.get('/transaction-categories')
       ]);
       setTransactions(transData || []);
       setLoans(loansData || []);
       setSummary(summaryData);
       setKitchens(kitchensData || []);
+      setCategories(catData || []);
     } catch (error) {
       console.error('Failed to fetch financial data:', error);
     } finally {
@@ -312,31 +318,33 @@ export const Finance: React.FC = () => {
           </div>
         </div>
         <div className="flex gap-3">
-          <button 
-            onClick={() => {
-              const dateStr = new Date().toISOString().split('T')[0].replace(/-/g, '');
-              const randomStr = Math.floor(1000 + Math.random() * 9000);
-              const autoNumber = `LN-${dateStr}-${randomStr}`;
-              
-              setEditingLoan(null);
-              setLoanForm({
-                number: autoNumber,
-                lender: '',
-                amount: 0,
-                margin_rate: 0,
-                monthly_payment: 0,
-                remaining_balance: 0,
-                status: 'active',
-                start_date: new Date().toISOString().split('T')[0],
-                end_date: ''
-              });
-              setIsLoanModalOpen(true);
-            }}
-            className="bg-white border border-blue-600 text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-50 transition-colors flex items-center gap-2"
-          >
-            <CreditCard className="w-5 h-5" />
-            Pinjaman Baru
-          </button>
+          {(profile?.role === 'Super Admin' || profile?.role === 'Finance') && (
+            <button 
+              onClick={() => {
+                const dateStr = new Date().toISOString().split('T')[0].replace(/-/g, '');
+                const randomStr = Math.floor(1000 + Math.random() * 9000);
+                const autoNumber = `LN-${dateStr}-${randomStr}`;
+                
+                setEditingLoan(null);
+                setLoanForm({
+                  number: autoNumber,
+                  lender: '',
+                  amount: 0,
+                  margin_rate: 0,
+                  monthly_payment: 0,
+                  remaining_balance: 0,
+                  status: 'active',
+                  start_date: new Date().toISOString().split('T')[0],
+                  end_date: ''
+                });
+                setIsLoanModalOpen(true);
+              }}
+              className="bg-white border border-blue-600 text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-50 transition-colors flex items-center gap-2"
+            >
+              <CreditCard className="w-5 h-5" />
+              Pinjaman Baru
+            </button>
+          )}
           {(profile?.role === 'Super Admin' || profile?.role === 'Finance' || profile?.role === 'Operator Koperasi') && (
             <button 
               onClick={() => {
@@ -394,11 +402,14 @@ export const Finance: React.FC = () => {
                     : 'border-transparent text-gray-600 hover:text-gray-900'
                 }`}
               >
-                {tab === 'investasi' ? 'Investasi' :
+                {tab === 'dashboard' ? 'Ringkasan' :
+                 tab === 'investasi' ? 'Investasi' :
                  tab === 'sewa' ? 'Sewa Dapur' :
                  tab === 'margin' ? 'Selisih Bahan' :
                  tab === 'operasional' ? 'Operasional' :
-                 tab}
+                 tab === 'expenses' ? 'Pengeluaran' :
+                 tab === 'transactions' ? 'Transaksi' :
+                 tab === 'reports' ? 'Laporan' : tab}
               </button>
             ))}
           </div>
@@ -826,11 +837,12 @@ export const Finance: React.FC = () => {
                     />
                     <Clock className="absolute left-3 top-2.5 w-5 h-5 text-gray-400" />
                   </div>
-                  <select 
-                    className="w-full md:w-64 border border-gray-300 rounded-lg px-4 py-2 bg-white"
+                  <SearchableSelect 
+                    className="w-full md:w-64"
+                    placeholder="Pilih Dapur Result..."
                     value={selectedKitchenId || ''}
-                    onChange={(e) => {
-                      const val = e.target.value;
+                    options={filteredKitchens.map(k => ({ value: k.id, label: k.name }))}
+                    onChange={(val) => {
                       if (!val) {
                         setSelectedKitchenId(null);
                         setReportData(null);
@@ -840,12 +852,7 @@ export const Finance: React.FC = () => {
                       setSelectedKitchenId(id);
                       fetchReport(id);
                     }}
-                  >
-                    <option value="">Pilih Dapur Result...</option>
-                    {filteredKitchens.map(k => (
-                      <option key={k.id} value={k.id}>{k.name}</option>
-                    ))}
-                  </select>
+                  />
                   <button 
                     onClick={() => selectedKitchenId && fetchReport(selectedKitchenId)}
                     className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
@@ -1118,20 +1125,22 @@ export const Finance: React.FC = () => {
                  <p className="text-xs text-blue-700">Tampilan rekapitulasi Gross Pendapatan Sewa Dapur dan rincian bagi hasil ke Pusat Manajemen.</p>
               </div>
               <div className="flex gap-3">
-                 <select className="w-full md:w-1/3 border border-gray-300 rounded-lg px-3 py-2 bg-white" value={selectedKitchenId || ''} onChange={(e) => { 
-                    const val = e.target.value;
-                    if (!val) {
-                      setSelectedKitchenId(null);
-                      setReportData(null);
-                      return;
-                    }
-                    const id = Number(val); 
-                    setSelectedKitchenId(id); 
-                    fetchReport(id); 
-                  }}>
-                    <option value="">Pilih Dapur...</option>
-                    {filteredKitchens.map(k => <option key={k.id} value={k.id}>{k.name}</option>)}
-                 </select>
+                 <SearchableSelect 
+                    className="w-full md:w-1/3"
+                    placeholder="Pilih Dapur..."
+                    value={selectedKitchenId || ''}
+                    options={filteredKitchens.map(k => ({ value: k.id, label: k.name }))}
+                    onChange={(val) => {
+                      if (!val) {
+                        setSelectedKitchenId(null);
+                        setReportData(null);
+                        return;
+                      }
+                      const id = Number(val); 
+                      setSelectedKitchenId(id); 
+                      fetchReport(id); 
+                    }}
+                  />
                  <button onClick={() => selectedKitchenId && fetchReport(selectedKitchenId)} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium text-sm">Muat Data</button>
               </div>
               {reportData && (
@@ -1172,20 +1181,22 @@ export const Finance: React.FC = () => {
                  <p className="text-xs text-emerald-700">Pemantauan margin terpusat. Dibagi dengan rasio 60% DPP, 20% DPD, 20% Koperasi.</p>
               </div>
               <div className="flex gap-3">
-                 <select className="w-full md:w-1/3 border border-gray-300 rounded-lg px-3 py-2 bg-white" value={selectedKitchenId || ''} onChange={(e) => { 
-                    const val = e.target.value;
-                    if (!val) {
-                      setSelectedKitchenId(null);
-                      setReportData(null);
-                      return;
-                    }
-                    const id = Number(val); 
-                    setSelectedKitchenId(id); 
-                    fetchReport(id); 
-                  }}>
-                    <option value="">Pilih Dapur...</option>
-                    {filteredKitchens.map(k => <option key={k.id} value={k.id}>{k.name}</option>)}
-                 </select>
+                 <SearchableSelect 
+                    className="w-full md:w-1/3"
+                    placeholder="Pilih Dapur..."
+                    value={selectedKitchenId || ''}
+                    options={filteredKitchens.map(k => ({ value: k.id, label: k.name }))}
+                    onChange={(val) => {
+                      if (!val) {
+                        setSelectedKitchenId(null);
+                        setReportData(null);
+                        return;
+                      }
+                      const id = Number(val); 
+                      setSelectedKitchenId(id); 
+                      fetchReport(id); 
+                    }}
+                  />
                  <button onClick={() => selectedKitchenId && fetchReport(selectedKitchenId)} className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition font-medium text-sm">Muat Data</button>
               </div>
               {reportData && (
@@ -1331,28 +1342,39 @@ export const Finance: React.FC = () => {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Target Dapur (Opsional)</label>
-                <select 
+                <SearchableSelect 
+                  label="Target Dapur (Opsional)"
+                  name="kitchen_id"
                   value={transForm.kitchen_id || ''}
-                  onChange={e => setTransForm({...transForm, kitchen_id: e.target.value ? Number(e.target.value) : null})}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                >
-                  <option value="">Semua Dapur / Umum</option>
-                  {kitchens.map(k => (
-                    <option key={k.id} value={k.id}>{k.name}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
-                <input 
-                  type="text" 
-                  required
-                  placeholder="Contoh: Operasional, Bahan Baku, dll"
-                  value={transForm.category}
-                  onChange={e => setTransForm({...transForm, category: e.target.value})}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  placeholder="Semua Dapur / Umum"
+                  options={[
+                    { value: '', label: 'Semua Dapur / Umum' },
+                    ...kitchens.map(k => ({ value: k.id, label: k.name }))
+                  ]}
+                  onChange={(val) => setTransForm({...transForm, kitchen_id: val ? Number(val) : null})}
                 />
+              </div>
+              <div className="flex items-end gap-2">
+                <div className="flex-1">
+                  <SearchableSelect 
+                    label="Kategori"
+                    name="category"
+                    value={transForm.category}
+                    placeholder="Pilih atau cari kategori..."
+                    options={categories
+                      .filter(c => c.type === 'both' || c.type === transForm.type)
+                      .map(c => ({ value: c.name, label: c.name }))}
+                    onChange={(val) => setTransForm({...transForm, category: val.toString()})}
+                  />
+                </div>
+                <button 
+                  type="button"
+                  onClick={() => setIsCategoryModalOpen(true)}
+                  className="mb-1 p-2 text-blue-600 hover:bg-blue-50 rounded-lg border border-blue-100 transition-colors"
+                  title="Kelola Kategori"
+                >
+                  <Plus className="w-5 h-5" />
+                </button>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Jumlah (IDR)</label>
@@ -1595,6 +1617,74 @@ export const Finance: React.FC = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+      {/* Category Management Modal */}
+      {isCategoryModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[60]">
+          <div className="bg-white rounded-xl max-w-lg w-full p-6 shadow-2xl animate-in zoom-in duration-200">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-gray-900">Kelola Kategori Transaksi</h2>
+              <button onClick={() => setIsCategoryModalOpen(false)} className="p-2 hover:bg-gray-100 rounded-full">
+                <XCircle className="w-6 h-6 text-gray-400" />
+              </button>
+            </div>
+
+            <form 
+              className="mb-6 flex gap-2"
+              onSubmit={async (e: any) => {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                try {
+                  await api.post('/transaction-categories', {
+                    name: formData.get('name'),
+                    type: formData.get('type')
+                  });
+                  e.target.reset();
+                  const catData = await api.get('/transaction-categories');
+                  setCategories(catData);
+                } catch (error: any) {
+                  alert('Gagal tambah kategori: ' + error.message);
+                }
+              }}
+            >
+              <input name="name" required placeholder="Nama Kategori..." className="flex-1 border rounded-lg px-3 py-2" />
+              <select name="type" className="border rounded-lg px-3 py-2">
+                <option value="expense">Pengeluaran</option>
+                <option value="income">Pendapatan</option>
+                <option value="both">Keduanya</option>
+              </select>
+              <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-bold">
+                Tambah
+              </button>
+            </form>
+
+            <div className="max-h-64 overflow-y-auto border rounded-lg divide-y">
+              {categories.map(cat => (
+                <div key={cat.id} className="p-3 flex items-center justify-between hover:bg-gray-50">
+                  <div>
+                    <p className="font-bold text-gray-900">{cat.name}</p>
+                    <p className="text-[10px] text-gray-500 uppercase tracking-wider">{cat.type}</p>
+                  </div>
+                  <button 
+                    onClick={async () => {
+                      if (window.confirm('Hapus kategori ini?')) {
+                        await api.delete(`/transaction-categories/${cat.id}`);
+                        const catData = await api.get('/transaction-categories');
+                        setCategories(catData);
+                      }
+                    }}
+                    className="p-1.5 text-red-500 hover:bg-red-50 rounded"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+              {categories.length === 0 && (
+                <div className="p-8 text-center text-gray-400 text-sm">Belum ada kategori kustom.</div>
+              )}
+            </div>
           </div>
         </div>
       )}

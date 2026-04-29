@@ -119,11 +119,15 @@ const AppContent: React.FC = () => {
   );
 };
 
+import { ZoomProvider } from './contexts/ZoomContext';
+
 function App() {
   return (
     <AuthProvider>
-      <AppContent />
-      <Toaster position="top-right" />
+      <ZoomProvider>
+        <AppContent />
+        <Toaster position="top-right" />
+      </ZoomProvider>
     </AuthProvider>
   );
 }

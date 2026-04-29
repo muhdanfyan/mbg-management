@@ -3,14 +3,16 @@ import { ImageIcon, Building2, MapPin, X, ChevronRight, LayoutGrid, List, ArrowU
 import { useLocation } from 'react-router-dom';
 import { api, Sppg, getImageUrl, resolveGoogleDriveUrl, getGoogleDriveSources } from '../services/api';
 import { Pagination } from '../components/UI/Pagination';
+import { useAuth } from '../contexts/AuthContext';
 
 const SafeImage = ({ url, alt, className }: { url: string, alt: string, className: string }) => {
   const sources = getGoogleDriveSources(url);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const fallbackUrl = getImageUrl(url);
 
   return (
     <img
-      src={sources[currentIndex] || url}
+      src={sources[currentIndex] || fallbackUrl}
       alt={alt}
       className={className}
       loading="lazy"
@@ -28,6 +30,7 @@ export const SppgGallery: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [selectedSppg, setSelectedSppg] = useState<Sppg | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const { profile } = useAuth();
   const location = useLocation();
 
   // Filter & Search State
@@ -395,7 +398,7 @@ export const SppgGallery: React.FC = () => {
                      </a>
                 </div>
                 <div className="flex items-center gap-2 shrink-0 ml-4">
-                  {!isAddingMedia && (
+                  {!isAddingMedia && (profile?.role === 'Super Admin' || profile?.role === 'Manager' || profile?.role === 'PIC Dapur') && (
                     <button
                       onClick={() => setIsAddingMedia(true)}
                       className="bg-white border-2 border-[#1A4D43] text-[#1A4D43] px-4 py-2.5 rounded-xl font-bold text-sm hover:bg-gray-50 transition-colors flex items-center gap-1 shrink-0"

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Building2, TrendingUp, Users, DollarSign, ArrowUpRight, ArrowDownRight, Clock, Plus, LayoutGrid, Calendar, MapPin, Activity, PieChart } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { api } from '../services/api';
@@ -39,7 +39,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   const [kitchens, setKitchens] = React.useState<any[]>([]);
   const [activities, setActivities] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(true);
-  const [activeTab, setActiveTab] = React.useState<'overview' | 'finance' | 'construction' | 'logistics'>('overview');
+  const [activeTab, setActiveTab] = React.useState<'overview' | 'finance' | 'construction' | 'logistics' | 'leadership'>('overview');
 
   React.useEffect(() => {
     const fetchData = async () => {
@@ -83,8 +83,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
     { label: 'Kelola Dapur', icon: LayoutGrid, action: 'locations', roles: ['Super Admin', 'Manager', 'PIC Dapur'] },
     { label: 'Input Progress', icon: Plus, action: 'construction', roles: ['Super Admin', 'Manager', 'Staff'] },
     { label: 'Laporan Keuangan', icon: Calendar, action: 'finance', roles: ['Super Admin', 'Finance', 'PIC Dapur'] },
-    { label: 'Audit Bahan Baku', icon: Activity, action: 'procurement?action=audit-belanja', roles: ['Super Admin', 'Operator Koperasi'] },
-    { label: 'Lapor Dana BGN', icon: DollarSign, action: 'finance?action=lapor-bgn', roles: ['PIC Dapur'] },
+    { label: 'Audit Belanja', icon: Activity, action: 'procurement?action=audit-belanja', roles: ['Super Admin', 'Operator Koperasi'] },
+    { label: 'Lapor Dana BGN', icon: DollarSign, action: 'finance?action=lapor-bgn', roles: ['Super Admin', 'PIC Dapur', 'Operator Koperasi'] },
+    { label: 'Input Operasional', icon: Plus, action: 'finance?tab=operasional', roles: ['PIC Dapur'] },
     { label: 'Panduan Finansial', icon: PieChart, action: 'external-finance-report' }
   ].filter(action => !action.roles || action.roles.includes(profile?.role || ''));
 
@@ -105,23 +106,27 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   }
 
   return (
-    <div className="space-y-4 animate-in fade-in duration-700">
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+    <div className="space-y-8 animate-in fade-in duration-700">
+      <div className="flex flex-col gap-6">
         <div>
-          <h1 className="text-2xl font-bold text-[#1A4D43] tracking-tight">Selamat Datang, {profile?.full_name?.split(' ')[0]}!</h1>
-          <p className="text-gray-500 mt-2 font-medium">Berikut adalah manajemen Wahdah MBG.</p>
+          <h1 className="text-4xl font-black text-[#1A4D43] tracking-tight">Selamat Datang, {profile?.full_name?.split(' ')[0]}!</h1>
+          <p className="text-gray-500 mt-2 font-medium text-lg">Berikut adalah ringkasan manajemen Wahdah MBG hari ini.</p>
         </div>
-        <div className="flex items-center gap-3 overflow-x-auto pb-2 -mb-2 scrollbar-hide no-scrollbar lg:pb-0 lg:mb-0 lg:overflow-visible">
+        
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4">
           {quickActions.map((action) => (
             <button
               key={action.label}
               onClick={() => action.action === 'external-finance-report' 
                 ? window.open('file:///Users/pondokit/Herd/mbg-management/out/pemahaman_alur_keuangan_mbg.html', '_blank')
                 : onNavigate?.(action.action)}
-              className="flex items-center gap-2 bg-white px-5 py-2.5 rounded-lg text-sm font-semibold text-[#1A4D43] border border-gray-100 hover:border-[#2BBF9D] hover:text-[#2BBF9D] transition-all shadow-sm active:scale-95 whitespace-nowrap flex-shrink-0"
+              className="group relative flex flex-col items-center justify-center gap-3 bg-white p-5 rounded-2xl border border-gray-100 hover:border-[#2BBF9D] hover:shadow-2xl hover:shadow-[#2BBF9D]/10 hover:-translate-y-1 transition-all duration-300 shadow-sm overflow-hidden"
             >
-              <action.icon className="w-4 h-4" />
-              {action.label}
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#2BBF9D]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <div className="p-3 bg-[#F8FAF9] text-[#1A4D43] rounded-xl group-hover:bg-[#2BBF9D] group-hover:text-white transition-all duration-300">
+                <action.icon className="w-6 h-6" />
+              </div>
+              <span className="text-xs font-black text-[#1A4D43] text-center tracking-tight uppercase leading-tight group-hover:text-[#2BBF9D] transition-colors">{action.label}</span>
             </button>
           ))}
         </div>
@@ -145,7 +150,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
       </div>
 
       {activeTab === 'overview' && (
-        <>
+        <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {stats.map((stat) => {
               const Icon = stat.icon;
@@ -286,7 +291,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
               </div>
             </div>
           </div>
-        </>
+        </div>
       )}
 
       {activeTab === 'finance' && (

@@ -15,6 +15,8 @@ type Employee struct {
 	Position     Position       `gorm:"foreignKey:PositionID" json:"position_detail"`
 	DepartmentID uint           `json:"department_id"`
 	Department   Department     `gorm:"foreignKey:DepartmentID" json:"department_detail"`
+	KitchenID    *uint          `json:"kitchen_id"`
+	Kitchen      Dapur          `gorm:"foreignKey:KitchenID" json:"kitchen_detail"`
 	// Keeping these for legacy/simple display if needed, but we'll use IDs
 	PositionName   string    `gorm:"column:position" json:"position"` 
 	DepartmentName string    `gorm:"column:department" json:"department"`

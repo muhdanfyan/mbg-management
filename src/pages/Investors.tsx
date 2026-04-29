@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Users, Search, Filter, DollarSign, PieChart, Plus, Edit, Trash2, X, Briefcase } from 'lucide-react';
 import { api, InvestorParticipant, Kitchen } from '../services/api';
+import { SearchableSelect } from '../components/UI/SearchableSelect';
 import { Pagination } from '../components/UI/Pagination';
 
 export const Investors: React.FC = () => {
@@ -10,6 +11,7 @@ export const Investors: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingInvestor, setEditingInvestor] = useState<InvestorParticipant | null>(null);
+    const [selectedKitchenId, setSelectedKitchenId] = useState<number | null>(null);
 
     // Pagination State
     const [currentPage, setCurrentPage] = useState(1);
@@ -120,6 +122,7 @@ export const Investors: React.FC = () => {
                     <button 
                         onClick={() => {
                             setEditingInvestor(null);
+                            setSelectedKitchenId(null);
                             setIsModalOpen(true);
                         }}
                         className="premium-button-primary flex items-center gap-2 shadow-lg shadow-[#2BBF9D]/20"
@@ -285,6 +288,7 @@ export const Investors: React.FC = () => {
                                             <button 
                                                 onClick={() => {
                                                     setEditingInvestor(p);
+                                                    setSelectedKitchenId(p.kitchen_id);
                                                     setIsModalOpen(true);
                                                 }}
                                                 className="p-1.5 text-gray-400 hover:text-[#2BBF9D] hover:bg-[#E2F8F3] rounded-lg transition-all"
@@ -323,105 +327,221 @@ export const Investors: React.FC = () => {
 
             {/* Investor Management Modal */}
             {isModalOpen && (
-                <div className="fixed inset-0 bg-[#1A4D43]/40 flex items-center justify-center z-[1000] p-4 backdrop-blur-md animate-in fade-in duration-300">
-                    <div className="bg-white rounded-[2rem] max-w-lg w-full shadow-2xl overflow-hidden border border-white/20 transition-all transform scale-100 animate-in zoom-in-95 duration-300">
-                        <div className="bg-gradient-to-br from-[#1A4D43] to-[#2BBF9D] p-4 flex justify-between items-center relative overflow-hidden">
-                            <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
-                            <h2 className="text-xl font-black text-white flex items-center gap-3 relative z-10">
-                                <Users className="w-7 h-7" />
-                                {editingInvestor ? 'Edit Data Investor' : 'Tambah Investor'}
-                            </h2>
+                <div className="fixed inset-0 bg-[#1A4D43]/60 flex items-center justify-center z-[1000] p-4 backdrop-blur-sm animate-in fade-in duration-300">
+                    <div className="bg-white rounded-[2.5rem] max-w-xl w-full shadow-2xl overflow-hidden border border-white/20 transition-all transform scale-100 animate-in zoom-in-95 duration-300">
+                        {/* Header with Decorative Elements */}
+                        <div className="bg-gradient-to-br from-[#1A4D43] via-[#1E6B5E] to-[#2BBF9D] p-6 flex justify-between items-center relative overflow-hidden">
+                            <div className="absolute -right-10 -top-10 w-48 h-48 bg-white/10 rounded-full blur-3xl"></div>
+                            <div className="absolute -left-10 -bottom-10 w-32 h-32 bg-[#2BBF9D]/20 rounded-full blur-2xl"></div>
+                            
+                            <div className="relative z-10">
+                                <h2 className="text-2xl font-black text-white flex items-center gap-3">
+                                    <div className="bg-white/20 p-2 rounded-xl backdrop-blur-md">
+                                        <Users className="w-6 h-6 text-white" />
+                                    </div>
+                                    {editingInvestor ? 'Edit Profil Investor' : 'Registrasi Investor Baru'}
+                                </h2>
+                                <p className="text-white/70 text-[10px] font-bold uppercase tracking-[0.2em] mt-1 ml-11">
+                                    {editingInvestor ? 'Memperbarui data kepemilikan saham' : 'Pendataan porsi modal & bagi hasil'}
+                                </p>
+                            </div>
+
                             <button 
                                 onClick={() => setIsModalOpen(false)}
-                                className="text-white/60 hover:text-white hover:bg-white/10 p-2.5 rounded-xl transition-all relative z-10 active:scale-95"
+                                className="text-white/60 hover:text-white hover:bg-white/10 p-3 rounded-2xl transition-all relative z-10 active:scale-90"
                             >
-                                <X className="w-6 h-6" />
+                                <X className="w-7 h-7" />
                             </button>
                         </div>
                         
-                        <form onSubmit={handleSubmit} className="p-4 space-y-4">
-                            <div className="space-y-5">
+                        <form onSubmit={handleSubmit} className="p-8 space-y-8">
+                            {/* Form Body */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-2">
-                                    <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Nama Investor</label>
-                                    <input 
-                                        name="name" 
-                                        defaultValue={editingInvestor?.name} 
-                                        required 
-                                        placeholder="Nama Lengkap Investor"
-                                        className="premium-input w-full" 
-                                    />
-                                </div>
-                                
-                                <div className="space-y-2">
-                                    <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Target Dapur (SPPG)</label>
-                                    <select 
-                                        name="kitchen_id" 
-                                        defaultValue={editingInvestor?.kitchen_id || ''} 
-                                        required 
-                                        className="premium-input w-full bg-white cursor-pointer"
-                                    >
-                                        <option value="" disabled>Pilih Dapur Tujuan</option>
-                                        {kitchens.map(k => (
-                                            <option key={k.id} value={k.id}>{k.name} ({k.region})</option>
-                                        ))}
-                                    </select>
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Nama Lengkap Investor</label>
+                                    <div className="relative group">
+                                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#2BBF9D] transition-colors">
+                                            <Users className="w-4 h-4" />
+                                        </div>
+                                        <input 
+                                            name="name" 
+                                            defaultValue={editingInvestor?.name} 
+                                            required 
+                                            placeholder="E.g. H. Ahmad Dahlan"
+                                            className="premium-input w-full pl-12 focus:ring-4 ring-[#2BBF9D]/10" 
+                                        />
+                                    </div>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <SearchableSelect 
+                                        label="Dapur Target (SPPG)"
+                                        name="kitchen_id"
+                                        value={selectedKitchenId?.toString() || ''}
+                                        placeholder="Pilih Lokasi Dapur..."
+                                        options={[
+                                            { value: '', label: 'Pilih Dapur Tujuan' },
+                                            ...kitchens.map(k => ({ value: k.id.toString(), label: `${k.name} (${k.region || 'ID: ' + k.id})` }))
+                                        ]}
+                                        onChange={(val) => {
+                                            setSelectedKitchenId(parseInt(val) || null);
+                                        }}
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Auto Location Fields */}
+                            {selectedKitchenId && (
+                                <div className="grid grid-cols-2 gap-6 animate-in slide-in-from-top-2 duration-300">
+                                    <div className="space-y-1">
+                                        <label className="text-[9px] font-black text-[#2BBF9D] uppercase tracking-widest ml-1">Provinsi (Otomatis)</label>
+                                        <div className="bg-[#E2F8F3]/50 px-4 py-2 rounded-xl text-[11px] font-bold text-[#1A4D43] border border-[#2BBF9D]/20">
+                                            {(() => {
+                                                const k = kitchens.find(k => k.id === selectedKitchenId);
+                                                if (k?.sppg_detail?.location) {
+                                                    const parts = k.sppg_detail.location.split(',');
+                                                    return parts[0]?.trim() || 'Terdeteksi';
+                                                }
+                                                return k?.region || 'Sulawesi Selatan';
+                                            })()}
+                                        </div>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <label className="text-[9px] font-black text-[#2BBF9D] uppercase tracking-widest ml-1">Kabupaten/Kota (Otomatis)</label>
+                                        <div className="bg-[#E2F8F3]/50 px-4 py-2 rounded-xl text-[11px] font-bold text-[#1A4D43] border border-[#2BBF9D]/20">
+                                            {(() => {
+                                                const k = kitchens.find(k => k.id === selectedKitchenId);
+                                                if (k?.sppg_detail?.location) {
+                                                    const parts = k.sppg_detail.location.split(',');
+                                                    return parts[1]?.trim() || parts[0]?.trim() || 'Terdeteksi';
+                                                }
+                                                return k?.region || 'Makassar';
+                                            })()}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Share Distribution Section - Dynamic & Visual */}
+                            <div className="bg-[#F8FAF9] rounded-[2rem] p-6 border border-gray-100 space-y-6 relative overflow-hidden">
+                                <div className="absolute right-0 top-0 p-4 opacity-5 pointer-events-none">
+                                    <PieChart className="w-24 h-24 text-[#1A4D43]" />
+                                </div>
+
+                                <div className="flex items-center justify-between mb-2">
+                                    <h3 className="text-xs font-black text-[#1A4D43] uppercase tracking-widest flex items-center gap-2">
+                                        <PieChart className="w-4 h-4 text-[#2BBF9D]" />
+                                        Alokasi Porsi Saham
+                                    </h3>
+                                    <div className="px-3 py-1 bg-white rounded-full border border-gray-100 shadow-sm">
+                                        <span className="text-[10px] font-black text-[#2BBF9D]">Dinamis</span>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="space-y-2">
-                                        <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Nilai Investasi (Rp)</label>
+                                        <label className="text-[10px] font-bold text-gray-500 ml-1">Porsi Investor (%)</label>
+                                        <div className="relative">
+                                            <input 
+                                                name="share_percentage" 
+                                                type="number" 
+                                                step="0.01" 
+                                                max="100"
+                                                defaultValue={editingInvestor?.share_percentage || 0}
+                                                required 
+                                                onChange={(e) => {
+                                                    const val = parseFloat(e.target.value) || 0;
+                                                    const remaining = Math.max(0, 100 - val);
+                                                    const sisaEl = document.getElementById('sisa_indicator');
+                                                    if (sisaEl) sisaEl.innerText = remaining.toFixed(2) + '%';
+                                                    const barEl = document.getElementById('share_bar');
+                                                    if (barEl) barEl.style.width = val + '%';
+                                                }}
+                                                className="premium-input w-full bg-white font-black text-lg text-[#1A4D43]" 
+                                            />
+                                            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-gray-400">PERCENT</div>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2 flex flex-col justify-end pb-1">
+                                        <div className="flex items-center justify-between px-4 py-3 bg-white rounded-2xl border border-dashed border-[#2BBF9D]/30">
+                                            <div>
+                                                <p className="text-[8px] font-black text-gray-400 uppercase tracking-tighter">Sisa Porsi (Lainnya)</p>
+                                                <p id="sisa_indicator" className="text-lg font-black text-[#2BBF9D]">
+                                                    {(100 - (editingInvestor?.share_percentage || 0)).toFixed(2)}%
+                                                </p>
+                                            </div>
+                                            <div className="w-10 h-10 rounded-full border-4 border-[#E2F8F3] border-t-[#2BBF9D] animate-spin-slow"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Visual Progress Bar */}
+                                <div className="space-y-2">
+                                    <div className="flex justify-between text-[8px] font-black uppercase tracking-widest text-gray-400 px-1">
+                                        <span>Terisi</span>
+                                        <span>Kapasitas 100%</span>
+                                    </div>
+                                    <div className="w-full h-3 bg-white rounded-full p-0.5 border border-gray-100 overflow-hidden shadow-inner">
+                                        <div 
+                                            id="share_bar"
+                                            className="h-full bg-gradient-to-r from-[#1A4D43] to-[#2BBF9D] rounded-full transition-all duration-700 ease-out shadow-sm"
+                                            style={{ width: `${editingInvestor?.share_percentage || 0}%` }}
+                                        ></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Nilai Investasi (Modal)</label>
+                                    <div className="relative group">
+                                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-gray-400">RP</div>
                                         <input 
                                             name="investment_amount" 
                                             type="number" 
                                             defaultValue={editingInvestor?.investment_amount} 
                                             required 
-                                            placeholder="E.g. 10000000"
-                                            className="premium-input w-full" 
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Persentase (%)</label>
-                                        <input 
-                                            name="share_percentage" 
-                                            type="number" 
-                                            step="0.01" 
-                                            defaultValue={editingInvestor?.share_percentage} 
-                                            required 
-                                            placeholder="E.g. 10.0"
-                                            className="premium-input w-full" 
+                                            placeholder="E.g. 500000000"
+                                            className="premium-input w-full pl-11 font-bold" 
                                         />
                                     </div>
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Saham Ratio (Pre-BEP : Post-BEP)</label>
-                                    <select 
-                                        name="saham_ratio" 
-                                        defaultValue={editingInvestor?.saham_ratio || '75 : 25'} 
-                                        className="premium-input w-full bg-white cursor-pointer"
-                                    >
-                                        <option value="75 : 25">75% : 25% (Standard)</option>
-                                        <option value="60 : 40">60% : 40% (Alternative)</option>
-                                        <option value="50 : 50">50% : 50% (Equal)</option>
-                                        <option value="100 : 0">100% : 0% (Full ROI)</option>
-                                    </select>
-                                    <p className="text-[10px] text-gray-400 italic">Rasio bagi hasil antara Investor : DPP.</p>
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Rasio Bagi Hasil</label>
+                                    <div className="relative">
+                                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                                            <Briefcase className="w-4 h-4" />
+                                        </div>
+                                        <select 
+                                            name="saham_ratio" 
+                                            defaultValue={editingInvestor?.saham_ratio || '75 : 25'} 
+                                            className="premium-input w-full pl-12 bg-white cursor-pointer font-bold appearance-none"
+                                        >
+                                            <option value="75 : 25">75% Investor : 25% DPP</option>
+                                            <option value="60 : 40">60% Investor : 40% DPP</option>
+                                            <option value="50 : 50">50% Investor : 50% DPP</option>
+                                            <option value="100 : 0">100% Investor : 0% DPP</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
 
+                            {/* Action Buttons */}
                             <div className="flex gap-4 pt-4">
                                 <button 
                                     type="button" 
                                     onClick={() => setIsModalOpen(false)} 
-                                    className="flex-1 py-3 text-gray-400 hover:text-[#1A4D43] font-black uppercase tracking-widest text-xs transition-colors"
+                                    className="flex-1 py-4 text-gray-400 hover:text-[#1A4D43] font-black uppercase tracking-widest text-[10px] transition-all active:scale-95"
                                 >
-                                    Batal
+                                    Batalkan
                                 </button>
                                 <button 
                                     type="submit" 
-                                    className="flex-[2] premium-button-primary shadow-xl shadow-[#2BBF9D]/20 active:scale-95 transition-all py-3"
+                                    className="flex-[2] bg-gradient-to-r from-[#1A4D43] to-[#2BBF9D] text-white py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] shadow-2xl shadow-[#2BBF9D]/30 hover:shadow-[#2BBF9D]/50 hover:-translate-y-1 transition-all active:scale-95"
                                 >
-                                    Simpan Perubahan
+                                    {editingInvestor ? 'Simpan Perubahan Data' : 'Konfirmasi & Simpan Investor'}
                                 </button>
                             </div>
                         </form>

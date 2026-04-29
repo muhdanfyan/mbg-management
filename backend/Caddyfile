@@ -1,15 +1,17 @@
-mbgone.site {
+http://mbgone.id {
     reverse_proxy backend:8080
 }
 
-api.mbgone.site {
+http://api.mbgone.id {
     reverse_proxy backend:8080
 }
 
-dev.mbgone.site {
+http://dev.mbgone.id {
     reverse_proxy backend_dev:8081
 }
 
-api-dev.mbgone.site {
+http://api-dev.mbgone.id {
     reverse_proxy backend_dev:8081
 }
+
+

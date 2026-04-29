@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
-import { Bell, LogOut, User, Settings, ChevronDown } from 'lucide-react';
+import { Bell, LogOut, User, Settings, ChevronDown, ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { useZoom } from '../../contexts/ZoomContext';
 import { getImageUrl } from '../../services/api';
 
 export const Header: React.FC = () => {
   const { profile, signOut } = useAuth();
+  const { zoom, setZoom, resetZoom } = useZoom();
   const [showDropdown, setShowDropdown] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
-
-
   const navigate = useNavigate();
 
   const notifications = [
@@ -19,6 +19,16 @@ export const Header: React.FC = () => {
   ];
 
   const unreadCount = notifications.filter(n => n.unread).length;
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(err => {
+        console.error(`Error attempting to enable full-screen mode: ${err.message}`);
+      });
+    } else {
+      document.exitFullscreen();
+    }
+  };
 
   return (
     <header className="h-20 bg-white/70 border-b border-white/20 flex items-center justify-between px-4 sticky top-0 z-[60] backdrop-blur-xl">
@@ -35,6 +45,42 @@ export const Header: React.FC = () => {
       </div>
 
       <div className="flex items-center gap-4">
+        <div className="flex items-center gap-1 bg-white/50 p-1 rounded-lg border border-gray-100 mr-2">
+          <button 
+            onClick={() => setZoom(zoom - 0.1)}
+            className="p-1.5 hover:bg-white rounded text-gray-500 hover:text-[#1A4D43] transition-all active:scale-90"
+            title="Zoom Out"
+          >
+            <ZoomOut className="w-4 h-4" />
+          </button>
+          <span className="text-[10px] font-black text-[#1A4D43] min-w-[40px] text-center">
+            {Math.round(zoom * 100)}%
+          </span>
+          <button 
+            onClick={() => setZoom(zoom + 0.1)}
+            className="p-1.5 hover:bg-white rounded text-gray-500 hover:text-[#1A4D43] transition-all active:scale-90"
+            title="Zoom In"
+          >
+            <ZoomIn className="w-4 h-4" />
+          </button>
+          <div className="w-px h-4 bg-gray-200 mx-1"></div>
+          <button 
+            onClick={() => resetZoom()}
+            className="px-2 py-1 hover:bg-white rounded text-[10px] font-black text-gray-400 hover:text-[#2BBF9D] transition-all active:scale-90"
+            title="Reset Zoom"
+          >
+            100%
+          </button>
+          <div className="w-px h-4 bg-gray-200 mx-1"></div>
+          <button 
+            onClick={toggleFullscreen}
+            className="p-1.5 hover:bg-white rounded text-gray-400 hover:text-blue-600 transition-all active:scale-90"
+            title="Toggle Fullscreen"
+          >
+            <Maximize2 className="w-4 h-4" />
+          </button>
+        </div>
+
         <div className="relative">
           <button
             onClick={() => setShowNotifications(!showNotifications)}

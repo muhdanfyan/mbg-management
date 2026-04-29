@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import { ChevronRight } from 'lucide-react';
+import { useZoom } from '../../contexts/ZoomContext';
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -14,10 +15,11 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
   breadcrumbs = ['Dashboard']
 }) => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const { zoom } = useZoom();
   const navigate = useNavigate();
 
   return (
-    <div className="h-screen flex bg-[#F8FAF9]">
+    <div className="h-screen flex bg-[#F8FAF9] overflow-hidden">
       <Sidebar
         collapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
@@ -47,7 +49,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
             </div>
           </div>
 
-          <div className="p-4 max-w-[1600px] mx-auto">
+          <div style={{ zoom: zoom }} className="p-4 max-w-[1600px] mx-auto transition-all duration-300 origin-top-left">
             {children}
           </div>
         </div>

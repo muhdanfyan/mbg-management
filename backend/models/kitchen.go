@@ -23,6 +23,8 @@ type Dapur struct {
 	Capacity        int                   `json:"capacity"`
 	Status          string                `json:"status"`
 	Region          string                `json:"region"`
+	Province        string                `json:"province"`
+	City            string                `json:"city"`
 	InvestorShare   float64               `json:"investor_share"` // ratio, e.g. 0.60
 	DPPShare        float64               `json:"dpp_share"`      // ratio, e.g. 0.40
 	DailyRentalRate   float64               `gorm:"default:6000000" json:"daily_rental_rate"`
@@ -31,7 +33,7 @@ type Dapur struct {
 	InitialCapital    float64               `json:"initial_capital"`
 	AccumulatedProfit float64               `gorm:"default:0" json:"accumulated_profit"`
 	BEPStatus         string                `gorm:"default:'PRE-BEP';type:varchar(50)" json:"bep_status"`
-	KoperasiID        uint                  `json:"koperasi_id"`
+	KoperasiID        *uint                 `json:"koperasi_id"`
 	Koperasi        Koperasi              `gorm:"foreignKey:KoperasiID" json:"koperasi"`
 	Investors       []InvestorParticipant `gorm:"foreignKey:KitchenID" json:"investors"`
 	Routes          []Route               `gorm:"foreignKey:KitchenID" json:"routes"`

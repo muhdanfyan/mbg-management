@@ -1,8 +1,10 @@
 const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? 'http://localhost:8080/api'
+    ? 'http://127.0.0.1:8080/api'
     : window.location.hostname === 'dev.mbgone.site'
         ? 'https://dev.mbgone.site/api'
-        : 'https://api.mbgone.site/api';
+        : (window.location.hostname === 'mbgone.id' || window.location.hostname === 'www.mbgone.id')
+            ? 'https://api.mbgone.id/api'
+            : 'https://api.mbgone.site/api';
 
 export const getGoogleDriveSources = (url: string): string[] => {
     if (!url) return [];
@@ -14,6 +16,12 @@ export const getGoogleDriveSources = (url: string): string[] => {
         id = new URLSearchParams(url.split('?')[1]).get('id') || '';
     } else if (url.includes('drive.google.com/file/d/')) {
         id = url.split('/file/d/')[1].split('/')[0].split('?')[0];
+    } else if (url.includes('drive.google.com/viewer/main?id=')) {
+        id = new URLSearchParams(url.split('?')[1]).get('id') || '';
+    } else if (url.includes('drive.google.com/thumbnail?id=')) {
+        id = new URLSearchParams(url.split('?')[1]).get('id') || '';
+    } else if (url.includes('drive.google.com/uc?id=')) {
+        id = new URLSearchParams(url.split('?')[1]).get('id') || '';
     }
 
     if (id) {
@@ -88,10 +96,16 @@ export const api = {
         return response.json();
     },
     post: async (endpoint: string, data: any) => {
+        const isFormData = data instanceof FormData;
+        const headers = getHeaders();
+        if (isFormData) {
+            delete headers['Content-Type'];
+        }
+        
         const response = await fetch(`${API_BASE_URL}${endpoint}`, {
             method: 'POST',
-            headers: getHeaders(),
-            body: JSON.stringify(data),
+            headers,
+            body: isFormData ? data : JSON.stringify(data),
         });
         if (!response.ok) {
             const errData = await response.json().catch(() => ({}));
@@ -153,6 +167,7 @@ export interface Kitchen {
     initial_capital: number;
     accumulated_profit: number;
     bep_status: string;
+    koperasi_id?: number;
     sppg_id: string; // Hubungan ke data SPPG
     investors?: InvestorParticipant[];
     routes?: Route[];
@@ -191,6 +206,7 @@ export interface Employee {
     department_id: number;
     department: string; // Legacy
     department_detail?: Department;
+    kitchen_detail?: Kitchen;
     salary: number;
     status: string;
     photo: string;
@@ -214,6 +230,13 @@ export interface Transaction {
     category: string;
     amount: number;
     status: string;
+}
+
+export interface TransactionCategory {
+    id: number;
+    name: string;
+    type: string;
+    is_active: boolean;
 }
 
 export interface Loan {

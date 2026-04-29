@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ShoppingCart, Package, FileText, Search, Filter, QrCode, TrendingUp, AlertCircle, Plus, Edit, Trash2, Activity } from 'lucide-react';
-import { api, Equipment, PurchaseOrder, getImageUrl } from '../services/api';
+import { api, Equipment, PurchaseOrder, getImageUrl, Kitchen } from '../services/api';
+import { SearchableSelect } from '../components/UI/SearchableSelect';
 import { useAuth } from '../contexts/AuthContext';
 
 export const Procurement: React.FC = () => {
@@ -9,6 +10,7 @@ export const Procurement: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [equipment, setEquipment] = useState<Equipment[]>([]);
   const [orders, setOrders] = useState<PurchaseOrder[]>([]);
+  const [kitchens, setKitchens] = useState<Kitchen[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [isEquipmentModalOpen, setIsEquipmentModalOpen] = useState(false);
@@ -30,12 +32,14 @@ export const Procurement: React.FC = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [equipData, ordersData] = await Promise.all([
+      const [equipData, ordersData, kitchensData] = await Promise.all([
         api.get('/equipment'),
-        api.get('/purchase-orders')
+        api.get('/purchase-orders'),
+        api.get('/kitchens')
       ]);
       setEquipment(equipData);
       setOrders(ordersData);
+      setKitchens(kitchensData || []);
     } catch (error) {
       console.error('Failed to fetch procurement data:', error);
     } finally {
@@ -464,12 +468,14 @@ export const Procurement: React.FC = () => {
                   <input name="name" defaultValue={editingEquipment?.name} required className="mt-1 w-full border rounded-lg p-2" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Category</label>
-                  <select name="category" defaultValue={editingEquipment?.category || categories[0]} className="mt-1 w-full border rounded-lg p-2">
-                    {categories.map(cat => (
-                      <option key={cat} value={cat}>{cat}</option>
-                    ))}
-                  </select>
+                  <SearchableSelect 
+                    label="Category"
+                    name="category"
+                    value={editingEquipment?.category || categories[0]}
+                    placeholder="Pilih Kategori"
+                    options={categories.map(cat => ({ value: cat, label: cat }))}
+                    onChange={(val) => {}}
+                  />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -582,6 +588,18 @@ export const Procurement: React.FC = () => {
                 <p className="text-sm text-gray-500 font-medium tracking-tight">Validasi biaya bahan baku per porsi</p>
               </div>
             </div>
+            
+            {(profile?.role === 'Super Admin' || profile?.role === 'Operator Koperasi') && (
+              <div className="mb-4">
+                <SearchableSelect 
+                  label="Dapur"
+                  placeholder="Pilih Dapur..."
+                  value={auditForm.kitchen_id || ''}
+                  options={kitchens.map(k => ({ value: k.id, label: k.name }))}
+                  onChange={(val) => setAuditForm({...auditForm, kitchen_id: val ? Number(val) : null})}
+                />
+              </div>
+            )}
             
             <form onSubmit={handleAuditSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">

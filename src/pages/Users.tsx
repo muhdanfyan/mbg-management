@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { UserPlus, Search, Mail, Phone, Trash2, Edit2, CheckCircle, AlertCircle } from 'lucide-react';
+import { UserPlus, Search, Mail, Phone, Trash2, Edit2, CheckCircle, AlertCircle, Download, FileSpreadsheet } from 'lucide-react';
 import { api, Profile, getImageUrl } from '../services/api';
+import { Pagination } from '../components/UI/Pagination';
 
 export const Users: React.FC = () => {
   const [users, setUsers] = useState<Profile[]>([]);
@@ -8,6 +9,10 @@ export const Users: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   const fetchUsers = async () => {
     try {
@@ -35,10 +40,43 @@ export const Users: React.FC = () => {
     }
   };
 
+  const handleExport = () => {
+    const headers = ['ID', 'Full Name', 'Email', 'Role', 'Department', 'Position', 'Phone'];
+    const data = filteredUsers.map(user => [
+      user.id,
+      user.full_name,
+      user.email,
+      user.role,
+      user.department || '-',
+      user.position || '-',
+      user.phone || '-'
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...data.map(row => row.map(cell => `"${cell}"`).join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `users_export_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const filteredUsers = users.filter(user => 
     user.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // Paginated Data
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const paginatedUsers = filteredUsers.slice(indexOfFirstItem, indexOfLastItem);
 
   if (loading) {
     return (
@@ -55,10 +93,19 @@ export const Users: React.FC = () => {
           <h1 className="text-xl font-bold text-gray-900">User Management</h1>
           <p className="text-gray-600 mt-1">Manage system access and roles</p>
         </div>
-        <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
-          <UserPlus className="w-5 h-5" />
-          Add New User
-        </button>
+        <div className="flex gap-2">
+          <button 
+            onClick={handleExport}
+            className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
+          >
+            <FileSpreadsheet className="w-5 h-5 text-green-600" />
+            Export CSV/Excel
+          </button>
+          <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
+            <UserPlus className="w-5 h-5" />
+            Add New User
+          </button>
+        </div>
       </div>
 
       {(error || success) && (
@@ -76,7 +123,7 @@ export const Users: React.FC = () => {
               type="text"
               placeholder="Search users..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
             />
           </div>
@@ -94,7 +141,7 @@ export const Users: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {filteredUsers.map((user) => (
+              {paginatedUsers.map((user) => (
                 <tr key={user.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
@@ -109,6 +156,7 @@ export const Users: React.FC = () => {
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                       user.role === 'Super Admin' ? 'bg-purple-100 text-purple-700' :
                       user.role === 'Manager' ? 'bg-blue-100 text-blue-700' :
+                      user.role === 'PIC Dapur' ? 'bg-[#E6F3F0] text-[#1A4D43]' :
                       'bg-gray-100 text-gray-700'
                     }`}>
                       {user.role}
@@ -147,7 +195,21 @@ export const Users: React.FC = () => {
             </tbody>
           </table>
         </div>
+        
+        <div className="p-4 border-t border-gray-200">
+          <Pagination
+            currentPage={currentPage}
+            totalItems={filteredUsers.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+            onItemsPerPageChange={(val) => {
+              setItemsPerPage(val);
+              setCurrentPage(1);
+            }}
+          />
+        </div>
       </div>
     </div>
   );
 };
+

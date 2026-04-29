@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
-import { Search, Calendar, Edit, Trash2, UserCircle, Briefcase, Clock, CheckCircle, UserPlus } from 'lucide-react';
+import { Search, Calendar, Edit, Trash2, UserCircle, Briefcase, Clock, CheckCircle, UserPlus, Image as ImageIcon, Upload, Building2 } from 'lucide-react';
 import { api, Employee, Vacancy, Applicant, getImageUrl } from '../services/api';
+import { SearchableSelect } from '../components/UI/SearchableSelect';
 import { Pagination } from '../components/UI/Pagination';
+// Force reload to pick up useAuth import
+import { useAuth } from '../contexts/AuthContext';
 
 export const HR: React.FC = () => {
   const { profile } = useAuth();
@@ -22,6 +25,17 @@ export const HR: React.FC = () => {
   const [isVacancyModalOpen, setIsVacancyModalOpen] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
   const [editingVacancy, setEditingVacancy] = useState<Vacancy | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [employeeForm, setEmployeeForm] = useState<any>({
+    name: '',
+    department_id: '',
+    position_id: '',
+    kitchen_id: '',
+    salary: 0,
+    hire_date: new Date().toISOString().split('T')[0],
+    status: 'active'
+  });
 
   const fetchData = async () => {
     try {
@@ -119,22 +133,50 @@ export const HR: React.FC = () => {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-gray-900">Manajemen SDM</h1>
-          <p className="text-gray-600 mt-1">Kelola karyawan dan rekrutmen</p>
+    <div className="space-y-10 animate-in fade-in duration-500">
+      {/* Hero Section */}
+      <div className="relative h-48 rounded-[2rem] overflow-hidden group shadow-2xl">
+        <img 
+          src="/Users/pondokit/.gemini/antigravity/brain/03370879-5ab3-40d7-8d20-82b5e0926c8a/hr_hero_modern_1776937081203.png" 
+          alt="HR Hero" 
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#1A4D43] via-[#1A4D43]/60 to-transparent flex flex-col justify-center px-10">
+          <h1 className="text-3xl font-black text-white tracking-tight">Manajemen SDM & Karir</h1>
+          <p className="text-white/80 mt-2 font-medium max-w-md">Kelola aset berharga perusahaan dengan sistem cerdas dan terintegrasi.</p>
         </div>
-        <button 
-          onClick={() => {
-            setEditingEmployee(null);
-            setIsEmployeeModalOpen(true);
-          }}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
-        >
-          <UserPlus className="w-5 h-5" />
-          Tambah Karyawan
-        </button>
+        <div className="absolute top-4 right-4 bg-white/20 backdrop-blur-md px-4 py-2 rounded-full border border-white/30">
+          <span className="text-white text-[10px] font-black uppercase tracking-widest">HR Command Center</span>
+        </div>
+      </div>
+
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-bold text-[#1A4D43] tracking-tight">Data Karyawan & Organisasi</h2>
+          <p className="text-gray-500 mt-1 font-medium">Monitoring status dan performa SDM di seluruh unit dapur</p>
+        </div>
+        <div className="flex gap-3">
+          <button 
+            onClick={() => {
+              setEditingEmployee(null);
+              setPreviewUrl(null);
+              setEmployeeForm({
+                name: '',
+                department_id: '',
+                position_id: '',
+                kitchen_id: profile?.kitchen_id || '',
+                salary: 0,
+                hire_date: new Date().toISOString().split('T')[0],
+                status: 'active'
+              });
+              setIsEmployeeModalOpen(true);
+            }}
+            className="premium-button-primary flex items-center gap-2 shadow-lg shadow-[#2BBF9D]/20"
+          >
+            <UserPlus className="w-5 h-5 font-bold" />
+            Tambah Karyawan
+          </button>
+        </div>
       </div>
 
       <div className="bg-white rounded-lg border border-gray-200">
@@ -230,6 +272,13 @@ export const HR: React.FC = () => {
                         </p>
                       </div>
                       <div className="col-span-2 pt-2 border-t border-gray-200 mt-1">
+                        <p className="text-[10px] text-gray-500 uppercase font-bold tracking-tight">Penempatan (Unit Dapur)</p>
+                        <div className="flex items-center gap-1.5 text-sm font-bold text-[#1A4D43]">
+                          <Building2 className="w-3.5 h-3.5 text-[#2BBF9D]" />
+                          {employee.kitchen_detail?.name || 'Pusat / Kantor'}
+                        </div>
+                      </div>
+                      <div className="col-span-2 pt-2 border-t border-gray-200 mt-1">
                         <p className="text-[10px] text-gray-500 uppercase font-bold tracking-tight">Bergabung Sejak</p>
                         <div className="flex items-center gap-1.5 text-sm font-medium text-gray-700">
                           <Calendar className="w-3.5 h-3.5 text-blue-500" />
@@ -241,6 +290,16 @@ export const HR: React.FC = () => {
                       <button 
                         onClick={() => {
                           setEditingEmployee(employee);
+                          setPreviewUrl(employee.photo || null);
+                          setEmployeeForm({
+                            name: employee.name,
+                            department_id: employee.department_id,
+                            position_id: employee.position_id,
+                            kitchen_id: employee.kitchen_id || '',
+                            salary: employee.salary,
+                            hire_date: employee.hire_date,
+                            status: employee.status
+                          });
                           setIsEmployeeModalOpen(true);
                         }}
                         className="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
@@ -394,16 +453,21 @@ export const HR: React.FC = () => {
             <h2 className="text-lg font-bold mb-4">{editingEmployee ? 'Edit Karyawan' : 'Tambah Karyawan Baru'}</h2>
             <form onSubmit={async (e: any) => {
               e.preventDefault();
-              const formData = new FormData(e.target);
+              if (!employeeForm.department_id || !employeeForm.position_id) {
+                alert('Mohon pilih Departemen dan Jabatan terlebih dahulu');
+                return;
+              }
+
               const data = {
                 number: editingEmployee ? editingEmployee.number : "",
-                name: formData.get('name'),
-                kitchen_id: parseInt(formData.get('kitchen_id') as string),
-                department_id: parseInt(formData.get('department_id') as string),
-                position_id: parseInt(formData.get('position_id') as string),
-                hire_date: formData.get('hire_date'),
-                status: formData.get('status'),
-                salary: parseFloat(formData.get('salary') as string || '0'),
+                name: employeeForm.name,
+                kitchen_id: employeeForm.kitchen_id ? parseInt(employeeForm.kitchen_id.toString()) : null,
+                department_id: parseInt(employeeForm.department_id.toString()),
+                position_id: parseInt(employeeForm.position_id.toString()),
+                hire_date: employeeForm.hire_date,
+                status: employeeForm.status,
+                salary: parseFloat(employeeForm.salary?.toString() || '0'),
+                photo: previewUrl || ""
               };
               try {
                 if (editingEmployee) {
@@ -412,12 +476,52 @@ export const HR: React.FC = () => {
                   await api.post('/employees', data);
                 }
                 setIsEmployeeModalOpen(false);
+                setPreviewUrl(null);
                 fetchData();
-              } catch (error) {
-                alert('Failed to save employee');
+              } catch (error: any) {
+                alert('Gagal menyimpan data: ' + error.message);
               }
             }}>
                <div className="space-y-4">
+                <div className="flex flex-col items-center justify-center mb-6">
+                  <div className="relative group">
+                    <div className="w-24 h-24 rounded-full bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden">
+                      {previewUrl ? (
+                        <img src={getImageUrl(previewUrl)} alt="Preview" className="w-full h-full object-cover" />
+                      ) : (
+                        <ImageIcon className="w-8 h-8 text-gray-400" />
+                      )}
+                    </div>
+                    <label className="absolute bottom-0 right-0 bg-blue-600 text-white p-1.5 rounded-full cursor-pointer shadow-lg hover:bg-blue-700 transition-colors">
+                      <Upload className="w-4 h-4" />
+                      <input 
+                        type="file" 
+                        className="hidden" 
+                        accept="image/*"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            setUploading(true);
+                            const formData = new FormData();
+                            formData.append('file', file);
+                            try {
+                              const res = await api.post('/upload', formData);
+                              setPreviewUrl(res.url);
+                            } catch (error) {
+                              alert('Gagal upload gambar');
+                            } finally {
+                              setUploading(false);
+                            }
+                          }
+                        }}
+                      />
+                    </label>
+                  </div>
+                  <p className="text-[10px] text-gray-500 mt-2 font-medium uppercase tracking-wider">
+                    {uploading ? 'Sedang mengupload...' : 'Foto Profil Karyawan'}
+                  </p>
+                </div>
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Nomor Induk Karyawan</label>
                   <div className="mt-1 w-full bg-gray-50 border rounded-lg p-2 text-gray-500 font-mono text-sm">
@@ -426,48 +530,85 @@ export const HR: React.FC = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Nama Lengkap</label>
-                  <input name="name" defaultValue={editingEmployee?.name} required className="mt-1 w-full border rounded-lg p-2" />
+                  <input 
+                    name="name" 
+                    value={employeeForm.name} 
+                    onChange={(e) => setEmployeeForm({ ...employeeForm, name: e.target.value })}
+                    required 
+                    className="mt-1 w-full border rounded-lg p-2" 
+                  />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Departemen</label>
-                    <select name="department_id" defaultValue={editingEmployee?.department_id} required className="mt-1 w-full border rounded-lg p-2">
-                       <option value="">Pilih Dept</option>
-                       {(departments || []).map(d => (
-                         <option key={d.id} value={d.id}>{d.name}</option>
-                       ))}
-                    </select>
+                    <SearchableSelect 
+                      label="Departemen"
+                      name="department_id"
+                      value={employeeForm.department_id}
+                      placeholder="Pilih Dept"
+                      options={[
+                        { value: '', label: 'Pilih Dept' },
+                        ...departments.map(d => ({ value: d.id, label: d.name }))
+                      ]}
+                      onChange={(val) => setEmployeeForm({ ...employeeForm, department_id: val })}
+                    />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Jabatan</label>
-                    <select name="position_id" defaultValue={editingEmployee?.position_id} required className="mt-1 w-full border rounded-lg p-2">
-                       <option value="">Pilih Jabatan</option>
-                       {(positions || []).map(p => (
-                         <option key={p.id} value={p.id}>{p.name}</option>
-                       ))}
-                    </select>
+                    <SearchableSelect 
+                      label="Jabatan"
+                      name="position_id"
+                      value={employeeForm.position_id}
+                      placeholder="Pilih Jabatan"
+                      options={[
+                        { value: '', label: 'Pilih Jabatan' },
+                        ...positions.map(p => ({ value: p.id, label: p.name }))
+                      ]}
+                      onChange={(val) => setEmployeeForm({ ...employeeForm, position_id: val })}
+                    />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Target Dapur (Penempatan)</label>
-                  <select name="kitchen_id" defaultValue={editingEmployee?.kitchen_id || profile?.kitchen_id || ''} required className="mt-1 w-full border rounded-lg p-2">
-                     <option value="">Pilih Dapur</option>
-                     {(kitchens || []).map(k => (
-                       <option key={k.id} value={k.id}>{k.name}</option>
-                     ))}
-                  </select>
+                  <SearchableSelect 
+                    label="Target Dapur (Penempatan)"
+                    name="kitchen_id"
+                    value={employeeForm.kitchen_id}
+                    placeholder="Pilih Dapur"
+                    options={[
+                      { value: '', label: 'Pilih Dapur' },
+                      ...kitchens.map(k => ({ value: k.id, label: k.name }))
+                    ]}
+                    onChange={(val) => setEmployeeForm({ ...employeeForm, kitchen_id: val })}
+                  />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Gaji (IDR)</label>
-                  <input name="salary" type="number" defaultValue={editingEmployee?.salary} required className="mt-1 w-full border rounded-lg p-2" />
+                  <input 
+                    name="salary" 
+                    type="number" 
+                    value={employeeForm.salary} 
+                    onChange={(e) => setEmployeeForm({ ...employeeForm, salary: e.target.value })}
+                    required 
+                    className="mt-1 w-full border rounded-lg p-2" 
+                  />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Tanggal Masuk</label>
-                  <input name="hire_date" type="date" defaultValue={editingEmployee?.hire_date} required className="mt-1 w-full border rounded-lg p-2" />
+                  <input 
+                    name="hire_date" 
+                    type="date" 
+                    value={employeeForm.hire_date} 
+                    onChange={(e) => setEmployeeForm({ ...employeeForm, hire_date: e.target.value })}
+                    required 
+                    className="mt-1 w-full border rounded-lg p-2" 
+                  />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Status</label>
-                  <select name="status" defaultValue={editingEmployee?.status || 'active'} className="mt-1 w-full border rounded-lg p-2">
+                  <select 
+                    name="status" 
+                    value={employeeForm.status} 
+                    onChange={(e) => setEmployeeForm({ ...employeeForm, status: e.target.value })}
+                    className="mt-1 w-full border rounded-lg p-2"
+                  >
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
                     <option value="terminated">Terminated</option>

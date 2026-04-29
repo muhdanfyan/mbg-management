@@ -105,3 +105,13 @@ type AuditSpending struct {
 	UpdatedAt     time.Time      `json:"updated_at"`
 	DeletedAt     gorm.DeletedAt `gorm:"index" json:"-"`
 }
+
+type TransactionCategory struct {
+	ID        uint           `gorm:"primaryKey" json:"id"`
+	Name      string         `gorm:"uniqueIndex;type:varchar(100)" json:"name"`
+	Type      string         `json:"type"` // income, expense, or both
+	IsActive  bool           `gorm:"default:true" json:"is_active"`
+	CreatedAt time.Time      `json:"created_at"`
+	UpdatedAt time.Time      `json:"updated_at"`
+	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
+}
