@@ -1,5 +1,6 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, RefreshCcw, Home, ChevronRight } from 'lucide-react';
+import * as Sentry from "@sentry/react";
 
 interface Props {
   children?: ReactNode;
@@ -28,6 +29,7 @@ class ErrorBoundary extends Component<Props, State> {
       errorInfo
     });
     console.error('Uncaught error:', error, errorInfo);
+    Sentry.captureException(error, { extra: { errorInfo } });
   }
 
   private handleReset = () => {

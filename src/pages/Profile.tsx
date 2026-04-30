@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, Building2, MapPin, Phone, Mail, Save, Loader2, Camera } from 'lucide-react';
+import { User, Building2, MapPin, Save, Loader2, Camera } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { api } from '../services/api';
 import toast from 'react-hot-toast';

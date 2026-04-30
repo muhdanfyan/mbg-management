@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Search, Calendar, Edit, Trash2, UserCircle, Briefcase, Clock, CheckCircle, UserPlus, Image as ImageIcon, Upload, Building2 } from 'lucide-react';
-import { api, Employee, Vacancy, Applicant, getImageUrl } from '../services/api';
+import { Search, Calendar, Edit, Trash2, UserCircle, UserPlus, Image as ImageIcon, Upload, Building2 } from 'lucide-react';
+import { api, Employee, Vacancy, getImageUrl } from '../services/api';
 import { SearchableSelect } from '../components/UI/SearchableSelect';
 import { Pagination } from '../components/UI/Pagination';
 // Force reload to pick up useAuth import
@@ -94,15 +94,6 @@ export const HR: React.FC = () => {
     return styles[status as keyof typeof styles] || styles.active;
   };
 
-  const getApplicantStatusBadge = (status: string) => {
-    const styles = {
-      applied: 'bg-blue-100 text-blue-700',
-      interview: 'bg-orange-100 text-orange-700',
-      accepted: 'bg-green-100 text-green-700',
-      rejected: 'bg-red-100 text-red-700'
-    };
-    return styles[status as keyof typeof styles] || styles.applied;
-  };
 
   const filteredEmployees = (employees || []).filter(emp => {
     const matchesSearch = (emp.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||

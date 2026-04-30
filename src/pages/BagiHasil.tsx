@@ -1,15 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { 
     DollarSign, 
-    PieChart, 
     Send, 
     History, 
     TrendingUp, 
     ArrowUpRight, 
     CheckCircle2, 
     Clock, 
-    Search,
-    Filter,
     ArrowRightLeft,
     HandCoins,
     BarChart3,
@@ -19,10 +16,8 @@ import {
     X
 } from 'lucide-react';
 import { api, Kitchen, RentalRecord, ProfitDistribution, PayoutDetail } from '../services/api';
-import { Pagination } from '../components/UI/Pagination';
-import { useAuth } from '../contexts/AuthContext';
 import { getGoogleImageUrl } from '../utils/mediaUtils';
-import { formatDateID, formatCurrencyID, formatPeriodID, formatNumberID } from '../utils/formatters';
+import { formatDateID, formatCurrencyID, formatPeriodID } from '../utils/formatters';
 
 const BEPChart: React.FC<{ kitchenId: number, initialCapital: number }> = ({ kitchenId, initialCapital }) => {
     const [data, setData] = useState<any[]>([]);
@@ -102,13 +97,13 @@ const BEPChart: React.FC<{ kitchenId: number, initialCapital: number }> = ({ kit
 };
 
 export const BagiHasil: React.FC = () => {
-    const { profile } = useAuth();
     const [activeTab, setActiveTab] = useState<'sewa' | 'distribusi' | 'remitansi' | 'bep'>('sewa');
     const [kitchens, setKitchens] = useState<Kitchen[]>([]);
     const [rentals, setRentals] = useState<RentalRecord[]>([]);
     const [selectedEvidence, setSelectedEvidence] = useState<string | null>(null);
     const [distributions, setDistributions] = useState<ProfitDistribution[]>([]);
     const [loading, setLoading] = useState(true);
+    const [calcMode] = useState<'sewa' | 'selisih'>('sewa');
     
     // Form States
     const [isRentModalOpen, setIsRentModalOpen] = useState(false);
@@ -116,9 +111,6 @@ export const BagiHasil: React.FC = () => {
     const [calcResult, setCalcResult] = useState<any>(null);
     const [selectedKitchen, setSelectedKitchen] = useState<number | null>(null);
 
-    // Pagination
-    const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage, setItemsPerPage] = useState(10);
 
     const fetchData = async () => {
         try {
@@ -372,7 +364,7 @@ export const BagiHasil: React.FC = () => {
                         <div>
                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Remitansi Menunggu</p>
                             <h3 className="text-lg font-black text-[#164E4D]">
-                                {(distributions || []).reduce((count, d) => count + (d.details?.filter(dt => dt.status === 'PENDING').length || 0), 0)} Pembayaran
+                                {(distributions || []).reduce((count: number, d: any) => count + (d.details?.filter((dt: any) => dt.status === 'PENDING').length || 0), 0)} Pembayaran
                             </h3>
                         </div>
                     </div>

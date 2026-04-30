@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { UserPlus, Search, Mail, Phone, Trash2, Edit2, CheckCircle, AlertCircle, Download, FileSpreadsheet } from 'lucide-react';
+import { UserPlus, Search, Mail, Phone, Trash2, Edit2, CheckCircle, AlertCircle, FileSpreadsheet } from 'lucide-react';
 import { api, Profile, getImageUrl } from '../services/api';
 import { Pagination } from '../components/UI/Pagination';
 

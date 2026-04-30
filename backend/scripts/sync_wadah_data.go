@@ -22,7 +22,7 @@ func main() {
 		log.Fatalf("Failed to connect database: %v", err)
 	}
 
-	dataDir := "../../wadah_merah_putih_data"
+	dataDir := "../wadah_merah_putih_data"
 
 	// 1. Sync Titik 49 (Infrastructure & Stakeholders)
 	syncTitik49(db, filepath.Join(dataDir, "data_titik_49.json"))

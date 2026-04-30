@@ -38,6 +38,9 @@ type Dapur struct {
 	Investors       []InvestorParticipant `gorm:"foreignKey:KitchenID" json:"investors"`
 	Routes          []Route               `gorm:"foreignKey:KitchenID" json:"routes"`
 	SppgID          string                `gorm:"type:varchar(50);uniqueIndex" json:"sppg_id"`
+	RunningDate     *time.Time             `json:"running_date"`
+	PICName         string                `json:"pic_name"`
+	PICPhone        string                `json:"pic_phone"`
 	SppgDetail      *Sppg                  `gorm:"foreignKey:SppgID;references:SppgID" json:"sppg_detail"`
 	CreatedAt       time.Time             `json:"created_at"`
 	UpdatedAt       time.Time             `json:"updated_at"`

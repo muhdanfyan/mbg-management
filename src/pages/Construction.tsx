@@ -10,7 +10,6 @@ export const Construction: React.FC = () => {
   const [updates, setUpdates] = useState<ProgressUpdate[]>([]);
   const [sppgsList, setSppgsList] = useState<Sppg[]>([]);
   const [loading, setLoading] = useState(true);
-  const [sppgs, setSppgs] = useState<any[]>([]);
 
   const [isContractModalOpen, setIsContractModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
@@ -87,7 +86,7 @@ export const Construction: React.FC = () => {
   const filteredContracts = contracts.filter(c => {
     const search = searchTerm.toLowerCase();
     return !search || 
-           c.sppg_id.toLowerCase().includes(search) || 
+           (c.sppg_id?.toLowerCase().includes(search) ?? false) || 
            c.project_name.toLowerCase().includes(search) || 
            c.vendor_name.toLowerCase().includes(search);
   });
@@ -404,7 +403,7 @@ export const Construction: React.FC = () => {
                       { value: '', label: 'Pilih SPPG untuk sinkronisasi foto' },
                       ...sppgsList.map(s => ({ value: s.sppg_id, label: `${s.sppg_id} - ${s.location || 'Tanpa Lokasi'}` }))
                     ]}
-                    onChange={(val) => {
+                    onChange={() => {
                       // This is inside a form, but we need to handle state if needed.
                       // For now, since it's a native form submit in the parent, 
                       // SearchableSelect has a hidden input.
@@ -424,7 +423,7 @@ export const Construction: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Status Pengerjaan</label>
                     <select name="status" defaultValue={editingContract?.status || 'active'} className="mt-1 w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none">
@@ -538,7 +537,7 @@ export const Construction: React.FC = () => {
                       { value: '', label: 'Pilih proyek' },
                       ...contracts.map(c => ({ value: c.id, label: c.project_name }))
                     ]}
-                    onChange={(val) => {}}
+                    onChange={() => {}}
                   />
                 </div>
                 <div>
@@ -549,7 +548,7 @@ export const Construction: React.FC = () => {
                   <label className="block text-sm font-medium text-gray-700">Deskripsi</label>
                   <textarea name="description" defaultValue={editingUpdate?.description} required className="mt-1 w-full border rounded-lg p-2 h-24"></textarea>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Tanggal Update</label>
                     <input name="date" type="date" defaultValue={editingUpdate?.date} required className="mt-1 w-full border rounded-lg p-2" />

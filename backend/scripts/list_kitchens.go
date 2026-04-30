@@ -10,7 +10,11 @@ import (
 )
 
 func main() {
-	dsn := "kassaone:Piblajar2020@tcp(127.0.0.1:3306)/mbg_management?charset=utf8mb4&parseTime=True&loc=Local"
+	// Try to get DSN from environment or default to local
+	dsn := os.Getenv("DB_DSN")
+	if dsn == "" {
+		dsn = "root:@tcp(127.0.0.1:3306)/mbg_management?charset=utf8mb4&parseTime=True&loc=Local"
+	}
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
@@ -22,7 +26,7 @@ func main() {
 
 	fmt.Println("Existing Kitchens:")
 	for _, k := range kitchens {
-		fmt.Printf("ID: %d, Name: %s\n", k.ID, k.Name)
+		fmt.Printf("ID: %d, Name: %s, Status: %s, SppgID: %s, Lat: %f, Lng: %f\n", k.ID, k.Name, k.Status, k.SppgID, k.Lat, k.Lng)
 	}
 
 	if len(kitchens) == 0 {

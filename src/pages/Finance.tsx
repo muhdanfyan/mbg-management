@@ -206,7 +206,7 @@ export const Finance: React.FC = () => {
       category: t.category,
       amount: t.amount,
       status: t.status,
-      kitchen_id: t.kitchen_id
+      kitchen_id: t.kitchen_id ?? null
     });
     setIsTransModalOpen(true);
   };
@@ -354,7 +354,8 @@ export const Finance: React.FC = () => {
                   type: 'expense',
                   category: '',
                   amount: 0,
-                  status: 'pending'
+                  status: 'pending',
+                  kitchen_id: profile?.kitchen_id || null
                 });
                 setIsTransModalOpen(true);
               }}
@@ -1412,7 +1413,7 @@ export const Finance: React.FC = () => {
           <div className="bg-white rounded-lg max-w-lg w-full p-4">
             <h2 className="text-lg font-bold mb-4">{editingLoan ? 'Edit Pinjaman' : 'Pinjaman Baru'}</h2>
             <form onSubmit={handleLoanSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Loan Number</label>
                   <input 
@@ -1436,7 +1437,7 @@ export const Finance: React.FC = () => {
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Total Amount</label>
                   <input 
@@ -1458,7 +1459,7 @@ export const Finance: React.FC = () => {
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Nisbah / Margin (%)</label>
                   <input
@@ -1481,7 +1482,7 @@ export const Finance: React.FC = () => {
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
                   <input 
@@ -1549,7 +1550,7 @@ export const Finance: React.FC = () => {
             </div>
             
             <form onSubmit={handleBGNSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Tanggal Masuk</label>
                   <input 

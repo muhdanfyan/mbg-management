@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ShoppingCart, Package, FileText, Search, Filter, QrCode, TrendingUp, AlertCircle, Plus, Edit, Trash2, Activity } from 'lucide-react';
+import { ShoppingCart, Package, Search, Filter, QrCode, TrendingUp, AlertCircle, Plus, Edit, Trash2, Activity } from 'lucide-react';
 import { api, Equipment, PurchaseOrder, getImageUrl, Kitchen } from '../services/api';
 import { SearchableSelect } from '../components/UI/SearchableSelect';
 import { useAuth } from '../contexts/AuthContext';
@@ -474,10 +474,10 @@ export const Procurement: React.FC = () => {
                     value={editingEquipment?.category || categories[0]}
                     placeholder="Pilih Kategori"
                     options={categories.map(cat => ({ value: cat, label: cat }))}
-                    onChange={(val) => {}}
+                    onChange={() => {}}
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Harga (IDR)</label>
                     <input name="price" type="number" defaultValue={editingEquipment?.price} required className="mt-1 w-full border rounded-lg p-2" />

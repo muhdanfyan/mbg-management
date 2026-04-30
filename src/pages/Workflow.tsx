@@ -1,16 +1,13 @@
 import React from 'react';
 import { 
   ArrowRight, 
-  Wallet, 
   Utensils, 
   Building2, 
   Users, 
-  BarChart3, 
   ShieldCheck,
   TrendingDown,
   Info,
   DollarSign,
-  PieChart,
   ArrowDown
 } from 'lucide-react';
 

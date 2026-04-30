@@ -8,7 +8,16 @@ import { useAuth } from '../contexts/AuthContext';
 const SafeImage = ({ url, alt, className }: { url: string, alt: string, className: string }) => {
   const sources = getGoogleDriveSources(url);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [hasError, setHasError] = useState(false);
   const fallbackUrl = getImageUrl(url);
+
+  if (hasError) {
+    return (
+      <div className={`${className} flex items-center justify-center bg-gray-50 text-gray-300`}>
+        <ImageIcon className="w-8 h-8" />
+      </div>
+    );
+  }
 
   return (
     <img
@@ -19,6 +28,8 @@ const SafeImage = ({ url, alt, className }: { url: string, alt: string, classNam
       onError={() => {
          if (currentIndex < sources.length - 1) {
              setCurrentIndex(prev => prev + 1);
+         } else {
+             setHasError(true);
          }
       }}
     />
@@ -42,9 +53,53 @@ export const SppgGallery: React.FC = () => {
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
   // Manage Media State
-  const [isAddingMedia, setIsAddingMedia] = useState(false);
+  const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
   const [newMediaUrl, setNewMediaUrl] = useState('');
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+
+  // Get current user's SPPG ID if they are PIC Dapur
+  const userSppgId = sppgs.find(s => s.id === Number(profile?.kitchen_id))?.sppg_id;
+  
+  const canManageMedia = (sppgId: string) => {
+    if (profile?.role === 'Super Admin' || profile?.role === 'Manager') return true;
+    if (profile?.role === 'PIC Dapur' && (sppgId === userSppgId || !userSppgId)) return true; // Fallback if mapping not found yet
+    return false;
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !selectedSppg) return;
+
+    try {
+      setIsUploading(true);
+      setUploadProgress(10);
+      
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const res = await api.post('/upload', formData);
+      setUploadProgress(50);
+      
+      await api.post('/sppg-media', {
+         sppg_id: selectedSppg.sppg_id,
+         preview_url: res.url
+      });
+      
+      setUploadProgress(100);
+      const data = await fetchSppgs();
+      if (data) {
+        const found = data.find((s: Sppg) => s.sppg_id === selectedSppg.sppg_id);
+        if (found) setSelectedSppg(found);
+      }
+      setIsMediaModalOpen(false);
+    } catch (err) {
+      alert("Gagal mengunggah file");
+    } finally {
+      setIsUploading(false);
+      setUploadProgress(0);
+    }
+  };
 
   const handleAddMedia = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,7 +116,7 @@ export const SppgGallery: React.FC = () => {
         if (found) setSelectedSppg(found);
       }
       setNewMediaUrl('');
-      setIsAddingMedia(false);
+      setIsMediaModalOpen(false);
     } catch(err) {
       alert("Failed to add media");
     } finally {
@@ -130,7 +185,6 @@ export const SppgGallery: React.FC = () => {
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const paginatedSppgs = filteredSppgs.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(filteredSppgs.length / itemsPerPage);
 
   if (loading) {
     return (
@@ -289,7 +343,8 @@ export const SppgGallery: React.FC = () => {
 
       {/* Gallery Modal */}
       {selectedSppg && (
-        <div className="fixed inset-0 bg-black/90 z-[60] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-200">
+        <>
+          <div className="fixed inset-0 bg-black/90 z-[60] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-white rounded-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
             <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-white sticky top-0 z-10">
               <div className="flex items-center gap-4">
@@ -321,11 +376,13 @@ export const SppgGallery: React.FC = () => {
                         alt={`Photo ${idx + 1}`}
                         className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-700"
                       />
-                      <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                         <button onClick={(e) => { e.stopPropagation(); handleDeleteMedia(item.id); }} className="bg-red-500 text-white p-2 rounded-full hover:scale-110 shadow-lg">
-                            <Trash2 className="w-4 h-4" />
-                         </button>
-                      </div>
+                      {canManageMedia(selectedSppg.sppg_id) && (
+                        <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                           <button onClick={(e) => { e.stopPropagation(); handleDeleteMedia(item.id); }} className="bg-red-500 text-white p-2 rounded-full hover:scale-110 shadow-lg">
+                              <Trash2 className="w-4 h-4" />
+                           </button>
+                        </div>
+                      )}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-end p-4">
                         <div className="w-full flex items-center justify-between">
                           <span className="text-white text-xs font-bold tracking-widest uppercase">
@@ -353,27 +410,7 @@ export const SppgGallery: React.FC = () => {
                 </div>
               )}
             </div>
-            
             <div className="p-4 bg-gray-50 border-t border-gray-100 flex flex-col gap-4">
-              {isAddingMedia && (
-                <form onSubmit={handleAddMedia} className="flex gap-2">
-                  <input 
-                     type="text" 
-                     placeholder="Masukkan Link Gambar atau Google Drive URL..." 
-                     className="flex-1 px-4 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-[#1A4D43]"
-                     value={newMediaUrl}
-                     onChange={(e) => setNewMediaUrl(e.target.value)}
-                     disabled={isUploading}
-                     required
-                  />
-                  <button type="submit" disabled={isUploading} className="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold text-sm hover:bg-blue-700">
-                    {isUploading ? 'Menyimpan...' : 'Simpan'}
-                  </button>
-                  <button type="button" onClick={() => setIsAddingMedia(false)} className="bg-gray-200 text-gray-700 px-6 py-2 rounded-xl font-bold text-sm hover:bg-gray-300">
-                    Batal
-                  </button>
-                </form>
-              )}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3 sm:gap-4 overflow-x-auto">
                    <div className="flex flex-col shrink-0">
@@ -398,9 +435,9 @@ export const SppgGallery: React.FC = () => {
                      </a>
                 </div>
                 <div className="flex items-center gap-2 shrink-0 ml-4">
-                  {!isAddingMedia && (profile?.role === 'Super Admin' || profile?.role === 'Manager' || profile?.role === 'PIC Dapur') && (
+                  {canManageMedia(selectedSppg.sppg_id) && (
                     <button
-                      onClick={() => setIsAddingMedia(true)}
+                      onClick={() => setIsMediaModalOpen(true)}
                       className="bg-white border-2 border-[#1A4D43] text-[#1A4D43] px-4 py-2.5 rounded-xl font-bold text-sm hover:bg-gray-50 transition-colors flex items-center gap-1 shrink-0"
                     >
                       <Plus className="w-4 h-4" /> Tambah Foto
@@ -409,7 +446,7 @@ export const SppgGallery: React.FC = () => {
                   <button
                     onClick={() => {
                         setSelectedSppg(null);
-                        setIsAddingMedia(false);
+                        setIsMediaModalOpen(false);
                         setNewMediaUrl('');
                     }}
                     className="bg-[#1A4D43] text-white px-4 py-3 rounded-xl font-bold text-sm hover:shadow-lg hover:shadow-[#1A4D43]/20 transition-all shrink-0"
@@ -421,6 +458,82 @@ export const SppgGallery: React.FC = () => {
             </div>
           </div>
         </div>
+
+          {/* Media Addition Modal */}
+          {isMediaModalOpen && (
+            <div className="fixed inset-0 bg-black/60 z-[70] flex items-center justify-center p-4 backdrop-blur-md animate-in zoom-in duration-300">
+              <div className="bg-white rounded-[2rem] w-full max-w-lg shadow-2xl overflow-hidden border border-white/20">
+                <div className="bg-[#1A4D43] p-6 text-white flex justify-between items-center">
+                  <div>
+                    <h3 className="text-xl font-black tracking-tight">Tambah Media Baru</h3>
+                    <p className="text-white/60 text-[10px] font-bold uppercase tracking-widest mt-1">Upload foto progress pembangunan</p>
+                  </div>
+                  <button onClick={() => setIsMediaModalOpen(false)} className="p-2 hover:bg-white/10 rounded-xl transition-all">
+                    <X className="w-6 h-6" />
+                  </button>
+                </div>
+
+                <div className="p-8 space-y-6">
+                  {/* File Upload Option */}
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Upload File Foto</label>
+                    <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-gray-200 rounded-[2rem] bg-gray-50 hover:bg-gray-100 hover:border-[#2BBF9D] transition-all cursor-pointer group relative overflow-hidden">
+                      {isUploading ? (
+                        <div className="flex flex-col items-center gap-3">
+                          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#1A4D43]"></div>
+                          <p className="text-sm font-bold text-[#1A4D43] animate-pulse">Mengunggah... {uploadProgress}%</p>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="bg-white p-4 rounded-2xl shadow-sm group-hover:scale-110 transition-transform">
+                            <ImageIcon className="w-8 h-8 text-[#1A4D43]" />
+                          </div>
+                          <div className="mt-4 text-center">
+                            <p className="text-sm font-black text-[#1A4D43]">Klik untuk Pilih Gambar</p>
+                            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">PNG, JPG up to 10MB</p>
+                          </div>
+                        </>
+                      )}
+                      <input type="file" accept="image/*" className="hidden" onChange={handleFileUpload} disabled={isUploading} />
+                    </label>
+                  </div>
+
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-gray-100"></div>
+                    </div>
+                    <div className="relative flex justify-center">
+                      <span className="bg-white px-4 text-[10px] font-black text-gray-300 uppercase tracking-widest">Atau</span>
+                    </div>
+                  </div>
+
+                  {/* URL Option */}
+                  <form onSubmit={handleAddMedia} className="space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Link Google Drive / URL</label>
+                      <input 
+                        type="text" 
+                        placeholder="https://drive.google.com/..." 
+                        className="premium-input w-full"
+                        value={newMediaUrl}
+                        onChange={(e) => setNewMediaUrl(e.target.value)}
+                        disabled={isUploading}
+                        required
+                      />
+                    </div>
+                    <button 
+                      type="submit" 
+                      disabled={isUploading || !newMediaUrl.trim()} 
+                      className="w-full bg-[#1A4D43] text-white py-4 rounded-[1.5rem] font-black text-sm uppercase tracking-widest hover:shadow-xl hover:shadow-[#1A4D43]/20 active:scale-95 transition-all disabled:opacity-50"
+                    >
+                      {isUploading ? 'Menyimpan...' : 'Simpan via Link'}
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

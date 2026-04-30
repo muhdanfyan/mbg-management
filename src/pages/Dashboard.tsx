@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Building2, TrendingUp, Users, DollarSign, ArrowUpRight, ArrowDownRight, Clock, Plus, LayoutGrid, Calendar, MapPin, Activity, PieChart } from 'lucide-react';
+import React from 'react';
+import { Building2, TrendingUp, Users, DollarSign, ArrowUpRight, ArrowDownRight, Clock, Plus, LayoutGrid, Calendar, MapPin, Activity, PieChart, Phone, CheckCircle2, AlertCircle, X } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { api } from '../services/api';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
@@ -39,7 +39,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   const [kitchens, setKitchens] = React.useState<any[]>([]);
   const [activities, setActivities] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(true);
-  const [activeTab, setActiveTab] = React.useState<'overview' | 'finance' | 'construction' | 'logistics' | 'leadership'>('overview');
+  const [activeTab, setActiveTab] = React.useState<'overview' | 'finance' | 'construction' | 'logistics' | 'leadership' | 'operational'>('overview');
+  const [selectedKitchen, setSelectedKitchen] = React.useState<any>(null);
+  const [showDetailModal, setShowDetailModal] = React.useState(false);
 
   React.useEffect(() => {
     const fetchData = async () => {
@@ -94,6 +96,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
     { id: 'finance', label: 'Keuangan', icon: DollarSign },
     { id: 'leadership', label: 'Pemaparan (DPP)', icon: PieChart, roles: ['Super Admin', 'Manager'] },
     { id: 'construction', label: 'Konstruksi', icon: Building2, roles: ['Super Admin', 'Manager', 'Finance', 'HRD', 'Staff', 'PIC Dapur'] },
+    { id: 'operational', label: 'Operasional', icon: Activity },
     { id: 'logistics', label: 'Logistik', icon: Activity, roles: ['Super Admin', 'Manager', 'Procurement', 'PIC Dapur'] },
   ].filter(tab => !tab.roles || tab.roles.includes(profile?.role || ''));
 
@@ -108,11 +111,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   return (
     <div className="space-y-8 animate-in fade-in duration-700">
       <div className="flex flex-col gap-6">
-        <div>
-          <h1 className="text-4xl font-black text-[#1A4D43] tracking-tight">Selamat Datang, {profile?.full_name?.split(' ')[0]}!</h1>
-          <p className="text-gray-500 mt-2 font-medium text-lg">Berikut adalah ringkasan manajemen Wahdah MBG hari ini.</p>
-        </div>
-        
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4">
           {quickActions.map((action) => (
             <button
@@ -323,25 +321,104 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
         </div>
       )}
 
-      {activeTab === 'construction' && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-           <div className="glass-card p-4 md:col-span-2">
-              <h2 className="text-lg font-bold text-[#1A4D43] mb-4">Status Kontrak & SPPG</h2>
+      {activeTab === 'operational' && (
+        <div className="space-y-4">
+           <div className="glass-card p-6">
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <h2 className="text-xl font-black text-[#1A4D43] flex items-center gap-2">
+                    <Activity className="w-6 h-6 text-[#2BBF9D]" /> 
+                    Monitoring Dapur Running
+                  </h2>
+                  <p className="text-sm text-gray-500 font-medium mt-1">Daftar unit aktif dengan PIC penanggung jawab</p>
+                </div>
+                <div className="flex items-center gap-2 px-4 py-2 bg-[#E2F8F3] text-[#1A4D43] rounded-xl border border-[#2BBF9D]/20">
+                  <span className="w-2 h-2 rounded-full bg-[#2BBF9D] animate-pulse"></span>
+                  <span className="text-xs font-black uppercase">{kitchens.filter(k => k.status === 'active').length} UNIT AKTIF</span>
+                </div>
+              </div>
+              
               <div className="overflow-x-auto">
                 <table className="w-full text-left">
                   <thead>
                     <tr className="border-b border-gray-100">
-                      <th className="pb-4 text-xs font-black text-gray-400 uppercase">Dapur</th>
-                      <th className="pb-4 text-xs font-black text-gray-400 uppercase">Status</th>
+                      <th className="pb-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Unit & Lokasi</th>
+                      <th className="pb-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">PIC Lapangan</th>
+                      <th className="pb-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Investor</th>
+                      <th className="pb-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Bagi Hasil</th>
+                      <th className="pb-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Status BEP</th>
+                      <th className="pb-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Aksi</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-50">
-                     {kitchens.slice(0, 5).map(k => (
-                       <tr key={k.id}>
-                         <td className="py-3 font-bold text-[#1A4D43]">{k.name}</td>
-                         <td className="py-3"><span className="px-2 py-1 bg-green-50 text-green-600 rounded text-[10px] font-black uppercase">Aktif</span></td>
-                       </tr>
-                     ))}
+                    {kitchens.filter(k => k.status === 'active').map(k => (
+                      <tr key={k.id} className="group hover:bg-gray-50/50 transition-colors">
+                        <td className="py-4">
+                          <p className="font-black text-[#1A4D43] text-sm">{k.name}</p>
+                          <div className="flex items-center gap-2 mt-0.5">
+                             <span className="text-[10px] text-gray-400 font-bold uppercase">{k.sppg_id}</span>
+                             <span className="w-1 h-1 rounded-full bg-gray-300"></span>
+                             <span className="text-[10px] text-[#2BBF9D] font-bold">Aktif: {k.running_date ? new Date(k.running_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }) : '-'}</span>
+                          </div>
+                        </td>
+                        <td className="py-4">
+                          <div className="flex flex-col gap-1">
+                             <span className="text-sm font-bold text-gray-700">{k.pic_name || 'Belum Ditunjuk'}</span>
+                             {k.pic_phone && (
+                               <a 
+                                 href={`https://wa.me/${k.pic_phone.replace(/[^0-9]/g, '')}`} 
+                                 target="_blank" 
+                                 className="flex items-center gap-1 text-green-600 text-[10px] font-black hover:underline"
+                               >
+                                 <Phone className="w-2.5 h-2.5" /> HUBUNGI WA
+                               </a>
+                             )}
+                          </div>
+                        </td>
+                        <td className="py-4">
+                          <div className="flex flex-col">
+                             <span className="text-sm font-bold text-[#1A4D43]">
+                                {k.investors?.[0]?.name || 'Wahdah Mandiri'}
+                             </span>
+                             <span className="text-[10px] text-gray-400 font-black">
+                                Rp {(k.initial_capital || 0).toLocaleString()}
+                             </span>
+                          </div>
+                        </td>
+                        <td className="py-4">
+                           <div className="flex flex-col">
+                              <span className="text-xs font-black text-[#1A4D43]">{k.investors?.[0]?.saham_ratio || '70% : 30%'}</span>
+                              <span className="text-[9px] text-gray-400 font-bold uppercase">Investor : Wahdah</span>
+                           </div>
+                        </td>
+                        <td className="py-4 text-center">
+                           <span className={`px-2 py-0.5 rounded text-[9px] font-black uppercase ${k.bep_status === 'POST-BEP' ? 'bg-green-100 text-green-600' : 'bg-amber-100 text-amber-600'}`}>
+                              {k.bep_status || 'PRE-BEP'}
+                           </span>
+                        </td>
+                        <td className="py-4 text-right">
+                          <div className="flex justify-end gap-2">
+                            <button 
+                              onClick={() => {
+                                setSelectedKitchen(k);
+                                setShowDetailModal(true);
+                              }}
+                              className="p-2 hover:bg-[#1A4D43] hover:text-white rounded-lg transition-all text-gray-400 bg-white shadow-sm border border-gray-100 flex items-center gap-1.5"
+                              title="Lihat Detail Pengkajian"
+                            >
+                              <PieChart className="w-4 h-4" />
+                              <span className="text-[10px] font-black uppercase">Detail</span>
+                            </button>
+                            <button 
+                              onClick={() => onNavigate?.('locations')}
+                              className="p-2 hover:bg-[#2BBF9D] hover:text-white rounded-lg transition-all text-gray-400 shadow-sm border border-gray-100"
+                            >
+                              <MapPin className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
@@ -416,6 +493,131 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
             <h3 className="text-xl font-black text-[#1A4D43] mb-2">Simulasi Proyeksi Nasional</h3>
             <p className="text-gray-500 max-w-xl mx-auto font-medium">Data ini diekstrapolasi dari performa rata-rata harian. Digunakan untuk presentasi estimasi ROI pimpinan dalam 5 tahun ke depan.</p>
             <button className="mt-6 premium-button-primary">Buka Simulasi Materi Pemaparan</button>
+          </div>
+        </div>
+      )}
+
+      {showDetailModal && selectedKitchen && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-[#1A4D43]/60 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl flex flex-col animate-in zoom-in-95 duration-300">
+            {/* Header */}
+            <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-gray-50 to-white">
+               <div>
+                 <div className="flex items-center gap-3 mb-1">
+                    <h3 className="text-2xl font-black text-[#1A4D43]">{selectedKitchen.name}</h3>
+                    <span className="px-3 py-1 bg-[#E2F8F3] text-[#2BBF9D] rounded-full text-[10px] font-black uppercase tracking-widest">{selectedKitchen.sppg_id}</span>
+                 </div>
+                 <p className="text-sm text-gray-500 font-medium">{selectedKitchen.address}</p>
+               </div>
+               <button 
+                 onClick={() => setShowDetailModal(false)}
+                 className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-400"
+               >
+                 <X className="w-6 h-6" />
+               </button>
+            </div>
+
+            {/* Content */}
+            <div className="p-8 overflow-y-auto space-y-8">
+               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {/* Summary Cards */}
+                  <div className="p-5 bg-[#F8FAF9] rounded-2xl border border-gray-100 shadow-sm">
+                     <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Total Investasi</p>
+                     <p className="text-2xl font-black text-[#1A4D43]">Rp {(selectedKitchen.initial_capital || 0).toLocaleString()}</p>
+                     <div className="mt-4 flex items-center gap-2 text-[10px] font-bold text-[#2BBF9D]">
+                        <TrendingUp className="w-3 h-3" /> Status: {selectedKitchen.status}
+                     </div>
+                  </div>
+                  <div className="p-5 bg-[#F8FAF9] rounded-2xl border border-gray-100 shadow-sm">
+                     <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Penanggung Jawab (PIC)</p>
+                     <p className="text-lg font-black text-[#1A4D43] mb-1">{selectedKitchen.pic_name || '-'}</p>
+                     <p className="text-xs font-bold text-gray-500">{selectedKitchen.pic_phone || 'No Contact'}</p>
+                  </div>
+                  <div className="p-5 bg-[#F8FAF9] rounded-2xl border border-gray-100 shadow-sm">
+                     <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Tanggal Mulai Operasi</p>
+                     <p className="text-lg font-black text-[#1A4D43] mb-1">
+                        {selectedKitchen.running_date ? new Date(selectedKitchen.running_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '-'}
+                     </p>
+                     <span className="px-2 py-1 bg-amber-100 text-amber-600 rounded text-[9px] font-black uppercase tracking-tighter">Running Phase</span>
+                  </div>
+               </div>
+
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {/* Investor List */}
+                  <div className="glass-card p-6 border border-gray-100">
+                     <h4 className="text-sm font-black text-[#1A4D43] uppercase tracking-widest mb-6 flex items-center gap-2">
+                        <Users className="w-4 h-4 text-[#2BBF9D]" /> Daftar Investor & Saham
+                     </h4>
+                     <div className="space-y-4">
+                        {(selectedKitchen.investors && selectedKitchen.investors.length > 0) ? selectedKitchen.investors.map((inv: any) => (
+                           <div key={inv.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-white hover:border-[#2BBF9D]/20 transition-all">
+                              <div>
+                                 <p className="font-black text-[#1A4D43] text-sm">{inv.name}</p>
+                                 <p className="text-[10px] text-gray-400 font-bold uppercase">Nilai: Rp {(inv.investment_amount || 0).toLocaleString()}</p>
+                              </div>
+                              <div className="text-right">
+                                 <p className="text-lg font-black text-[#2BBF9D]">{inv.share_percentage}%</p>
+                                 <p className="text-[9px] text-gray-400 font-black uppercase tracking-tighter">{inv.saham_ratio || '70:30 Split'}</p>
+                              </div>
+                           </div>
+                        )) : (
+                           <div className="text-center py-8 text-gray-400 italic text-sm">Belum ada data investor terperinci.</div>
+                        )}
+                     </div>
+                  </div>
+
+                  {/* Financial Audit */}
+                  <div className="glass-card p-6 border border-gray-100">
+                     <h4 className="text-sm font-black text-[#1A4D43] uppercase tracking-widest mb-6 flex items-center gap-2">
+                        <DollarSign className="w-4 h-4 text-[#2BBF9D]" /> Pengkajian Finansial
+                     </h4>
+                     <div className="space-y-6">
+                        <div>
+                           <div className="flex justify-between text-[10px] font-black uppercase text-gray-400 mb-2">
+                              <span>Akumulasi Laba</span>
+                              <span>Target BEP</span>
+                           </div>
+                           <div className="w-full h-3 bg-gray-100 rounded-full overflow-hidden p-0.5 border border-white shadow-inner">
+                              <div 
+                                 className="h-full bg-gradient-to-r from-[#1A4D43] to-[#2BBF9D] rounded-full" 
+                                 style={{ width: `${Math.min(((selectedKitchen.accumulated_profit || 0) / (selectedKitchen.initial_capital || 1)) * 100, 100)}%` }}
+                              ></div>
+                           </div>
+                           <div className="flex justify-between mt-2">
+                              <span className="text-sm font-black text-[#1A4D43]">Rp {(selectedKitchen.accumulated_profit || 0).toLocaleString()}</span>
+                              <span className="text-sm font-bold text-gray-400 italic">{(selectedKitchen.bep_status || 'PRE-BEP')}</span>
+                           </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-4 mt-8 pt-6 border-t border-gray-50">
+                           <div>
+                              <p className="text-[10px] font-black text-gray-400 uppercase mb-1">Rasio Wahdah</p>
+                              <p className="text-lg font-black text-[#1A4D43]">30% <span className="text-[10px] text-gray-400 font-medium">Net</span></p>
+                           </div>
+                           <div>
+                              <p className="text-[10px] font-black text-gray-400 uppercase mb-1">Rasio Investor</p>
+                              <p className="text-lg font-black text-[#2BBF9D]">70% <span className="text-[10px] text-gray-400 font-medium">Net</span></p>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+
+            {/* Footer */}
+            <div className="p-6 bg-gray-50 border-t border-gray-100 flex justify-end gap-3">
+               <button 
+                 onClick={() => setShowDetailModal(false)}
+                 className="px-6 py-2.5 rounded-xl text-sm font-black text-gray-400 uppercase tracking-widest hover:bg-gray-200 transition-all"
+               >
+                 Tutup
+               </button>
+               <button 
+                 className="px-6 py-2.5 bg-[#1A4D43] text-white rounded-xl text-sm font-black uppercase tracking-widest shadow-lg shadow-[#1A4D43]/20 hover:-translate-y-0.5 transition-all"
+               >
+                 Cetak Laporan Audit
+               </button>
+            </div>
           </div>
         </div>
       )}

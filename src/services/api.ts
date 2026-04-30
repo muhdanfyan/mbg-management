@@ -1,5 +1,5 @@
 const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? 'http://127.0.0.1:8080/api'
+    ? `http://${window.location.hostname}:8080/api`
     : window.location.hostname === 'dev.mbgone.site'
         ? 'https://dev.mbgone.site/api'
         : (window.location.hostname === 'mbgone.id' || window.location.hostname === 'www.mbgone.id')
@@ -8,27 +8,30 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
 
 export const getGoogleDriveSources = (url: string): string[] => {
     if (!url) return [];
+    
+    // Handle comma-separated lists if they exist in a single field
+    const targetUrl = url.includes(',') ? url.split(',')[0].trim() : url;
     let id = '';
     
-    if (url.includes('lh3.googleusercontent.com/d/')) {
-        id = url.split('/d/')[1].split('?')[0];
-    } else if (url.includes('drive.google.com/open?id=')) {
-        id = new URLSearchParams(url.split('?')[1]).get('id') || '';
-    } else if (url.includes('drive.google.com/file/d/')) {
-        id = url.split('/file/d/')[1].split('/')[0].split('?')[0];
-    } else if (url.includes('drive.google.com/viewer/main?id=')) {
-        id = new URLSearchParams(url.split('?')[1]).get('id') || '';
-    } else if (url.includes('drive.google.com/thumbnail?id=')) {
-        id = new URLSearchParams(url.split('?')[1]).get('id') || '';
-    } else if (url.includes('drive.google.com/uc?id=')) {
-        id = new URLSearchParams(url.split('?')[1]).get('id') || '';
+    if (targetUrl.includes('lh3.googleusercontent.com/d/')) {
+        id = targetUrl.split('/d/')[1].split('?')[0];
+    } else if (targetUrl.includes('drive.google.com/open?id=')) {
+        id = new URLSearchParams(targetUrl.split('?')[1]).get('id') || '';
+    } else if (targetUrl.includes('drive.google.com/file/d/')) {
+        id = targetUrl.split('/file/d/')[1].split('/')[0].split('?')[0];
+    } else if (targetUrl.includes('drive.google.com/viewer/main?id=')) {
+        id = new URLSearchParams(targetUrl.split('?')[1]).get('id') || '';
+    } else if (targetUrl.includes('drive.google.com/thumbnail?id=')) {
+        id = new URLSearchParams(targetUrl.split('?')[1]).get('id') || '';
+    } else if (targetUrl.includes('drive.google.com/uc?id=')) {
+        id = new URLSearchParams(targetUrl.split('?')[1]).get('id') || '';
     }
 
     if (id) {
         return [
+            `https://drive.google.com/thumbnail?id=${id}&sz=w600`,
             `https://lh3.googleusercontent.com/d/${id}`, 
-            `https://drive.google.com/uc?id=${id}`,
-            `https://drive.google.com/thumbnail?id=${id}&sz=w1200`
+            `https://drive.google.com/uc?id=${id}`
         ];
     }
 
@@ -57,8 +60,11 @@ export const formatDateID = (dateStr: string) => {
 export const getImageUrl = (url: string) => {
     if (!url) return '';
     
+    // Handle comma-separated lists
+    const targetUrl = url.includes(',') ? url.split(',')[0].trim() : url;
+    
     // Resolve Google Drive URLs first
-    const resolvedUrl = resolveGoogleDriveUrl(url);
+    const resolvedUrl = resolveGoogleDriveUrl(targetUrl);
     if (resolvedUrl.startsWith('http')) return resolvedUrl;
     
     if (url.startsWith('http')) return url;
@@ -133,9 +139,18 @@ export const api = {
         if (!response.ok) throw new Error('API request failed');
         return response.json();
     },
+
+    // Specific Methods
+    getKitchenGrowth: (id: number) => api.get(`/kitchens/${id}/growth`),
+    getRentalRecords: () => api.get('/rentals'),
+    postRentalRecord: (data: any) => api.post('/rentals', data),
+    getPayouts: () => api.get('/payouts'),
+    calculatePayout: (data: any) => api.post('/payouts/calculate', data),
+    postPayout: (data: any) => api.post('/payouts', data),
+    updateRemittance: (id: number, data: any) => api.put(`/payouts/details/${id}/remit`, data),
 };
 
-export type UserRole = 'Super Admin' | 'Manager' | 'Finance' | 'HRD' | 'Procurement' | 'Staff' | 'PIC Dapur' | 'Operator Koperasi' | 'Investor';
+export type UserRole = 'Super Admin' | 'Admin' | 'Manager' | 'Finance' | 'HRD' | 'Procurement' | 'Staff' | 'PIC Dapur' | 'Operator Koperasi' | 'Investor';
 
 export interface Profile {
     id: string;
@@ -169,6 +184,9 @@ export interface Kitchen {
     bep_status: string;
     koperasi_id?: number;
     sppg_id: string; // Hubungan ke data SPPG
+    running_date?: string;
+    pic_name?: string;
+    pic_phone?: string;
     investors?: InvestorParticipant[];
     routes?: Route[];
     // Relasi tambahan dari ekstensi yang kini di-nest di dalam sppg_detail
@@ -230,6 +248,7 @@ export interface Transaction {
     category: string;
     amount: number;
     status: string;
+    kitchen_id?: number;
 }
 
 export interface TransactionCategory {
@@ -406,4 +425,45 @@ export interface SppgMedia {
     sppg_id: string;
     preview_url: string;
     media_type: string;
+}
+
+export interface Koperasi {
+    id: number;
+    name: string;
+    address?: string;
+    phone?: string;
+}
+
+export interface RentalRecord {
+    id: number;
+    kitchen_id: number;
+    date: string;
+    amount: number;
+    period: string;
+    status: string;
+    notes?: string;
+}
+
+export interface ProfitDistribution {
+    id?: number;
+    kitchen_id: number;
+    period: string;
+    total_pool: number;
+    investor_split: number;
+    dpp_split: number;
+    ywmp_split: number;
+    is_post_bep: boolean;
+    status: string;
+    details?: PayoutDetail[];
+    created_at?: string;
+}
+
+export interface PayoutDetail {
+    id?: number;
+    recipient_name: string;
+    role: string;
+    amount: number;
+    percentage: number;
+    status: string;
+    remittance?: any;
 }

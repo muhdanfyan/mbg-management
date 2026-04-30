@@ -12,6 +12,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.app.json"
   },
   "dependencies": {
+    "@sentry/react": "^10.50.0",
     "@supabase/supabase-js": "^2.57.4",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.344.0",

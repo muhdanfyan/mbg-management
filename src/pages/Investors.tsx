@@ -384,7 +384,7 @@ export const Investors: React.FC = () => {
                                             ...kitchens.map(k => ({ value: k.id.toString(), label: `${k.name} (${k.region || 'ID: ' + k.id})` }))
                                         ]}
                                         onChange={(val) => {
-                                            setSelectedKitchenId(parseInt(val) || null);
+                                            setSelectedKitchenId(Number(val) || null);
                                         }}
                                     />
                                 </div>
