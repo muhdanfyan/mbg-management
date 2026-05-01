@@ -1,28 +1,11 @@
 services:
-  db:
-    image: mysql:8.0
-    restart: always
-    environment:
-      MYSQL_DATABASE: ${DB_NAME:-mbg_management}
-      MYSQL_USER: ${DB_USER:-kassaone}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-    ports:
-      - "127.0.0.1:3306:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
-    networks:
-      - mbg_network
-
   backend:
     build:
       context: .
       dockerfile: Dockerfile
     restart: always
-    depends_on:
-      - db
     environment:
-      DB_DSN: ${DB_DSN}
+      DB_DSN: "kassaone:f2RZScqZe5JOmvd3xeBvQlkpo4Vutjm9@tcp(mbg_mysql:3306)/mbg_management?charset=utf8mb4&parseTime=True&loc=Local"
     networks:
       - mbg_network
 
@@ -32,10 +15,8 @@ services:
       dockerfile: Dockerfile
     restart: always
     environment:
-      DB_DSN: "kassaone:${MYSQL_PASSWORD}@tcp(db:3306)/mbg_management_dev?charset=utf8mb4&parseTime=True&loc=Local"
+      DB_DSN: "kassaone:f2RZScqZe5JOmvd3xeBvQlkpo4Vutjm9@tcp(mbg_mysql:3306)/mbg_management_dev?charset=utf8mb4&parseTime=True&loc=Local"
       PORT: "8081"
-    depends_on:
-      - db
     networks:
       - mbg_network
 
@@ -54,10 +35,8 @@ services:
 
 networks:
   mbg_network:
-    name: mbg_network
-    driver: bridge
+    external: true
 
 volumes:
-  mysql_data:
   caddy_data:
   caddy_config:
