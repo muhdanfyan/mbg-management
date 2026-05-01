@@ -1,17 +1,17 @@
 http://mbgone.id {
-    reverse_proxy backend:8080
+    reverse_proxy mbg_backend:8080
 }
 
 http://api.mbgone.id {
-    reverse_proxy backend:8080
+    reverse_proxy mbg_backend:8080
 }
 
 http://mbgone.site {
-    reverse_proxy backend_dev:8081
+    reverse_proxy mbg_backend_dev:8081
 }
 
 http://api.mbgone.site {
-    reverse_proxy backend_dev:8081
+    reverse_proxy mbg_backend_dev:8081
 }
 
 
