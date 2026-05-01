@@ -30,16 +30,16 @@ ssh -i mbg.pem -o StrictHostKeyChecking=no $VPS_USER@$VPS_IP "sudo chown -R $VPS
 echo "📦 Uploading project files from local..."
 rsync -avz -e "ssh -i mbg.pem -o StrictHostKeyChecking=no" --exclude 'node_modules' --exclude '.git' --exclude '.env' . $VPS_USER@$VPS_IP:$TARGET_DIR/
 
+echo "🔨 Compiling React UI on VPS..."
+ssh -i mbg.pem -o StrictHostKeyChecking=no $VPS_USER@$VPS_IP "cd $TARGET_DIR && docker run --rm -v \$(pwd):/app -w /app node:20-alpine sh -c 'npm install && npm run build'"
+
 if [ "$BRANCH" == "dev" ]; then
     echo "🔨 Rebuilding DEV backend in the PROD stack..."
-    # We trigger the build from the PROD directory but pointing to the DEV context
-    ssh -i mbg.pem -o StrictHostKeyChecking=no $VPS_USER@$VPS_IP "if [ -d $PROD_DIR ]; then cd $PROD_DIR && export DEV_CONTEXT=$DEV_DIR && docker compose build backend_dev && docker compose up -d backend_dev; else echo 'PROD stack not found, only files uploaded.'; fi"
+    # We trigger the rebuild of backend_dev using the PROD compose file
+    ssh -i mbg.pem -o StrictHostKeyChecking=no $VPS_USER@$VPS_IP "if [ -d $PROD_DIR ]; then cd $PROD_DIR && export DEV_CONTEXT=$DEV_DIR && docker compose up -d --build backend_dev; else echo 'PROD stack not found, only files uploaded.'; fi"
 else
-    echo "🔨 Compiling React UI on VPS..."
-    ssh -i mbg.pem -o StrictHostKeyChecking=no $VPS_USER@$VPS_IP "cd $TARGET_DIR && docker run --rm -v \$(pwd):/app -w /app node:20-alpine sh -c 'npm install && npm run build'"
-
     echo "🐳 Starting Full Stack (Production & Dev)..."
-    ssh -i mbg.pem -o StrictHostKeyChecking=no $VPS_USER@$VPS_IP "cd $TARGET_DIR && export DEV_CONTEXT=$DEV_DIR && docker compose build && docker compose down && docker compose up -d"
+    ssh -i mbg.pem -o StrictHostKeyChecking=no $VPS_USER@$VPS_IP "cd $TARGET_DIR && export DEV_CONTEXT=$DEV_DIR && docker compose up -d --build"
 fi
 
 # Sync Database (Follow Local)
