@@ -10,7 +10,7 @@ services:
     volumes:
       - ./dist:/root/dist
     ports:
-      - "8080:8080"
+      - "8090:8080"
     networks:
       - mbg_network
 
@@ -26,7 +26,7 @@ services:
     volumes:
       - ${DEV_CONTEXT:-.}/dist:/root/dist
     ports:
-      - "8081:8081"
+      - "8091:8081"
     networks:
       - mbg_network
 
