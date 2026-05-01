@@ -1,7 +1,7 @@
 const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? `http://${window.location.hostname}:8080/api`
-    : window.location.hostname === 'dev.mbgone.site'
-        ? 'https://dev.mbgone.site/api'
+    : window.location.hostname === 'mbgone.site'
+        ? 'https://api.mbgone.site/api'
         : (window.location.hostname === 'mbgone.id' || window.location.hostname === 'www.mbgone.id')
             ? 'https://api.mbgone.id/api'
             : 'https://api.mbgone.site/api';
