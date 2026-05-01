@@ -11,6 +11,13 @@ services:
       - ./dist:/root/dist
     networks:
       - mbg_network
+      - coolify
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.mbg-prod.rule=Host(`mbgone.id`) || Host(`api.mbgone.id`)"
+      - "traefik.http.routers.mbg-prod.entrypoints=http,https"
+      - "traefik.http.routers.mbg-prod.tls=true"
+      - "traefik.http.services.mbg-prod.loadbalancer.server.port=8080"
 
   backend_dev:
     build:
@@ -25,25 +32,16 @@ services:
       - ${DEV_CONTEXT:-.}/dist:/root/dist
     networks:
       - mbg_network
-
-  caddy:
-    image: caddy:latest
-    container_name: mbg_caddy
-    restart: always
-    volumes:
-      - ./backend/Caddyfile:/etc/caddy/Caddyfile
-      - caddy_data:/data
-      - caddy_config:/config
-    depends_on:
-      - backend
-      - backend_dev
-    networks:
-      - mbg_network
+      - coolify
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.mbg-dev.rule=Host(`mbgone.site`) || Host(`api.mbgone.site`)"
+      - "traefik.http.routers.mbg-dev.entrypoints=http,https"
+      - "traefik.http.routers.mbg-dev.tls=true"
+      - "traefik.http.services.mbg-dev.loadbalancer.server.port=8081"
 
 networks:
   mbg_network:
     external: true
-
-volumes:
-  caddy_data:
-  caddy_config:
+  coolify:
+    external: true
