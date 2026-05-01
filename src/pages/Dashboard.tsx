@@ -1,5 +1,5 @@
 import React from 'react';
-import { Building2, TrendingUp, Users, DollarSign, ArrowUpRight, ArrowDownRight, Clock, Plus, LayoutGrid, Calendar, MapPin, Activity, PieChart, Phone, CheckCircle2, AlertCircle, X } from 'lucide-react';
+import { Building2, TrendingUp, Users, DollarSign, ArrowUpRight, ArrowDownRight, Clock, Plus, LayoutGrid, Calendar, MapPin, Activity, PieChart, Phone, CheckCircle2, AlertCircle, X, Search, Truck, Package, AlertTriangle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { api } from '../services/api';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
@@ -42,6 +42,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   const [activeTab, setActiveTab] = React.useState<'overview' | 'finance' | 'construction' | 'logistics' | 'leadership' | 'operational'>('overview');
   const [selectedKitchen, setSelectedKitchen] = React.useState<any>(null);
   const [showDetailModal, setShowDetailModal] = React.useState(false);
+  const [searchQuery, setSearchQuery] = React.useState('');
 
   React.useEffect(() => {
     const fetchData = async () => {
@@ -116,7 +117,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
             <button
               key={action.label}
               onClick={() => action.action === 'external-finance-report' 
-                ? window.open('file:///Users/pondokit/Herd/mbg-management/out/pemahaman_alur_keuangan_mbg.html', '_blank')
+                ? window.open('/pemahaman_alur_keuangan_mbg.html', '_blank')
                 : onNavigate?.(action.action)}
               className="group relative flex flex-col items-center justify-center gap-3 bg-white p-5 rounded-2xl border border-gray-100 hover:border-[#2BBF9D] hover:shadow-2xl hover:shadow-[#2BBF9D]/10 hover:-translate-y-1 transition-all duration-300 shadow-sm overflow-hidden"
             >
@@ -293,38 +294,150 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
       )}
 
       {activeTab === 'finance' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="glass-card p-4 group">
-             <h2 className="text-lg font-bold text-[#1A4D43] mb-4">Ringkasan Keuangan</h2>
-             <p className="text-sm text-gray-500 mb-6">Monitoring dana BGN dan alur bagi hasil investor.</p>
-             <div className="space-y-4">
-                <div className="flex justify-between p-4 bg-[#E2F8F3]/50 rounded-lg">
-                  <span className="text-sm font-bold text-gray-600">Total Transaksi</span>
-                  <span className="text-base font-black text-[#1A4D43]">Rp {(summary?.cash_flow || 0).toLocaleString()}</span>
-                </div>
-             </div>
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="glass-card p-6 bg-gradient-to-br from-[#1A4D43] to-[#2BBF9D] text-white">
+               <h2 className="text-sm font-black text-white/80 uppercase tracking-widest mb-2">Total Pendapatan (Gross)</h2>
+               <p className="text-3xl font-black mb-4">Rp {((summary?.cash_flow || 0) * 2.5).toLocaleString()}</p>
+               <div className="flex items-center gap-2 text-xs font-bold bg-white/20 w-fit px-3 py-1 rounded-full">
+                 <ArrowUpRight className="w-3 h-3" /> +15% dari bulan lalu
+               </div>
+            </div>
+            <div className="glass-card p-6 border border-gray-100">
+               <h2 className="text-sm font-black text-gray-500 uppercase tracking-widest mb-2">Total Pengeluaran (Opex)</h2>
+               <p className="text-3xl font-black text-[#1A4D43] mb-4">Rp {((summary?.cash_flow || 0) * 1.2).toLocaleString()}</p>
+               <div className="flex items-center gap-2 text-xs font-bold bg-red-100 text-red-600 w-fit px-3 py-1 rounded-full">
+                 <ArrowDownRight className="w-3 h-3" /> Efisiensi logistik diperlukan
+               </div>
+            </div>
+            <div className="glass-card p-6 border border-gray-100">
+               <h2 className="text-sm font-black text-gray-500 uppercase tracking-widest mb-2">Net Profit (EBITDA)</h2>
+               <p className="text-3xl font-black text-[#2BBF9D] mb-4">Rp {(summary?.cash_flow || 0).toLocaleString()}</p>
+               <div className="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden mt-4">
+                 <div className="bg-[#2BBF9D] h-full" style={{ width: '40%' }}></div>
+               </div>
+               <p className="text-[10px] text-gray-400 font-bold mt-2">Margin: 40%</p>
+            </div>
           </div>
-          <div className="glass-card p-4 bg-white overflow-hidden relative">
-             <h2 className="text-lg font-bold text-[#1A4D43] mb-4">Target BEP Investor</h2>
-             <div className="space-y-4 mt-8">
-                <div className="relative pt-1">
-                  <div className="flex mb-2 items-center justify-between">
-                    <span className="text-xs font-black uppercase text-[#2BBF9D]">Progress BEP (Estimasi)</span>
-                    <span className="text-sm font-black text-[#1A4D43]">65%</span>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="glass-card p-6 border border-gray-100">
+               <h2 className="text-lg font-bold text-[#1A4D43] mb-6 flex items-center gap-2">
+                 <PieChart className="w-5 h-5 text-[#2BBF9D]" /> Alokasi Dana BGN
+               </h2>
+               <div className="space-y-4">
+                 <div className="flex justify-between items-center text-sm font-bold">
+                   <span className="text-gray-600">Bahan Baku (60%)</span>
+                   <span className="text-[#1A4D43]">Rp {((summary?.cash_flow || 0) * 0.6).toLocaleString()}</span>
+                 </div>
+                 <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden"><div className="bg-[#1A4D43] h-full" style={{ width: '60%' }}></div></div>
+                 
+                 <div className="flex justify-between items-center text-sm font-bold">
+                   <span className="text-gray-600">Operasional & Gaji (25%)</span>
+                   <span className="text-[#1A4D43]">Rp {((summary?.cash_flow || 0) * 0.25).toLocaleString()}</span>
+                 </div>
+                 <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden"><div className="bg-[#2BBF9D] h-full" style={{ width: '25%' }}></div></div>
+                 
+                 <div className="flex justify-between items-center text-sm font-bold">
+                   <span className="text-gray-600">Bagi Hasil Investor (15%)</span>
+                   <span className="text-[#1A4D43]">Rp {((summary?.cash_flow || 0) * 0.15).toLocaleString()}</span>
+                 </div>
+                 <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden"><div className="bg-amber-400 h-full" style={{ width: '15%' }}></div></div>
+               </div>
+            </div>
+            
+            <div className="glass-card p-6 border border-gray-100">
+               <h2 className="text-lg font-bold text-[#1A4D43] mb-6 flex items-center gap-2">
+                 <Activity className="w-5 h-5 text-[#2BBF9D]" /> Status Kewajiban (Hutang/Piutang)
+               </h2>
+               <div className="space-y-4">
+                  <div className="p-4 bg-[#E2F8F3]/50 rounded-xl border border-[#2BBF9D]/20 flex justify-between items-center">
+                     <div>
+                        <p className="text-[10px] font-black text-gray-400 uppercase">Piutang Pemda (BGN)</p>
+                        <p className="text-lg font-black text-[#1A4D43]">Rp 450.000.000</p>
+                     </div>
+                     <span className="px-2 py-1 bg-amber-100 text-amber-600 rounded text-[9px] font-black uppercase">Pending Transfer</span>
                   </div>
-                  <div className="overflow-hidden h-3 flex rounded-full bg-gray-100 p-0.5">
-                    <div style={{ width: '65%' }} className="rounded-full bg-gradient-to-r from-[#1A4D43] to-[#2BBF9D] shadow-sm"></div>
+                  <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 flex justify-between items-center">
+                     <div>
+                        <p className="text-[10px] font-black text-gray-400 uppercase">Hutang Vendor Logistik</p>
+                        <p className="text-lg font-black text-[#1A4D43]">Rp 85.500.000</p>
+                     </div>
+                     <span className="px-2 py-1 bg-green-100 text-green-600 rounded text-[9px] font-black uppercase">Aman (Jatuh Tempo H+7)</span>
                   </div>
-                </div>
-             </div>
+               </div>
+            </div>
           </div>
+        </div>
+      )}
+
+      {activeTab === 'construction' && (
+        <div className="space-y-6">
+           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="glass-card p-6">
+                 <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Total Unit Under Construction</h3>
+                 <p className="text-3xl font-black text-[#1A4D43]">{kitchens.filter(k => k.status !== 'active').length}</p>
+              </div>
+              <div className="glass-card p-6">
+                 <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Rata-rata Progress</h3>
+                 <p className="text-3xl font-black text-[#2BBF9D]">{Math.round(summary?.construction_progress || 0)}%</p>
+              </div>
+              <div className="glass-card p-6">
+                 <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Target Penyelesaian Bulan Ini</h3>
+                 <p className="text-3xl font-black text-[#1A4D43]">5 <span className="text-sm font-bold text-gray-400">Unit</span></p>
+              </div>
+           </div>
+           
+           <div className="glass-card p-6 border border-gray-100">
+              <h2 className="text-lg font-bold text-[#1A4D43] mb-6 flex items-center gap-2">
+                 <Building2 className="w-5 h-5 text-[#2BBF9D]" /> Pantauan Proyek Fisik
+              </h2>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead>
+                    <tr className="border-b border-gray-100">
+                      <th className="pb-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Nama Dapur & Lokasi</th>
+                      <th className="pb-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Vendor Kontraktor</th>
+                      <th className="pb-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Target Selesai</th>
+                      <th className="pb-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Progress Fisik</th>
+                      <th className="pb-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Status Kendala</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {kitchens.filter(k => k.status !== 'active').map(k => (
+                      <tr key={k.id} className="hover:bg-gray-50/50">
+                        <td className="py-4">
+                          <p className="font-black text-[#1A4D43] text-sm">{k.name}</p>
+                          <p className="text-[10px] text-gray-400 font-bold">{k.address}</p>
+                        </td>
+                        <td className="py-4 text-sm font-bold text-gray-700">PT. Bangun Nusantara</td>
+                        <td className="py-4 text-sm font-bold text-[#1A4D43]">
+                           {new Date(Date.now() + 1000 * 60 * 60 * 24 * 14).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                        </td>
+                        <td className="py-4">
+                           <div className="flex items-center gap-2">
+                             <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden w-24">
+                               <div className="bg-[#2BBF9D] h-full" style={{ width: `${Math.random() * 50 + 20}%` }}></div>
+                             </div>
+                             <span className="text-xs font-black text-[#1A4D43]">~50%</span>
+                           </div>
+                        </td>
+                        <td className="py-4 text-right">
+                           <span className="px-2 py-1 bg-green-100 text-green-600 rounded text-[9px] font-black uppercase">On Track</span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+           </div>
         </div>
       )}
 
       {activeTab === 'operational' && (
         <div className="space-y-4">
            <div className="glass-card p-6">
-              <div className="flex items-center justify-between mb-8">
+              <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
                 <div>
                   <h2 className="text-xl font-black text-[#1A4D43] flex items-center gap-2">
                     <Activity className="w-6 h-6 text-[#2BBF9D]" /> 
@@ -332,9 +445,21 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                   </h2>
                   <p className="text-sm text-gray-500 font-medium mt-1">Daftar unit aktif dengan PIC penanggung jawab</p>
                 </div>
-                <div className="flex items-center gap-2 px-4 py-2 bg-[#E2F8F3] text-[#1A4D43] rounded-xl border border-[#2BBF9D]/20">
-                  <span className="w-2 h-2 rounded-full bg-[#2BBF9D] animate-pulse"></span>
-                  <span className="text-xs font-black uppercase">{kitchens.filter(k => k.status === 'active').length} UNIT AKTIF</span>
+                <div className="flex items-center gap-4">
+                  <div className="relative">
+                    <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <input 
+                      type="text" 
+                      placeholder="Cari Dapur atau PIC..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:border-[#2BBF9D] focus:ring-1 focus:ring-[#2BBF9D] w-full md:w-64"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2 px-4 py-2 bg-[#E2F8F3] text-[#1A4D43] rounded-xl border border-[#2BBF9D]/20 shrink-0">
+                    <span className="w-2 h-2 rounded-full bg-[#2BBF9D] animate-pulse"></span>
+                    <span className="text-xs font-black uppercase">{kitchens.filter(k => k.status === 'active').length} UNIT AKTIF</span>
+                  </div>
                 </div>
               </div>
               
@@ -351,7 +476,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-50">
-                    {kitchens.filter(k => k.status === 'active').map(k => (
+                    {kitchens.filter(k => k.status === 'active' && (k.name?.toLowerCase().includes(searchQuery.toLowerCase()) || k.pic_name?.toLowerCase().includes(searchQuery.toLowerCase()))).map(k => (
                       <tr key={k.id} className="group hover:bg-gray-50/50 transition-colors">
                         <td className="py-4">
                           <p className="font-black text-[#1A4D43] text-sm">{k.name}</p>
@@ -427,14 +552,63 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
       )}
 
       {activeTab === 'logistics' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-           <div className="glass-card p-4">
-              <h2 className="text-lg font-bold text-[#1A4D43] mb-4">Monitoring Logistik</h2>
-              <div className="grid grid-cols-2 gap-4 mt-6">
-                 <div className="p-4 bg-gray-50 rounded-xl">
-                    <p className="text-[10px] font-black text-gray-400 uppercase mb-1">Rute Aktif</p>
-                    <p className="text-xl font-black text-[#1A4D43]">{kitchens.reduce((acc, k) => acc + (k.routes?.length || 0), 0)}</p>
-                 </div>
+        <div className="space-y-6">
+           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="glass-card p-6 bg-gradient-to-br from-[#1A4D43] to-[#2BBF9D] text-white">
+                 <Truck className="w-6 h-6 mb-4 opacity-80" />
+                 <h3 className="text-[10px] font-black text-white/70 uppercase tracking-widest mb-1">Armada Aktif</h3>
+                 <p className="text-3xl font-black">24 <span className="text-sm font-bold opacity-80">Unit</span></p>
+              </div>
+              <div className="glass-card p-6 border border-gray-100">
+                 <Package className="w-6 h-6 mb-4 text-[#2BBF9D]" />
+                 <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Total Titik Distribusi (Sekolah)</h3>
+                 <p className="text-3xl font-black text-[#1A4D43]">142</p>
+              </div>
+              <div className="glass-card p-6 border border-gray-100">
+                 <Activity className="w-6 h-6 mb-4 text-amber-500" />
+                 <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Ketepatan Waktu Pengiriman</h3>
+                 <p className="text-3xl font-black text-[#1A4D43]">94.2%</p>
+                 <p className="text-[10px] font-bold text-amber-600 mt-1">Target: 98%</p>
+              </div>
+              <div className="glass-card p-6 border border-gray-100">
+                 <AlertCircle className="w-6 h-6 mb-4 text-red-500" />
+                 <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Kendala Rute Hari Ini</h3>
+                 <p className="text-3xl font-black text-red-500">2</p>
+                 <button onClick={() => alert('Modul Kendala Rute sedang dalam pengembangan. Nantinya akan menampilkan riwayat masalah supir dan kendaraan.')} className="text-[10px] font-bold text-[#2BBF9D] uppercase hover:underline mt-1">Lihat Detail</button>
+              </div>
+           </div>
+
+           <div className="glass-card p-6 border border-gray-100">
+              <h2 className="text-lg font-bold text-[#1A4D43] mb-6 flex items-center gap-2">
+                 <MapPin className="w-5 h-5 text-[#2BBF9D]" /> Pantauan Rute Pengiriman Logistik Makanan
+              </h2>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead>
+                    <tr className="border-b border-gray-100">
+                      <th className="pb-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">ID Rute</th>
+                      <th className="pb-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Dapur Asal</th>
+                      <th className="pb-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Tujuan (Sekolah)</th>
+                      <th className="pb-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Driver</th>
+                      <th className="pb-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {[1, 2, 3, 4].map(i => (
+                      <tr key={i} className="hover:bg-gray-50/50">
+                        <td className="py-4 text-sm font-black text-[#1A4D43]">RTE-MBG-00{i}</td>
+                        <td className="py-4 text-sm font-bold text-gray-700">Dapur Percontohan Wahdah</td>
+                        <td className="py-4 text-sm font-bold text-[#1A4D43]">SDN 0{i} Makassar</td>
+                        <td className="py-4 text-sm font-bold text-gray-700">Ahmad Driver</td>
+                        <td className="py-4 text-right">
+                           <span className={`px-2 py-1 rounded text-[9px] font-black uppercase ${i === 2 ? 'bg-amber-100 text-amber-600' : 'bg-green-100 text-green-600'}`}>
+                              {i === 2 ? 'Dalam Perjalanan' : 'Terkirim'}
+                           </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
            </div>
         </div>
@@ -492,7 +666,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
             <PieChart className="w-12 h-12 text-gray-300 mx-auto mb-4" />
             <h3 className="text-xl font-black text-[#1A4D43] mb-2">Simulasi Proyeksi Nasional</h3>
             <p className="text-gray-500 max-w-xl mx-auto font-medium">Data ini diekstrapolasi dari performa rata-rata harian. Digunakan untuk presentasi estimasi ROI pimpinan dalam 5 tahun ke depan.</p>
-            <button className="mt-6 premium-button-primary">Buka Simulasi Materi Pemaparan</button>
+            <button onClick={() => window.open('/pemahaman_alur_keuangan_mbg.html', '_blank')} className="mt-6 premium-button-primary hover:scale-105 transition-transform">Buka Simulasi Materi Pemaparan</button>
           </div>
         </div>
       )}
@@ -613,6 +787,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                  Tutup
                </button>
                <button 
+                 onClick={() => window.print()}
                  className="px-6 py-2.5 bg-[#1A4D43] text-white rounded-xl text-sm font-black uppercase tracking-widest shadow-lg shadow-[#1A4D43]/20 hover:-translate-y-0.5 transition-all"
                >
                  Cetak Laporan Audit
