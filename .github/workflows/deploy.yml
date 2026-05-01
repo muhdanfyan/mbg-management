@@ -1,15 +1,16 @@
-name: Deploy to VPS
+name: Auto Deploy to VPS
 
 on:
   push:
     branches:
       - main
+      - dev
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v4
 
       - name: Setup Node.js
@@ -17,21 +18,81 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install dependencies and Build Frontend
+      - name: Set Variables based on Branch
+        run: |
+          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            echo "TARGET_DIR=/home/mbgone/mbg-prod" >> $GITHUB_ENV
+            echo "DOMAIN=mbgone.id" >> $GITHUB_ENV
+            echo "VITE_API_URL=https://api.mbgone.id/api" >> $GITHUB_ENV
+            echo "COMPOSE_COMMAND=export DEV_CONTEXT=/home/mbgone/mbg-dev && docker compose down && docker compose up -d --build" >> $GITHUB_ENV
+          else
+            echo "TARGET_DIR=/home/mbgone/mbg-dev" >> $GITHUB_ENV
+            echo "DOMAIN=mbgone.site" >> $GITHUB_ENV
+            echo "VITE_API_URL=https://api.mbgone.site/api" >> $GITHUB_ENV
+            echo "COMPOSE_COMMAND=if [ -d /home/mbgone/mbg-prod ]; then cd /home/mbgone/mbg-prod && export DEV_CONTEXT=/home/mbgone/mbg-dev && docker compose up -d --build backend_dev; else export DEV_CONTEXT=/home/mbgone/mbg-dev && docker compose up -d --build; fi" >> $GITHUB_ENV
+          fi
+
+      - name: Install dependencies & Build Frontend
         run: |
           npm install
           npm run build
+        env:
+          VITE_API_URL: ${{ env.VITE_API_URL }}
 
-      - name: Deploy to VPS via SSH
-        uses: appleboy/ssh-action@master
+      - name: Install sshpass & rsync
+        run: sudo apt-get update && sudo apt-get install -y sshpass rsync
+
+      - name: Create Directory on VPS
+        env:
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_IP: ${{ secrets.VPS_IP }}
+          VPS_PASS: ${{ secrets.VPS_PASS }}
+        run: |
+          sshpass -p "$VPS_PASS" ssh -o StrictHostKeyChecking=no $VPS_USER@$VPS_IP "mkdir -p ${{ env.TARGET_DIR }}"
+          sshpass -p "$VPS_PASS" ssh -o StrictHostKeyChecking=no $VPS_USER@$VPS_IP "sudo chown -R $VPS_USER:$VPS_USER ${{ env.TARGET_DIR }}/dist 2>/dev/null || true"
+
+      - name: Upload Project Files to VPS
+        env:
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_IP: ${{ secrets.VPS_IP }}
+          VPS_PASS: ${{ secrets.VPS_PASS }}
+        run: |
+          sshpass -p "$VPS_PASS" rsync -avz -e "ssh -o StrictHostKeyChecking=no" --exclude 'node_modules' --exclude '.git' --exclude '.env' . $VPS_USER@$VPS_IP:${{ env.TARGET_DIR }}/
+
+      - name: Deploy Docker Containers
+        env:
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_IP: ${{ secrets.VPS_IP }}
+          VPS_PASS: ${{ secrets.VPS_PASS }}
+        run: |
+          sshpass -p "$VPS_PASS" ssh -o StrictHostKeyChecking=no $VPS_USER@$VPS_IP "cd ${{ env.TARGET_DIR }} && ${{ env.COMPOSE_COMMAND }}"
+
+      - name: Setup Go for Database Sync
+        uses: actions/setup-go@v5
         with:
-          host: ${{ secrets.REMOTE_HOST }}
-          username: ${{ secrets.REMOTE_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            cd /home/mbgone/mbg-management
-            git fetch origin main
-            git reset --hard origin/main
-            cd backend
-            docker compose build backend
-            docker compose up -d --build
+          go-version: '1.22'
+
+      - name: Sync Databases
+        env:
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_IP: ${{ secrets.VPS_IP }}
+          VPS_PASS: ${{ secrets.VPS_PASS }}
+        run: |
+          sshpass -p "$VPS_PASS" ssh -o StrictHostKeyChecking=no -L 3307:127.0.0.1:3306 $VPS_USER@$VPS_IP -N &
+          TUNNEL_PID=$!
+          sleep 5
+          
+          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            export DB_DSN="root:f2RZScqZe5JOmvd3xeBvQlkpo4Vutjm9@tcp(127.0.0.1:3307)/mbg_management?charset=utf8mb4&parseTime=True&loc=Local"
+          else
+            export DB_DSN="root:f2RZScqZe5JOmvd3xeBvQlkpo4Vutjm9@tcp(127.0.0.1:3307)/mbg_management_dev?charset=utf8mb4&parseTime=True&loc=Local"
+          fi
+          
+          cd backend
+          go mod tidy
+          go run scripts/sync_wadah_data.go || true
+          go run scripts/sync_running_data.go || true
+          go run scripts/sync_batch2_data.go || true
+          go run scripts/sync_final_data.go || true
+          
+          kill $TUNNEL_PID 2>/dev/null || true
