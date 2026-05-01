@@ -24,8 +24,8 @@ export const Login: React.FC = () => {
   
   // Detect environment: Show demo accounts on all EXCEPT main production domain
   const isDemoEnv = 
-    window.location.hostname !== 'mbgone.site' && 
-    window.location.hostname !== 'www.mbgone.site';
+    window.location.hostname !== 'mbgone.id' && 
+    window.location.hostname !== 'www.mbgone.id';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

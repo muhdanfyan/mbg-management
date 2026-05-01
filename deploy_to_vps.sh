@@ -31,7 +31,7 @@ echo "📦 Uploading project files from local..."
 rsync -avz -e "ssh -i mbg.pem -o StrictHostKeyChecking=no" --exclude 'node_modules' --exclude '.git' --exclude '.env' . $VPS_USER@$VPS_IP:$TARGET_DIR/
 
 echo "🔨 Compiling React UI on VPS..."
-ssh -i mbg.pem -o StrictHostKeyChecking=no $VPS_USER@$VPS_IP "cd $TARGET_DIR && docker run --rm -v \$(pwd):/app -w /app node:20-alpine sh -c 'npm install && npm run build'"
+ssh -i mbg.pem -o StrictHostKeyChecking=no $VPS_USER@$VPS_IP "cd $TARGET_DIR && docker run --rm -v \$(pwd):/app -w /app node:20-alpine sh -c 'npm install && VITE_API_URL=https://api.$DOMAIN/api npm run build'"
 
 if [ "$BRANCH" == "dev" ]; then
     echo "🔨 Rebuilding DEV backend in the PROD stack..."
