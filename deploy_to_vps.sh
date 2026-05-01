@@ -48,12 +48,13 @@ sleep 5
 
 echo "Syncing Production DB..."
 export DB_DSN="root:f2RZScqZe5JOmvd3xeBvQlkpo4Vutjm9@tcp(127.0.0.1:3307)/mbg_management?charset=utf8mb4&parseTime=True&loc=Local"
-cd backend && go run scripts/sync_wadah_data.go && go run scripts/sync_running_data.go && go run scripts/sync_batch2_data.go && go run scripts/sync_final_data.go && cd ..
+(cd backend && go run scripts/sync_wadah_data.go && go run scripts/sync_running_data.go && go run scripts/sync_batch2_data.go && go run scripts/sync_final_data.go)
 
 echo "Syncing Dev DB..."
 export DB_DSN="root:f2RZScqZe5JOmvd3xeBvQlkpo4Vutjm9@tcp(127.0.0.1:3307)/mbg_management_dev?charset=utf8mb4&parseTime=True&loc=Local"
-cd backend && go run scripts/sync_wadah_data.go && go run scripts/sync_running_data.go && go run scripts/sync_batch2_data.go && go run scripts/sync_final_data.go && cd ..
+(cd backend && go run scripts/sync_wadah_data.go && go run scripts/sync_running_data.go && go run scripts/sync_batch2_data.go && go run scripts/sync_final_data.go)
 
-kill $TUNNEL_PID
+# Cleanup tunnel
+kill $TUNNEL_PID 2>/dev/null || true
 
 echo "✅ Deployment to $DOMAIN complete!"
