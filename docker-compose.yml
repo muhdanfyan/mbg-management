@@ -9,16 +9,10 @@ services:
       DB_DSN: "kassaone:f2RZScqZe5JOmvd3xeBvQlkpo4Vutjm9@tcp(mbg_mysql:3306)/mbg_management?charset=utf8mb4&parseTime=True&loc=Local"
     volumes:
       - ./dist:/root/dist
+    ports:
+      - "8080:8080"
     networks:
       - mbg_network
-      - coolify
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.mbg-prod.rule=Host(`mbgone.id`) || Host(`api.mbgone.id`)"
-      - "traefik.http.routers.mbg-prod.entrypoints=http,https"
-      - "traefik.http.routers.mbg-prod.tls=true"
-      - "traefik.http.services.mbg-prod.loadbalancer.server.port=8080"
-      - "traefik.docker.network=coolify"
 
   backend_dev:
     build:
@@ -31,16 +25,10 @@ services:
       PORT: "8081"
     volumes:
       - ${DEV_CONTEXT:-.}/dist:/root/dist
+    ports:
+      - "8081:8081"
     networks:
       - mbg_network
-      - coolify
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.mbg-dev.rule=Host(`mbgone.site`) || Host(`api.mbgone.site`)"
-      - "traefik.http.routers.mbg-dev.entrypoints=http,https"
-      - "traefik.http.routers.mbg-dev.tls=true"
-      - "traefik.http.services.mbg-dev.loadbalancer.server.port=8081"
-      - "traefik.docker.network=coolify"
 
 networks:
   mbg_network:
