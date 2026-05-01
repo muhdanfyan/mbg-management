@@ -42,9 +42,6 @@ services:
   caddy:
     image: caddy:latest
     restart: always
-    ports:
-      - "80:80"
-      - "443:443"
     volumes:
       - ./backend/Caddyfile:/etc/caddy/Caddyfile
       - caddy_data:/data
