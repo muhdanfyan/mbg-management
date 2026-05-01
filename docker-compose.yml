@@ -10,9 +10,17 @@ services:
     volumes:
       - ./dist:/root/dist
     ports:
-      - "8080:8080"
+      - "8090:8080"
     networks:
       - mbg_network
+      - coolify
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.mbg-prod.rule=Host(`mbgone.id`) || Host(`api.mbgone.id`)"
+      - "traefik.http.routers.mbg-prod.entrypoints=http,https"
+      - "traefik.http.routers.mbg-prod.tls=true"
+      - "traefik.http.services.mbg-prod.loadbalancer.server.port=8080"
+      - "traefik.docker.network=coolify"
 
   backend_dev:
     build:
@@ -26,9 +34,17 @@ services:
     volumes:
       - ${DEV_CONTEXT:-.}/dist:/root/dist
     ports:
-      - "8081:8081"
+      - "8091:8081"
     networks:
       - mbg_network
+      - coolify
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.mbg-dev.rule=Host(`mbgone.site`) || Host(`api.mbgone.site`)"
+      - "traefik.http.routers.mbg-dev.entrypoints=http,https"
+      - "traefik.http.routers.mbg-dev.tls=true"
+      - "traefik.http.services.mbg-dev.loadbalancer.server.port=8081"
+      - "traefik.docker.network=coolify"
 
 networks:
   mbg_network:
