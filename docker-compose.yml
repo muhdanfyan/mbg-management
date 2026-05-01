@@ -3,6 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: mbg_backend
     restart: always
     environment:
       DB_DSN: "kassaone:f2RZScqZe5JOmvd3xeBvQlkpo4Vutjm9@tcp(mbg_mysql:3306)/mbg_management?charset=utf8mb4&parseTime=True&loc=Local"
@@ -13,6 +14,7 @@ services:
     build:
       context: ${DEV_CONTEXT:-.}
       dockerfile: Dockerfile
+    container_name: mbg_backend_dev
     restart: always
     environment:
       DB_DSN: "kassaone:f2RZScqZe5JOmvd3xeBvQlkpo4Vutjm9@tcp(mbg_mysql:3306)/mbg_management_dev?charset=utf8mb4&parseTime=True&loc=Local"
@@ -22,6 +24,7 @@ services:
 
   caddy:
     image: caddy:latest
+    container_name: mbg_caddy
     restart: always
     volumes:
       - ./backend/Caddyfile:/etc/caddy/Caddyfile
