@@ -18,6 +18,7 @@ services:
       - "traefik.http.routers.mbg-prod.entrypoints=http,https"
       - "traefik.http.routers.mbg-prod.tls=true"
       - "traefik.http.services.mbg-prod.loadbalancer.server.port=8080"
+      - "traefik.docker.network=coolify"
 
   backend_dev:
     build:
@@ -39,6 +40,7 @@ services:
       - "traefik.http.routers.mbg-dev.entrypoints=http,https"
       - "traefik.http.routers.mbg-dev.tls=true"
       - "traefik.http.services.mbg-dev.loadbalancer.server.port=8081"
+      - "traefik.docker.network=coolify"
 
 networks:
   mbg_network:
