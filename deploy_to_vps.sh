@@ -23,8 +23,8 @@ echo "🚀 Preparing deployment to $DOMAIN..."
 # Create directory on VPS
 ssh -i mbg.pem -o StrictHostKeyChecking=no $VPS_USER@$VPS_IP "mkdir -p $TARGET_DIR"
 
-# Reset permissions to ensure rsync can write
-ssh -i mbg.pem -o StrictHostKeyChecking=no $VPS_USER@$VPS_IP "sudo chown -R $VPS_USER:$VPS_USER $TARGET_DIR || true"
+# Fix permissions on VPS to avoid rsync permission denied errors (Docker creates files as root)
+ssh -i mbg.pem -o StrictHostKeyChecking=no $VPS_USER@$VPS_IP "sudo chown -R $VPS_USER:$VPS_USER $TARGET_DIR/dist 2>/dev/null || true"
 
 # Sync files
 echo "📦 Uploading project files from local..."
