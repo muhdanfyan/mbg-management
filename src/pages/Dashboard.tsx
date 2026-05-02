@@ -71,13 +71,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
       value: profile?.role === 'Operator Koperasi' ? 'Rp 8.500' : (summary?.total_dapur?.toString() || '0'), 
       change: profile?.role === 'Operator Koperasi' ? '-2%' : '+1', trend: 'up', icon: Building2, color: 'mint' },
     
-    { label: profile?.role === 'PIC Dapur' ? 'Status BEP' : 'Progress Pembangunan', 
-      value: profile?.role === 'PIC Dapur' ? 'PRE-BEP' : `${Math.round(summary?.construction_progress || 0)}%`, 
+    { label: (profile?.role === 'PIC Dapur' || profile?.role === 'Akuntan Dapur') ? 'Status BEP' : 'Progress Pembangunan', 
+      value: (profile?.role === 'PIC Dapur' || profile?.role === 'Akuntan Dapur') ? 'PRE-BEP' : `${Math.round(summary?.construction_progress || 0)}%`, 
       change: '+5%', trend: 'up', icon: TrendingUp, color: 'emerald' },
     
-    { label: profile?.role === 'Investor' ? 'Total Investasi' : (profile?.role === 'PIC Dapur' ? 'Laba Akumulasi' : 'Total Karyawan'), 
-      value: profile?.role === 'Investor' ? 'Rp 250jt+' : (profile?.role === 'PIC Dapur' ? 'Rp 14.5jt' : (summary?.total_employees?.toString() || '0')), 
-      change: '+2', trend: 'up', icon: (profile?.role === 'Investor' || profile?.role === 'PIC Dapur') ? DollarSign : Users, color: 'mint' },
+    { label: profile?.role === 'Investor' ? 'Total Investasi' : ((profile?.role === 'PIC Dapur' || profile?.role === 'Akuntan Dapur') ? 'Laba Akumulasi' : 'Total Karyawan'), 
+      value: profile?.role === 'Investor' ? 'Rp 250jt+' : ((profile?.role === 'PIC Dapur' || profile?.role === 'Akuntan Dapur') ? 'Rp 14.5jt' : (summary?.total_employees?.toString() || '0')), 
+      change: '+2', trend: 'up', icon: (profile?.role === 'Investor' || profile?.role === 'PIC Dapur' || profile?.role === 'Akuntan Dapur') ? DollarSign : Users, color: 'mint' },
     
     { label: 'Cash Flow', value: `Rp ${(summary?.cash_flow || 0).toLocaleString()}`, change: '+10%', trend: 'up', icon: DollarSign, color: 'emerald' }
   ];
@@ -85,10 +85,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   const quickActions = [
     { label: 'Kelola Dapur', icon: LayoutGrid, action: 'locations', roles: ['Super Admin', 'Manager', 'PIC Dapur'] },
     { label: 'Input Progress', icon: Plus, action: 'construction', roles: ['Super Admin', 'Manager', 'Staff'] },
-    { label: 'Laporan Keuangan', icon: Calendar, action: 'finance', roles: ['Super Admin', 'Finance', 'PIC Dapur'] },
+    { label: 'Laporan Keuangan', icon: Calendar, action: 'finance', roles: ['Super Admin', 'Finance', 'PIC Dapur', 'Akuntan Dapur'] },
     { label: 'Audit Belanja', icon: Activity, action: 'procurement?action=audit-belanja', roles: ['Super Admin', 'Operator Koperasi'] },
-    { label: 'Lapor Dana BGN', icon: DollarSign, action: 'finance?action=lapor-bgn', roles: ['Super Admin', 'PIC Dapur', 'Operator Koperasi'] },
-    { label: 'Input Operasional', icon: Plus, action: 'finance?tab=operasional', roles: ['PIC Dapur'] },
+    { label: 'Lapor Dana BGN', icon: DollarSign, action: 'finance?action=lapor-bgn', roles: ['Super Admin', 'PIC Dapur', 'Akuntan Dapur', 'Operator Koperasi'] },
+    { label: 'Input Operasional', icon: Plus, action: 'finance?tab=operasional', roles: ['PIC Dapur', 'Akuntan Dapur'] },
     { label: 'Panduan Finansial', icon: PieChart, action: 'external-finance-report' }
   ].filter(action => !action.roles || action.roles.includes(profile?.role || ''));
 

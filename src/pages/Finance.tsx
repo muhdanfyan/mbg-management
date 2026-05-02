@@ -98,7 +98,7 @@ export const Finance: React.FC = () => {
 
   useEffect(() => {
     fetchData();
-    if (profile?.role === 'PIC Dapur' && profile?.kitchen_id) {
+    if ((profile?.role === 'PIC Dapur' || profile?.role === 'Akuntan Dapur') && profile?.kitchen_id) {
       setSelectedKitchenId(profile.kitchen_id);
       fetchReport(profile.kitchen_id);
     }
@@ -232,7 +232,7 @@ export const Finance: React.FC = () => {
     const matchesSearch = k.name.toLowerCase().includes(kitchenSearchQuery.toLowerCase()) ||
                          k.id.toString().includes(kitchenSearchQuery);
     
-    if (profile?.role === 'PIC Dapur') {
+    if (profile?.role === 'PIC Dapur' || profile?.role === 'Akuntan Dapur') {
        return k.id === profile.kitchen_id && matchesSearch;
     }
     return matchesSearch;
@@ -345,7 +345,7 @@ export const Finance: React.FC = () => {
               Pinjaman Baru
             </button>
           )}
-          {(profile?.role === 'Super Admin' || profile?.role === 'Finance' || profile?.role === 'Operator Koperasi') && (
+          {(profile?.role === 'Super Admin' || profile?.role === 'Finance' || profile?.role === 'Akuntan Dapur' || profile?.role === 'Operator Koperasi') && (
             <button 
               onClick={() => {
                 setEditingTrans(null);
@@ -365,7 +365,7 @@ export const Finance: React.FC = () => {
               Transaksi Baru
             </button>
           )}
-          {(profile?.role === 'Super Admin' || profile?.role === 'PIC Dapur' || profile?.role === 'Operator Koperasi') && (
+          {(profile?.role === 'Super Admin' || profile?.role === 'PIC Dapur' || profile?.role === 'Akuntan Dapur' || profile?.role === 'Operator Koperasi') && (
             <button 
               onClick={() => {
                 setBgnForm({
@@ -391,7 +391,7 @@ export const Finance: React.FC = () => {
           <div className="flex gap-4 px-4">
             {['dashboard', 'investasi', 'sewa', 'margin', 'operasional', 'expenses', 'transactions', 'reports'].filter(tab => {
               if (profile?.role === 'Operator Koperasi') return ['dashboard', 'margin', 'expenses', 'transactions', 'reports'].includes(tab);
-              if (profile?.role === 'PIC Dapur') return ['dashboard', 'operasional', 'transactions', 'reports'].includes(tab);
+              if (profile?.role === 'PIC Dapur' || profile?.role === 'Akuntan Dapur') return ['dashboard', 'operasional', 'transactions', 'reports'].includes(tab);
               return true;
             }).map((tab) => (
               <button
@@ -1245,7 +1245,7 @@ export const Finance: React.FC = () => {
                  <select 
                     className="w-full md:w-1/3 border border-gray-300 rounded-lg px-3 py-2 bg-white disabled:bg-gray-50" 
                     value={selectedKitchenId || ''} 
-                    disabled={profile?.role === 'PIC Dapur'}
+                    disabled={profile?.role === 'PIC Dapur' || profile?.role === 'Akuntan Dapur'}
                     onChange={(e) => { 
                       const val = e.target.value;
                       if (!val) {

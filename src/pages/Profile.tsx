@@ -18,7 +18,7 @@ export const Profile: React.FC = () => {
   });
 
   useEffect(() => {
-    if (profile?.role === 'PIC Dapur' || profile?.role === 'Super Admin') {
+    if (profile?.role === 'PIC Dapur' || profile?.role === 'Akuntan Dapur' || profile?.role === 'Super Admin') {
       fetchKitchen();
     }
   }, [profile]);
@@ -104,7 +104,7 @@ export const Profile: React.FC = () => {
 
         {/* Kitchen Management Card */}
         <div className="lg:col-span-2">
-          {(profile?.role === 'PIC Dapur' || profile?.role === 'Super Admin') && (
+          {(profile?.role === 'PIC Dapur' || profile?.role === 'Akuntan Dapur' || profile?.role === 'Super Admin') && (
             <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
               <div className="p-8 border-b border-gray-50 flex items-center justify-between bg-gradient-to-r from-gray-50 to-white">
                 <h3 className="text-lg font-black text-[#1A4D43] flex items-center gap-2">

@@ -150,7 +150,7 @@ export const api = {
     updateRemittance: (id: number, data: any) => api.put(`/payouts/details/${id}/remit`, data),
 };
 
-export type UserRole = 'Super Admin' | 'Admin' | 'Manager' | 'Finance' | 'HRD' | 'Procurement' | 'Staff' | 'PIC Dapur' | 'Operator Koperasi' | 'Investor';
+export type UserRole = 'Super Admin' | 'Admin' | 'Manager' | 'Finance' | 'HRD' | 'Procurement' | 'Staff' | 'PIC Dapur' | 'Akuntan Dapur' | 'Operator Koperasi' | 'Investor';
 
 export interface Profile {
     id: string;

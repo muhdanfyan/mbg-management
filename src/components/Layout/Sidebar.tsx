@@ -12,7 +12,9 @@ import {
   ChevronRight,
   Shield,
   BookOpen,
-  ChevronDown
+  ChevronDown,
+  FileText,
+  LayoutGrid
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -31,29 +33,34 @@ interface MenuItem {
 }
 
 const menuItems: MenuItem[] = [
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['Super Admin', 'Manager', 'Finance', 'HRD', 'Procurement', 'Staff', 'Investor', 'PIC Dapur', 'Operator Koperasi'], path: '/' },
+  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['Super Admin', 'Manager', 'Finance', 'HRD', 'Procurement', 'Staff', 'Investor', 'PIC Dapur', 'Akuntan Dapur', 'Operator Koperasi'], path: '/' },
+  { id: 'kitchen-ops', label: 'Operasional', icon: LayoutGrid, roles: ['PIC Dapur', 'Akuntan Dapur'], path: '/finance?tab=operasional' },
+  { id: 'kitchen-trans', label: 'Transaksi', icon: DollarSign, roles: ['PIC Dapur', 'Akuntan Dapur'], path: '/finance?tab=transactions' },
+  { id: 'kitchen-reports', label: 'Laporan', icon: FileText, roles: ['PIC Dapur', 'Akuntan Dapur'], path: '/finance?tab=reports' },
   { id: 'locations', label: 'Peta Lokasi', icon: Map, roles: ['Super Admin', 'Manager', 'PIC Dapur', 'Investor'], path: '/locations' },
   { id: 'construction', label: 'Pengawasan', icon: Building2, roles: ['Super Admin', 'Manager'], path: '/construction' },
-  { id: 'sppg-gallery', label: 'Galeri Foto', icon: ImageIcon, roles: ['Super Admin', 'Manager', 'Staff', 'PIC Dapur'], path: '/sppg-gallery' },
+  { id: 'sppg-gallery', label: 'Galeri Foto', icon: ImageIcon, roles: ['Super Admin', 'Manager', 'Staff', 'PIC Dapur', 'Akuntan Dapur'], path: '/sppg-gallery' },
   { 
     id: 'finance', 
     label: 'Keuangan', 
     icon: DollarSign, 
-    roles: ['Super Admin', 'Finance', 'PIC Dapur', 'Investor', 'Operator Koperasi'], 
+    roles: ['Super Admin', 'Finance', 'Investor', 'Operator Koperasi'], 
     path: '/finance',
     children: [
       { label: 'Investasi', path: '/finance?tab=investasi', roles: ['Super Admin', 'Finance', 'Investor'] },
       { label: 'Sewa Dapur', path: '/finance?tab=sewa', roles: ['Super Admin', 'Finance'] },
       { label: 'Selisih Bahan', path: '/finance?tab=margin', roles: ['Super Admin', 'Finance', 'Operator Koperasi'] },
-      { label: 'Operasional', path: '/finance?tab=operasional', roles: ['Super Admin', 'Finance', 'PIC Dapur'] },
+      { label: 'Operasional', path: '/finance?tab=operasional', roles: ['Super Admin', 'Finance'] },
       { label: 'Pengeluaran', path: '/finance?tab=expenses', roles: ['Super Admin', 'Finance', 'Operator Koperasi'] },
+      { label: 'Transaksi', path: '/finance?tab=transactions', roles: ['Super Admin', 'Finance', 'Operator Koperasi'] },
+      { label: 'Laporan', path: '/finance?tab=reports', roles: ['Super Admin', 'Finance', 'Operator Koperasi'] },
     ]
   },
   { id: 'procurement', label: 'Procurement', icon: ShoppingCart, roles: ['Super Admin', 'Procurement', 'Operator Koperasi'], path: '/procurement' },
   { id: 'hr', label: 'Manajemen SDM', icon: Users, roles: ['Super Admin', 'HRD'], path: '/hr' },
   { id: 'investors', label: 'Monitoring Investor', icon: Users, roles: ['Super Admin', 'Manager', 'Finance', 'Investor'], path: '/investors' },
   { id: 'users', label: 'Manajemen User', icon: Shield, roles: ['Super Admin'], path: '/users' },
-  { id: 'system-guide', label: 'Panduan Sistem', icon: BookOpen, roles: ['Super Admin', 'Manager', 'Finance', 'HRD', 'Procurement', 'Staff', 'PIC Dapur', 'Operator Koperasi'], path: '/panduan-penggunaan' },
+  { id: 'system-guide', label: 'Panduan Sistem', icon: BookOpen, roles: ['Super Admin', 'Manager', 'Finance', 'HRD', 'Procurement', 'Staff', 'PIC Dapur', 'Akuntan Dapur', 'Operator Koperasi'], path: '/panduan-penggunaan' },
 ];
 
 export const Sidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {
@@ -105,7 +112,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {
       <nav className="flex-1 p-4 space-y-2 overflow-y-auto custom-scrollbar">
         {filteredMenuItems.map((item) => {
           const Icon = item.icon;
-          const isBaseActive = location.pathname === item.path;
+          const currentPath = location.pathname + location.search;
+          const isBaseActive = currentPath === item.path || (item.id === 'finance' && location.pathname === '/finance');
           const hasChildren = item.children && item.children.length > 0;
           const isOpen = openMenus.includes(item.id);
 
