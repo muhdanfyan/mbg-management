@@ -15,6 +15,7 @@ import { Workflow } from './pages/Workflow';
 import { SppgGallery } from './pages/SppgGallery';
 import { SystemGuide } from './pages/SystemGuide';
 import { Profile } from './pages/Profile';
+import { Landing } from './pages/Landing';
 import { Toaster } from 'react-hot-toast';
 
 type PageType = 'dashboard' | 'locations' | 'construction' | 'procurement' | 'hr' | 'finance' | 'users' | 'workflow' | 'investors' | 'sppg-gallery' | 'system-guide' | 'profile';
@@ -50,7 +51,13 @@ const AppContent: React.FC = () => {
   }
 
   if (!user) {
-    return <Login />;
+    return (
+      <Routes>
+        <Route path="/" element={<Landing />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    );
   }
 
   const getBreadcrumbs = (): string[] => {
