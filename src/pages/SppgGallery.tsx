@@ -63,7 +63,7 @@ export const SppgGallery: React.FC = () => {
   
   const canManageMedia = (sppgId: string) => {
     if (profile?.role === 'Super Admin' || profile?.role === 'Manager') return true;
-    if (profile?.role === 'PIC Dapur' && (sppgId === userSppgId || !userSppgId)) return true; // Fallback if mapping not found yet
+    if ((profile?.role === 'PIC Dapur' || profile?.role === 'Akuntan Dapur') && (sppgId === userSppgId || !userSppgId)) return true; // Fallback if mapping not found yet
     return false;
   };
 

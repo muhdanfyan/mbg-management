@@ -80,7 +80,7 @@ const AppContent: React.FC = () => {
         <Route path="/dashboard" element={<Navigate to="/" replace />} />
         
         {/* Protected Routes based on Roles */}
-        {(user.role === 'Super Admin' || user.role === 'Manager' || user.role === 'PIC Dapur' || user.role === 'Investor') && (
+        {(user.role === 'Super Admin' || user.role === 'Manager' || user.role === 'PIC Dapur' || user.role === 'Akuntan Dapur' || user.role === 'Investor') && (
           <>
             <Route path="/locations" element={<Locations />} />
             <Route path="/construction" element={user.role === 'Investor' ? <Navigate to="/" replace /> : <Construction />} />
@@ -96,7 +96,7 @@ const AppContent: React.FC = () => {
           <Route path="/hr" element={<HR />} />
         )}
 
-        {(user.role === 'Super Admin' || user.role === 'Finance' || user.role === 'PIC Dapur' || user.role === 'Investor') && (
+        {(user.role === 'Super Admin' || user.role === 'Finance' || user.role === 'PIC Dapur' || user.role === 'Akuntan Dapur' || user.role === 'Investor') && (
           <Route path="/finance" element={<Finance />} />
         )}
 
@@ -106,7 +106,7 @@ const AppContent: React.FC = () => {
           <Route path="/users" element={<Users />} />
         )}
 
-        {(user.role === 'Super Admin' || user.role === 'Manager' || user.role === 'Staff' || user.role === 'PIC Dapur') && (
+        {(user.role === 'Super Admin' || user.role === 'Manager' || user.role === 'Staff' || user.role === 'PIC Dapur' || user.role === 'Akuntan Dapur') && (
           <Route path="/sppg-gallery" element={<SppgGallery />} />
         )}
 

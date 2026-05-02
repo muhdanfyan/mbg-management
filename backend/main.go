@@ -144,6 +144,30 @@ func initDB() {
 		})
 	}
 
+	// Seed Akuntan Dapur Account (Assigned to Panakkukang)
+	akuntanUser := models.User{
+		ID:         "5",
+		Email:      "akuntan.panakkukang@mbg.com",
+		Password:   string(hashedDapur),
+		FullName:   "Akuntan Dapur Panakkukang",
+		Role:       "Akuntan Dapur",
+		Department: "Keuangan",
+		Position:   "Akuntan Dapur",
+		KitchenID:  &kitchenID,
+	}
+	var countAkuntan int64
+	db.Model(&models.User{}).Where("email = ?", "akuntan.panakkukang@mbg.com").Count(&countAkuntan)
+	if countAkuntan == 0 {
+		db.Create(&akuntanUser)
+	} else {
+		db.Model(&models.User{}).Where("email = ?", "akuntan.panakkukang@mbg.com").Updates(models.User{
+			Password:  string(hashedDapur),
+			KitchenID: &kitchenID,
+			FullName:  "Akuntan Dapur Panakkukang",
+			Role:      "Akuntan Dapur",
+		})
+	}
+
 	// Seed Investor Account
 	hashedInvestor, _ := bcrypt.GenerateFromPassword([]byte("pass123"), bcrypt.DefaultCost)
 	investorUser := models.User{
@@ -320,7 +344,7 @@ func main() {
 	// --- API Groups ---
 	api := r.Group("/api")
 	{
-		api.POST("/upload", RequireRole("Super Admin", "Manager", "Procurement"), func(c *gin.Context) {
+		api.POST("/upload", RequireRole("Super Admin", "Manager", "Procurement", "PIC Dapur", "Akuntan Dapur"), func(c *gin.Context) {
 			file, err := c.FormFile("file")
 			if err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{"error": "No file uploaded"})
@@ -957,7 +981,7 @@ func main() {
 		// --- Financial Reporting & Audit (Expansion Phase) ---
 
 		// 1. PIC Dapur: Submit Financial Record (10-day termin)
-		api.POST("/financial-records", RequireRole("PIC Dapur", "Super Admin"), func(c *gin.Context) {
+		api.POST("/financial-records", RequireRole("PIC Dapur", "Akuntan Dapur", "Super Admin"), func(c *gin.Context) {
 			var fr models.FinancialRecord
 			if err := c.ShouldBindJSON(&fr); err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -1088,7 +1112,7 @@ func main() {
 
 
 		// 4. PIC Dapur: Profile Management (Kitchen Data)
-		api.GET("/profile/kitchen", RequireRole("PIC Dapur", "Super Admin", "Manager"), func(c *gin.Context) {
+		api.GET("/profile/kitchen", RequireRole("PIC Dapur", "Akuntan Dapur", "Super Admin", "Manager"), func(c *gin.Context) {
 			kitchenID := c.GetHeader("X-Kitchen-ID")
 			if kitchenID == "" || kitchenID == "0" {
 				c.JSON(http.StatusNotFound, gin.H{"error": "No kitchen associated with this user"})
@@ -1103,7 +1127,7 @@ func main() {
 			c.JSON(http.StatusOK, kitchen)
 		})
 
-		api.PUT("/profile/kitchen", RequireRole("PIC Dapur", "Super Admin"), func(c *gin.Context) {
+		api.PUT("/profile/kitchen", RequireRole("PIC Dapur", "Akuntan Dapur", "Super Admin"), func(c *gin.Context) {
 			kitchenID := c.GetHeader("X-Kitchen-ID")
 			if kitchenID == "" || kitchenID == "0" {
 				c.JSON(http.StatusForbidden, gin.H{"error": "Unauthorized to update kitchen"})
