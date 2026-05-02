@@ -56,10 +56,16 @@ export const Login: React.FC = () => {
             <div className="bg-white p-1 rounded-lg shadow-sm border border-gray-100">
               <img src="/logo-wahdah.png?v=2" alt="Logo" className="w-8 h-8 object-contain" />
             </div>
-            <div>
+            <div className="flex-1">
               <h1 className="text-xl font-bold text-gray-900">Wahdah MBG</h1>
               <p className="text-sm text-gray-600">Management System</p>
             </div>
+            <button 
+              onClick={() => window.location.href = '/'}
+              className="text-xs font-medium text-blue-600 hover:text-blue-700 bg-blue-50 px-3 py-1 rounded-full transition-colors"
+            >
+              Beranda
+            </button>
           </div>
 
           <h2 className="text-lg font-semibold text-gray-900 mb-2">Welcome Back</h2>
